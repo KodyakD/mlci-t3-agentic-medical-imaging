@@ -1,0 +1,22 @@
+{
+  "dir": "demo_images\\kermany_test",
+  "n": 30,
+  "mc_passes": 10,
+  "single_pass": {
+    "accuracy": 0.8667,
+    "auc": 1.0,
+    "ece": 0.0655,
+    "mean_confidence": 0.9018
+  },
+  "mc_mean": {
+    "accuracy": 0.9,
+    "auc": 1.0,
+    "ece": 0.0796,
+    "mean_confidence": 0.8709
+  },
+  "epistemic_std_mean": 0.055,
+  "epistemic_std_p90": 0.1287,
+  "predictive_entropy_mean": 0.2434,
+  "disagreement_rate": 0.2333,
+  "cases_mc_unsure_but_confident": 0
+}

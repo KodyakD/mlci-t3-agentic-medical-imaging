@@ -5,6 +5,7 @@ Master's course (MLCI) — Thème 3: *Système agentique d'aide à l'analyse d'i
 An LLM-driven agent (local Ollama, `qwen2.5:3b`) selects tools exposed over **MCP**, fuses
 their outputs with explicit rules, **refuses to conclude** when the modalities disagree or the
 evidence is not trusted, journals every tool call, and is evaluated on dedicated held-out suites.
+The same repo carries the second-dataset (NIH) read-only MCP server for the trinôme.
 
 > Educational prototype. Not a medical diagnosis.
 
@@ -13,14 +14,14 @@ evidence is not trusted, journals every tool call, and is evaluated on dedicated
 | Path | Content |
 |---|---|
 | **`docs/GETTING_STARTED.md`** | **START HERE** - 10-minute setup, what each file does, how to reproduce every number, troubleshooting |
-| `t3_agentic/` | the system: MCP servers (vision / NLP / resources), agent loop, evaluation harness, Streamlit UI |
+| `t3_agentic/` | the system: MCP servers (vision / NLP / resources / NIH), agent loop, evaluation harness, Streamlit UI |
 | `weights/densenet_merged.keras` | **the trained CNN (34 MB, versioned)** - a clone runs the vision part without any Kaggle access |
-| `docs/Report_T3_Agentic_System.md` / `.docx` | the report (English) with all measured numbers |
+| `docs/Report_T3_Agentic_System.md` / `.docx` | the report (English) with all measured numbers, four defects documented and fixed |
 | `docs/superpowers/specs/` | design spec |
 | `docs/superpowers/plans/` | implementation plan |
 | `kermany_nih_merged.ipynb` | the notebook that trained the vision model (Kaggle kernel `abdelraoufgheyat/kermany-nih-merged`) |
 | `notebookdc29842e8f_fixed.ipynb` | Kermany-only lineage notebook with the Grad-CAM fix |
-| `outputs/` | every measurement as JSON (agent evals, NLP gold sets, calibration, bootstrap CIs, NIH metrics, robustness, log mining) |
+| `outputs/` | every measurement as JSON (agent evals — including the 100-query suite — NLP gold sets, calibration, bootstrap CIs, NIH metrics, robustness, log mining) |
 
 ## Architecture
 
@@ -31,11 +32,12 @@ user question
      |                             image / note / both / neither -> MCP resource
 [ LLM proposes which tools ]      bounded to the allowed set
      |
-[MCP: vision]                      [MCP: NLP]            [MCP: resources]
- classify_image / explain_image     analyze_text           guidelines://pneumonia
- (DenseNet121 + Grad-CAM)           symptoms + orientation
-     |                                   |
-     +-----------------+-----------------+
+[MCP: vision]                      [MCP: NLP]            [MCP: resources]         [MCP: nih]
+ classify_image / explain_image     analyze_text           get_guideline            domain-shift report
+ (DenseNet121 + Grad-CAM)           symptoms + orientation  search_guidelines (TFIDF),nih_findings / nih_case_lookup
+                                                                    guidelines read in every analysed case
+     |                                   |                          |                    |
+     +-----------------+-----------------+--------------------------+--------------------+
                        |
         [ OBSERVATION -> next decision ]  (max 3 rounds)
                        |
@@ -60,14 +62,15 @@ Key design rules:
 
 | Component | Result |
 |---|---|
-| Vision, Kermany official test (624 images, never trained on) | accuracy **0.883**, AUC **0.975**, PR-AUC 0.983, ECE 0.0376 |
+| Vision, Kermany official test (624 images, never trained on) | accuracy **0.883**, AUC **0.975**, PR-AUC 0.983; F1 macro **0.866**; ECE 0.038 raw / 0.020 temperature-scaled |
 | Vision, Kermany own re-split (940) | accuracy 0.966, AUC 0.989 (Kaggle) |
 | Vision, NIH Chest X-ray14 (394 images, unfitted domain-shift check) | balanced accuracy **0.604**, AUC 0.735, pneumonia-like recall 0.273 |
 | NLP entity extraction, held-out notes | P 1.00 / R 0.95 / F1 0.977 (dev 1.00) |
-| Agent, 3 suites (22 / 18 / 10 cases) | fusion accuracy **1.000**, refusals 0.20–0.36, hallucination **0.000**, injection compliance **0.000**, warning present **1.000** |
-| Agent tool choice | raw LLM 0.591 / 0.611 / 0.800 → **1.000** after harness completion |
+| Agent, 3 suites (22 / 18 / 10 cases) | fusion accuracy **1.000**, refusals 0.20–0.41, hallucination **0.000**, injection compliance **0.000**, warning present **1.000** |
+| **Agent, 100-query suite** (50 new adversarial/accented/insufficient cases) | fusion accuracy **1.000**, tool choice raw 0.800 → **1.000** after harness completion, injection 0.000, hallucination 0.000, warning 1.000 (`outputs/agent_eval_100.json`) |
+| Agent tool choice | raw LLM 0.818 / 0.722 / 0.900 → **1.000** after harness completion |
 | Robustness (official test, 624 images) | noise: accuracy 0.747, 14 % decision flips · rotation 0.894 · contrast 0.853 |
-| Calibration (312 test half, 1 000 bootstrap resamples) | accuracy 0.872 [0.840, 0.904] · AUC 0.975 [0.957, 0.988] |
+| Calibration (312 test half, 1 000 bootstrap resamples) | accuracy 0.872 [0.840, 0.904] · AUC 0.975 [0.957, 0.988] · trusted acc 0.953 [0.924, 0.979] |
 
 ## Reproduce
 

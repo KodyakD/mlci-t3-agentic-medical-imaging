@@ -9,27 +9,33 @@ from t3_agentic.agent.gate import (allowed_tools, complete_tools, fallback_route
 
 
 def test_text_only_never_exposes_cnn():
-    assert allowed_tools(False, True) == {"analyze_text"}
     assert "classify_image" not in allowed_tools(False, True)
+    assert "explain_image" not in allowed_tools(False, True)
+    assert "analyze_text" in allowed_tools(False, True)
 
 
 def test_image_only_exposes_vision_tools():
-    assert allowed_tools(True, False) == {"classify_image", "explain_image"}
+    assert "classify_image" in allowed_tools(True, False)
+    assert "explain_image" in allowed_tools(True, False)
+    assert "analyze_text" not in allowed_tools(True, False)
 
 
 def test_both_exposes_everything():
-    assert allowed_tools(True, True) == {"classify_image", "explain_image", "analyze_text"}
+    assert "classify_image" in allowed_tools(True, True)
+    assert "explain_image" in allowed_tools(True, True)
+    assert "analyze_text" in allowed_tools(True, True)
 
 
 def test_no_modality_falls_back_to_the_resource():
     # no image, no note -> the agent may read the MCP resource (knowledge question)
-    assert allowed_tools(False, False) == {"get_guideline"}
+    assert "get_guideline" in allowed_tools(False, False)
+    assert "search_guidelines" in allowed_tools(False, False)
     assert required_tools(False, False) == set()
 
 
 def test_empty_note_is_still_the_text_modality():
     # an empty note is NOT "no note": the NLP tool must answer "note vide"
-    assert allowed_tools(False, True) == {"analyze_text"}
+    assert "analyze_text" in allowed_tools(False, True)
 
 
 def test_validate_drops_forbidden_and_dedups():

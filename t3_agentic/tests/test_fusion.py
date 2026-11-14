@@ -98,3 +98,29 @@ def test_trusted_contradiction_still_refuses():
     r = fuse(vision("pneumonie", 0.99), text("non infectieux", True))
     assert r["coherence"] == "contradictoire"
     assert r["refused"] is True
+
+
+def test_fusion_trusts_the_calibrated_score_not_the_raw_probability():
+    # Regression: thresholds were fitted on temperature-calibrated scores.
+    # A raw 0.95 must NOT be consumed as-is — the tool re-scales it.
+    raw = {"label": "pneumonie",
+           "p_pneumonia": 0.95,
+           "p_pneumonia_calibrated": 0.60,
+           "score": 0.60,
+           "suspect": False}
+    r = fuse(raw, text("non infectieux", True))
+    # calibrated 0.60 < TAU_LOW -> NOT trusted; insufficiency, never a
+    # claimed contradiction
+    assert r["coherence"] == "insuffisant"
+    assert r["refused"] is True
+
+
+def test_calibrated_score_below_tau_low_refuses_even_in_image_only():
+    raw = {"label": "pneumonie",
+           "p_pneumonia": 0.90,
+           "p_pneumonia_calibrated": 0.50,
+           "score": 0.50,
+           "suspect": False}
+    r = fuse(raw, None)
+    assert r["coherence"] == "insuffisant"
+    assert r["refused"] is True

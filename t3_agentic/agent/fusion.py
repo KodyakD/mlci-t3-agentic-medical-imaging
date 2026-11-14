@@ -16,9 +16,14 @@ def _normalise_vision(classify_result, explain_result):
     v = dict(classify_result or {})
     if "error" in v:
         return None
-    p = v.get("p_pneumonia", 0.5)
     label = v.get("label", "normal")
-    score = p if label == "pneumonie" else 1.0 - p
+    # The tool returns a CALIBRATED confidence (temperature-scaled) already.
+    # TAU_LOW/TAU_HIGH were fitted on that calibrated score, so we must NOT
+    # re-derive it from the raw probability.
+    score = v.get("score")
+    if score is None:
+        p_cal = v.get("p_pneumonia_calibrated", v.get("p_pneumonia", 0.5))
+        score = p_cal if label == "pneumonie" else 1.0 - p_cal
     v["score"] = float(score)
     if explain_result and "error" not in explain_result:
         v["suspect"] = bool(explain_result.get("suspect"))

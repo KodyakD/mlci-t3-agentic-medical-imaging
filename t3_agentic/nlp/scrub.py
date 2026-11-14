@@ -5,6 +5,16 @@ diagnosis must not leak it into the agent's reasoning.
 """
 import re
 
+import unicodedata
+
+
+def strip_accents(text):
+    if not text:
+        return text or ""
+    norm = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in norm if not unicodedata.combining(c))
+
+
 DIAG_PATTERNS = [
     r"\b(?:pas de |pas d['’]|suspicion de |presence de |diagnostic de |atteint de )?"
     r"(?:pneumonie|pneumonia)\b",
@@ -21,7 +31,7 @@ REDACTION = "[DIAG_REDACTED]"
 
 def scrub(note):
     """Return (cleaned_note, redactions)."""
-    out = note
+    out = strip_accents(note)
     count = 0
     for pat in DIAG_PATTERNS:
         out, n = re.subn(pat, REDACTION, out, flags=re.I)

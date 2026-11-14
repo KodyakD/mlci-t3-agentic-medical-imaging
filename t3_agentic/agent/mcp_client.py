@@ -26,6 +26,7 @@ SERVERS = {
     "vision": "t3_agentic.vision.server",
     "nlp": "t3_agentic.nlp.server",
     "resources": "t3_agentic.resources.server",
+    "nih": "t3_agentic.nih.server",
 }
 
 

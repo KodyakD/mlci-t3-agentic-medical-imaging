@@ -5,6 +5,17 @@ explicitly denies respiratory symptoms is informative (it can contradict the
 image, which is exactly the refusal path the TP asks for).
 """
 import re
+import unicodedata
+
+
+def strip_accents(text):
+    """NFKD-decompose and drop combining marks so accented French
+    ('fièvre', 'râles', 'dyspnée') matches the unaccented lexicon."""
+    if not text:
+        return text or ""
+    norm = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in norm if not unicodedata.combining(c))
+
 
 SYMPTOMS = [
     # French nouns AND verb inflections ("tousse", "tousser", "expectore", ...)
@@ -16,7 +27,7 @@ SYMPTOMS = [
     (r"\bexpector\w*|\bexpectorations?\b|\bsputum\b|\bphlegm\b|\bcrachats?\b", "expectoration"),
     (r"\bfrissons?\b|\bchills?\b|\bgreffe\b", "frissons"),
     (r"\bfatigue\b|\bmalaise\b|\bfatig\w*", "fatigue"),
-    (r"\bcrepitants?\b|\br\00e2les?\b|\bcrackles?\b|\bwheezing\b|\bsibilants?\b|\bsibilances\b", "rales"),
+    (r"\bcrepitants?\b|\brales?\b|\bcrackles?\b|\bwheezing\b|\bsibilants?\b|\bsibilances\b", "rales"),
 ]
 
 STRONG = {"toux", "fievre", "dyspnee", "douleur thoracique", "expectoration"}
@@ -81,7 +92,7 @@ def _negated(text, start):
 def find_symptoms(text):
     """Return (symptoms_found, symptoms_denied)."""
     found, denied = set(), set()
-    low = text.lower()
+    low = strip_accents(text.lower())
     for pat, label in SYMPTOMS:
         for m in re.finditer(pat, low):
             if _negated(low, m.start()):
@@ -98,12 +109,13 @@ def orientation(symptoms, denied, raw_text):
     AND at least 1 of them strong (fever, dyspnoea, chest pain, cough with
     sputum...). Weaker-only combinations stay 'orientation insuffisante'.
     """
+    cleaned = strip_accents(raw_text)
     strong = [s for s in symptoms if s in STRONG]
     if len(symptoms) >= 2 and len(strong) >= 1:
         return "infection respiratoire probable", True
     if symptoms:
         # symptoms are present: a denial elsewhere does NOT make it non-infectious
         return "orientation insuffisante", False
-    if RESPIRATORY_DENIAL.search(raw_text):
+    if RESPIRATORY_DENIAL.search(cleaned):
         return "non infectieux", True
     return "aucun symptome respiratoire detecte", False

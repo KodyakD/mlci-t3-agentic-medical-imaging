@@ -7,14 +7,15 @@ import re
 
 IMAGE_TOOLS = ("classify_image", "explain_image")
 TEXT_TOOLS = ("analyze_text",)
-RESOURCE_TOOLS = ("get_guideline",)
+RESOURCE_TOOLS = ("get_guideline", "search_guidelines")
 
 
 def allowed_tools(has_image, has_note):
     """Tools the agent may call, given what the user actually provided.
 
-    - image only  -> vision tools
-    - note only   -> NLP tool
+    - image only  -> vision tools (+ resources, which are contextualisation, not modalities)
+    - note only   -> NLP tool (+ resources)
+    - both        -> all three
     - neither     -> the MCP resource (knowledge question), no CNN, no NLP
     """
     tools = set()
@@ -22,8 +23,9 @@ def allowed_tools(has_image, has_note):
         tools.update(IMAGE_TOOLS)
     if has_note:
         tools.update(TEXT_TOOLS)
-    if not tools:
-        tools.update(RESOURCE_TOOLS)
+    # resources are always allowed: step 4 of the brief reads guidelines to
+    # contextualise, and in a knowledge-only case they are the answer itself
+    tools.update(RESOURCE_TOOLS)
     return tools
 
 
@@ -64,5 +66,5 @@ def fallback_route(user_msg, has_image, has_note):
         return ["classify_image", "explain_image"]
     if has_note:
         return ["analyze_text"]
-    # knowledge question (no image, no note) -> read the MCP resource
-    return ["get_guideline"]
+    # knowledge question (no image, no note) -> read/retrieve from the MCP resources
+    return ["get_guideline", "search_guidelines"]

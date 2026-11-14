@@ -13,8 +13,9 @@ t3_agentic/
   vision/      serveur MCP vision  -> classify_image, explain_image (DenseNet121 fusionné Kermany+NIH)
   nlp/         serveur MCP NLP      -> analyze_text (règles symptômes + négation + scrub diagnostique)
   resources/   serveur MCP ressources -> guidelines://pneumonia, ethics://prototype-warning, prompts
+  nih/         serveur MCP NIH (second dataset, read-only) -> nih_domain_shift / nih_findings / nih_case_lookup
   agent/       boucle agent : gate déterministe -> choix d'outils LLM -> fusion -> garde-fous -> journal
-  eval/        20 cas d'évaluation agent + calibration (ECE, courbe de fiabilité)
+  eval/        100 cas d'évaluation agent (dev 22 + heldout 18 + fresh 10 + extra 50) + calibration (ECE, courbe de fiabilité) + MC-Dropout + RAG + ablation vs ground truth
   scripts/     récupération des poids Kaggle, dump des probabilités
   tests/       pytest (gate, fusion, NLP, ressources, vision)
 ```
@@ -62,7 +63,7 @@ python t3_agentic/scripts/fetch_assets.py
 # 4) corpus d'images de test (images BRUTES : le serveur applique le pretraitement)
 python t3_agentic/scripts/build_demo_corpus.py
 # -> demo_images/kermany_test/{NORMAL,PNEUMONIA} (test officiel Kermany, jamais vu a l'entrainement)
-# -> demo_images/nih_test/{NORMAL,PNEUMONIA} (echantillon NIH, adultes : domain shift)
+# -> demo_images/nih_eval/{Consolidation,Infiltration,Pneumonia,No_Finding} (echantillon NIH, domain shift)
 
 # 5) tests
 python -m pytest t3_agentic/tests -q

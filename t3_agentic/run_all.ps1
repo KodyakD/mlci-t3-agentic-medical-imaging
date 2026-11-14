@@ -44,6 +44,8 @@ python t3_agentic\eval\eval_nlp.py
 Step "8/9 evaluation agent (avec LLM, puis routeur deterministe = ablation B4)"
 python -m t3_agentic\eval\run_eval --out agent_eval_llm.json
 python -m t3_agentic\eval\run_eval --no-llm --out agent_eval_router.json
+python -m t3_agentic\eval\run_eval --cases t3_agentic\eval\cases_100.json --out agent_eval_100.json
+python t3_agentic\eval\ablation_groundtruth.py
 python t3_agentic\eval\ablation.py
 python t3_agentic\eval\compare_with_kaggle.py outputs\preds_kermany_full.npz
 

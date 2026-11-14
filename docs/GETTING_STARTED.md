@@ -24,13 +24,14 @@ question ─► [modality gate] ─► [LLM proposes tools] ─► [execute MCP 
                                             answer + "prototype, not a diagnosis" + journal
 ```
 
-Three MCP servers:
+Four MCP servers:
 
 | Server | Tools | What it does |
 |---|---|---|
 | `vision` | `classify_image`, `explain_image` | DenseNet121 (Kermany+NIH) + Grad-CAM heatmap with a thorax-plausibility flag |
-| `nlp` | `analyze_text` | symptom extraction (FR/EN), negation handling, clinical orientation, diagnostic-mention scrubbing |
-| `resources` | `get_guideline` | `guidelines://pneumonia` reference text for knowledge questions |
+| `nlp` | `analyze_text` | symptom extraction (FR/EN, **accented French included**), negation handling, clinical orientation, diagnostic-mention scrubbing |
+| `resources` | `get_guideline`, `search_guidelines` | TF-IDF retrieval over a French reference corpus + `guidelines://pneumonia` for knowledge questions |
+| `nih` | `nih_domain_shift`, `nih_findings`, `nih_case_lookup` | second-dataset (NIH Chest X-ray14) read-only server - the measured domain-shift report, the 14 findings and their prevalence |
 
 ---
 
@@ -75,6 +76,10 @@ python -m streamlit run t3_agentic/ui/app.py --server.port 8001
 # -> http://127.0.0.1:8001
 ```
 
+Every analyzed case also reads `guidelines://pneumonia` through MCP (the brief's step 4:
+the agent reads its reference before concluding). Tool calls are journaled per call, including
+the model's `tool_choice_source` (`llm` or `rule_router`).
+
 In the UI you can: pick a demo image (or upload one), type a clinical note, press **Analyse**,
 and read the answer, the fusion decision, the CNN result, the tool-call journal and the Grad-CAM
 heatmap. The sidebar shows the fitted thresholds and lets you switch the LLM off (deterministic
@@ -100,7 +105,8 @@ t3_agentic/
   nlp/terms.py          symptom lexicon, negation rules, orientation rule
   nlp/scrub.py          removes diagnostic mentions before analysis
   nlp/server.py         MCP server "nlp"
-  resources/server.py   MCP server "resources" (guidelines, ethics, prompt)
+  resources/server.py   MCP server "resources" (guidelines, ethics, prompt, search_guidelines)
+  nih/server.py         MCP server "nih" (second dataset, read-only) + corpus.py for the RAG retrieval
   agent/gate.py         modality gate + tool-choice validation + fallback router
   agent/fusion.py       the ONLY place that produces a label or a refusal
   agent/mcp_client.py   persistent MCP stdio clients (one process per server)
@@ -133,6 +139,8 @@ outputs/                every measurement as JSON
    had silently been down. Without it, an evaluation can report a false ablation result.
 6. **Report the split with every number.** "official test (624)" and "own re-split (940)" are
    different populations; do not compare them.
+7. **The calibration temperature is not a patient vital.** The final-answer composer never
+   receives it; new numbers going into the journal stay out of the LLM prompt as well.
 
 ---
 
@@ -141,7 +149,9 @@ outputs/                every measurement as JSON
 | Number | Command |
 |---|---|
 | agent evaluation (22 / 18 / 10 cases) | `python -m t3_agentic.eval.run_eval --out outputs/agent_eval_dev.json` · `--cases t3_agentic/eval/cases_heldout.json` · `--cases t3_agentic/eval/cases_fresh.json` |
+| 100-query suite (trinôme) | `python -m t3_agentic.eval.run_eval --cases t3_agentic/eval/cases_100.json --out outputs/agent_eval_100.json` |
 | ablation B4 (LLM vs deterministic router) | same with `--no-llm` |
+| Ablation vs ground truth (image-only / text-only / multimodal) | `python t3_agentic.eval.ablation_groundtruth` |
 | NLP entity P/R/F1 | `python -m t3_agentic.eval.eval_nlp` (dev / test / fresh splits) |
 | threshold fitting + bootstrap CIs | `python t3_agentic.eval.fit_thresholds.py` · `python t3_agentic.eval.bootstrap_ci.py` |
 | calibration curve + ECE | `python t3_agentic.eval.calibration.py outputs/preds_kermany_full.npz` |

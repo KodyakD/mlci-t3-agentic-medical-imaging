@@ -63,7 +63,8 @@ with st.sidebar:
                                ["(no image)"] + [d[0] for d in demos])
     st.divider()
     st.caption("MCP servers: vision (classify_image, explain_image), "
-               "nlp (analyze_text), resources (get_guideline).")
+               "nlp (analyze_text), resources (get_guideline, search_guidelines — "
+               "read in every analyzed case).")
 
 question = st.text_input("Question", "What can be said about this case?")
 note = st.text_area("Clinical note (optional)", height=120,
@@ -91,7 +92,9 @@ if run:
                             note=note if note.strip() else None,
                             pool=get_pool(), use_llm=use_llm)
         except Exception as e:
-            st.error(f"Agent error: {e}")
+            import traceback
+            traceback.print_exc()   # full traceback in the server log
+            st.error(f"Agent error: {type(e).__name__}: {e}")
             out = None
 
     if out:

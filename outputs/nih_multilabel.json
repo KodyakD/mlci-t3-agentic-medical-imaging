@@ -1,0 +1,179 @@
+{
+  "n_images": 551,
+  "tau_low_kermany_fitted": 0.75,
+  "label_collapse": {
+    "n_images": 551,
+    "n_kept_by_collapse": 501,
+    "n_dropped_other_findings": 50,
+    "collapse_accuracy": 0.5609,
+    "collapse_auc": 0.7834,
+    "recall_pneumonia_like": 0.3123,
+    "recall_normal": 0.935,
+    "positives_with_at_least_one_other_finding": 106,
+    "positives_total": 301,
+    "positives_with_other_finding_ratio": 0.3522,
+    "strict_pneumonia_only": 14
+  },
+  "per_label_ranking": [
+    {
+      "finding": "Consolidation",
+      "n_positive": 66,
+      "prevalence": 0.1198,
+      "auc_ranking": 0.7759,
+      "average_precision": 0.3023,
+      "precision_at_0.5": 0.2906,
+      "recall_at_0.5": 0.5152,
+      "recall_at_tau_low": 0.1061,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Pneumothorax",
+      "n_positive": 35,
+      "prevalence": 0.0635,
+      "auc_ranking": 0.7106,
+      "average_precision": 0.1101,
+      "precision_at_0.5": 0.094,
+      "recall_at_0.5": 0.3143,
+      "recall_at_tau_low": 0.0571,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Nodule",
+      "n_positive": 37,
+      "prevalence": 0.0672,
+      "auc_ranking": 0.7066,
+      "average_precision": 0.1382,
+      "precision_at_0.5": 0.1368,
+      "recall_at_0.5": 0.4324,
+      "recall_at_tau_low": 0.0811,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Cardiomegaly",
+      "n_positive": 26,
+      "prevalence": 0.0472,
+      "auc_ranking": 0.7007,
+      "average_precision": 0.0861,
+      "precision_at_0.5": 0.0855,
+      "recall_at_0.5": 0.3846,
+      "recall_at_tau_low": 0.0769,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Edema",
+      "n_positive": 26,
+      "prevalence": 0.0472,
+      "auc_ranking": 0.7006,
+      "average_precision": 0.1094,
+      "precision_at_0.5": 0.0769,
+      "recall_at_0.5": 0.3462,
+      "recall_at_tau_low": 0.1154,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Effusion",
+      "n_positive": 81,
+      "prevalence": 0.147,
+      "auc_ranking": 0.6934,
+      "average_precision": 0.2245,
+      "precision_at_0.5": 0.2222,
+      "recall_at_0.5": 0.321,
+      "recall_at_tau_low": 0.037,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Pleural_Thickening",
+      "n_positive": 31,
+      "prevalence": 0.0563,
+      "auc_ranking": 0.6911,
+      "average_precision": 0.092,
+      "precision_at_0.5": 0.0769,
+      "recall_at_0.5": 0.2903,
+      "recall_at_tau_low": 0.0323,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Atelectasis",
+      "n_positive": 61,
+      "prevalence": 0.1107,
+      "auc_ranking": 0.6861,
+      "average_precision": 0.1608,
+      "precision_at_0.5": 0.1453,
+      "recall_at_0.5": 0.2787,
+      "recall_at_tau_low": 0.0328,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Emphysema",
+      "n_positive": 27,
+      "prevalence": 0.049,
+      "auc_ranking": 0.669,
+      "average_precision": 0.0792,
+      "precision_at_0.5": 0.0684,
+      "recall_at_0.5": 0.2963,
+      "recall_at_tau_low": 0.0741,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Pneumonia",
+      "n_positive": 39,
+      "prevalence": 0.0708,
+      "auc_ranking": 0.6616,
+      "average_precision": 0.145,
+      "precision_at_0.5": 0.1026,
+      "recall_at_0.5": 0.3077,
+      "recall_at_tau_low": 0.1282,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Mass",
+      "n_positive": 42,
+      "prevalence": 0.0762,
+      "auc_ranking": 0.6524,
+      "average_precision": 0.113,
+      "precision_at_0.5": 0.0769,
+      "recall_at_0.5": 0.2143,
+      "recall_at_tau_low": 0.0714,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Infiltration",
+      "n_positive": 236,
+      "prevalence": 0.4283,
+      "auc_ranking": 0.6418,
+      "average_precision": 0.5322,
+      "precision_at_0.5": 0.5556,
+      "recall_at_0.5": 0.2754,
+      "recall_at_tau_low": 0.0551,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Fibrosis",
+      "n_positive": 25,
+      "prevalence": 0.0454,
+      "auc_ranking": 0.6257,
+      "average_precision": 0.0689,
+      "precision_at_0.5": 0.0598,
+      "recall_at_0.5": 0.28,
+      "recall_at_tau_low": 0.04,
+      "trust_threshold_used": 0.75
+    },
+    {
+      "finding": "Hernia",
+      "n_positive": 13,
+      "prevalence": 0.0236,
+      "auc_ranking": 0.5142,
+      "average_precision": 0.0246,
+      "precision_at_0.5": 0.0256,
+      "recall_at_0.5": 0.2308,
+      "recall_at_tau_low": 0.0,
+      "trust_threshold_used": 0.75
+    }
+  ],
+  "macro_auc_over_findings": 0.6735,
+  "cooccurrence": {
+    "images_with_several_findings": 152,
+    "ratio_multi_label": 0.2759,
+    "mean_findings_per_image": 1.7151
+  }
+}

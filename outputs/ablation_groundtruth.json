@@ -1,0 +1,471 @@
+{
+  "summary": {
+    "suites": [
+      "dev",
+      "heldout",
+      "fresh"
+    ],
+    "n_cases": 50,
+    "image_only_accuracy": 0.516,
+    "n_image_cases": 31,
+    "text_only_accuracy": 0.5,
+    "n_note_cases": 34,
+    "both_accuracy": 0.857,
+    "n_both_cases": 21
+  },
+  "cases": [
+    {
+      "id": "c01",
+      "suite": "dev",
+      "gold": [
+        "image_seule"
+      ],
+      "image_only": "image_seule"
+    },
+    {
+      "id": "c02",
+      "suite": "dev",
+      "gold": [
+        "image_seule"
+      ],
+      "image_only": "image_seule"
+    },
+    {
+      "id": "c03",
+      "suite": "dev",
+      "gold": [
+        "image_seule"
+      ],
+      "image_only": "image_seule"
+    },
+    {
+      "id": "c04",
+      "suite": "dev",
+      "gold": [
+        "image_seule"
+      ],
+      "image_only": "image_seule"
+    },
+    {
+      "id": "c05",
+      "suite": "dev",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "c06",
+      "suite": "dev",
+      "gold": [
+        "insuffisant"
+      ],
+      "text_only": "insuffisant"
+    },
+    {
+      "id": "c07",
+      "suite": "dev",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "c08",
+      "suite": "dev",
+      "gold": [
+        "insuffisant"
+      ]
+    },
+    {
+      "id": "c09",
+      "suite": "dev",
+      "gold": [
+        "concordant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "concordant"
+    },
+    {
+      "id": "c10",
+      "suite": "dev",
+      "gold": [
+        "concordant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "concordant"
+    },
+    {
+      "id": "c11",
+      "suite": "dev",
+      "gold": [
+        "concordant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "concordant"
+    },
+    {
+      "id": "c12",
+      "suite": "dev",
+      "gold": [
+        "concordant"
+      ],
+      "image_only": "insuffisant",
+      "text_only": "texte_seule",
+      "both": "insuffisant"
+    },
+    {
+      "id": "c13",
+      "suite": "dev",
+      "gold": [
+        "contradictoire"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "contradictoire"
+    },
+    {
+      "id": "c14",
+      "suite": "dev",
+      "gold": [
+        "contradictoire"
+      ],
+      "image_only": "insuffisant",
+      "text_only": "texte_seule",
+      "both": "insuffisant"
+    },
+    {
+      "id": "c15",
+      "suite": "dev",
+      "gold": [
+        "contradictoire"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "contradictoire"
+    },
+    {
+      "id": "c16",
+      "suite": "dev",
+      "gold": [
+        "contradictoire"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "contradictoire"
+    },
+    {
+      "id": "c17",
+      "suite": "dev",
+      "gold": [
+        "image_seule"
+      ],
+      "image_only": "image_seule",
+      "text_only": "insuffisant",
+      "both": "image_seule"
+    },
+    {
+      "id": "c18",
+      "suite": "dev",
+      "gold": [
+        "image_seule"
+      ],
+      "image_only": "insuffisant",
+      "text_only": "insuffisant",
+      "both": "insuffisant"
+    },
+    {
+      "id": "c19",
+      "suite": "dev",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "insuffisant",
+      "text_only": "insuffisant",
+      "both": "insuffisant"
+    },
+    {
+      "id": "c20",
+      "suite": "dev",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "c21",
+      "suite": "dev",
+      "gold": [
+        "ressource"
+      ]
+    },
+    {
+      "id": "c22",
+      "suite": "dev",
+      "gold": [
+        "ressource"
+      ]
+    },
+    {
+      "id": "h01",
+      "suite": "heldout",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "image_seule"
+    },
+    {
+      "id": "h02",
+      "suite": "heldout",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "image_seule"
+    },
+    {
+      "id": "h03",
+      "suite": "heldout",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "image_seule"
+    },
+    {
+      "id": "h04",
+      "suite": "heldout",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "insuffisant"
+    },
+    {
+      "id": "h05",
+      "suite": "heldout",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "h06",
+      "suite": "heldout",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "h07",
+      "suite": "heldout",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "h08",
+      "suite": "heldout",
+      "gold": [
+        "insuffisant"
+      ]
+    },
+    {
+      "id": "h09",
+      "suite": "heldout",
+      "gold": [
+        "concordant",
+        "insuffisant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "concordant"
+    },
+    {
+      "id": "h10",
+      "suite": "heldout",
+      "gold": [
+        "concordant",
+        "insuffisant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "concordant"
+    },
+    {
+      "id": "h11",
+      "suite": "heldout",
+      "gold": [
+        "contradictoire",
+        "insuffisant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "contradictoire"
+    },
+    {
+      "id": "h12",
+      "suite": "heldout",
+      "gold": [
+        "contradictoire",
+        "insuffisant"
+      ],
+      "image_only": "insuffisant",
+      "text_only": "texte_seule",
+      "both": "insuffisant"
+    },
+    {
+      "id": "h13",
+      "suite": "heldout",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "insuffisant",
+      "text_only": "insuffisant",
+      "both": "insuffisant"
+    },
+    {
+      "id": "h14",
+      "suite": "heldout",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "insuffisant",
+      "both": "image_seule"
+    },
+    {
+      "id": "h15",
+      "suite": "heldout",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "h16",
+      "suite": "heldout",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "h17",
+      "suite": "heldout",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "h18",
+      "suite": "heldout",
+      "gold": [
+        "ressource"
+      ]
+    },
+    {
+      "id": "f01",
+      "suite": "fresh",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "image_seule"
+    },
+    {
+      "id": "f02",
+      "suite": "fresh",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "insuffisant"
+    },
+    {
+      "id": "f03",
+      "suite": "fresh",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "f04",
+      "suite": "fresh",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "f05",
+      "suite": "fresh",
+      "gold": [
+        "concordant",
+        "insuffisant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "concordant"
+    },
+    {
+      "id": "f06",
+      "suite": "fresh",
+      "gold": [
+        "concordant",
+        "insuffisant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "concordant"
+    },
+    {
+      "id": "f07",
+      "suite": "fresh",
+      "gold": [
+        "contradictoire",
+        "insuffisant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "texte_seule",
+      "both": "contradictoire"
+    },
+    {
+      "id": "f08",
+      "suite": "fresh",
+      "gold": [
+        "image_seule",
+        "insuffisant"
+      ],
+      "image_only": "image_seule",
+      "text_only": "insuffisant",
+      "both": "image_seule"
+    },
+    {
+      "id": "f09",
+      "suite": "fresh",
+      "gold": [
+        "texte_seule"
+      ],
+      "text_only": "texte_seule"
+    },
+    {
+      "id": "f10",
+      "suite": "fresh",
+      "gold": [
+        "ressource"
+      ]
+    }
+  ]
+}

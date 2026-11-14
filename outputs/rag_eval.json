@@ -1,0 +1,192 @@
+{
+  "summary": {
+    "n_questions": 10,
+    "top1_hit_rate": 1.0,
+    "top3_hit_rate": 1.0,
+    "corpus_size": 12
+  },
+  "questions": [
+    {
+      "question": "Quels sont les signes radiologiques de la pneumonie ?",
+      "expected": [
+        "g02"
+      ],
+      "retrieved": [
+        "g02",
+        "g07",
+        "g10"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.3336,
+        0.1021,
+        0.101
+      ]
+    },
+    {
+      "question": "Comment lire une carte de chaleur Grad-CAM ?",
+      "expected": [
+        "g06"
+      ],
+      "retrieved": [
+        "g06",
+        "g09",
+        "g02"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.4681,
+        0.0249,
+        0.0205
+      ]
+    },
+    {
+      "question": "Que doit contenir un rapport d'experimentation ?",
+      "expected": [
+        "g12"
+      ],
+      "retrieved": [
+        "g12",
+        "g11",
+        "g04"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.1783,
+        0.0984,
+        0.043
+      ]
+    },
+    {
+      "question": "Le modele peut-il remplacer un radiologue ?",
+      "expected": [
+        "g05"
+      ],
+      "retrieved": [
+        "g05",
+        "g08",
+        "g10"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.1545,
+        0.148,
+        0.0874
+      ]
+    },
+    {
+      "question": "Quelle est la limite du modele sur les adultes ?",
+      "expected": [
+        "g03",
+        "g08"
+      ],
+      "retrieved": [
+        "g03",
+        "g02",
+        "g07"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.203,
+        0.1536,
+        0.1187
+      ]
+    },
+    {
+      "question": "Que faire devant un epanchement pleural important ?",
+      "expected": [
+        "g10",
+        "g02"
+      ],
+      "retrieved": [
+        "g02",
+        "g10",
+        "g04"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.1608,
+        0.0966,
+        0.0289
+      ]
+    },
+    {
+      "question": "Pourquoi les labels NIH sont-ils bruyants ?",
+      "expected": [
+        "g07"
+      ],
+      "retrieved": [
+        "g07",
+        "g04",
+        "g01"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.5053,
+        0.0488,
+        0.0385
+      ]
+    },
+    {
+      "question": "Quelles sont les implications ethiques d'un prototype d'imagerie ?",
+      "expected": [
+        "g11"
+      ],
+      "retrieved": [
+        "g11",
+        "g07",
+        "g04"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.1877,
+        0.1264,
+        0.0805
+      ]
+    },
+    {
+      "question": "Comment differencier une radiographie pediatrique d'une radio adulte ?",
+      "expected": [
+        "g03"
+      ],
+      "retrieved": [
+        "g03",
+        "g01",
+        "g09"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.19,
+        0.1344,
+        0.1336
+      ]
+    },
+    {
+      "question": "Que signifie un decalage de domaine ?",
+      "expected": [
+        "g08"
+      ],
+      "retrieved": [
+        "g08",
+        "g04",
+        "g11"
+      ],
+      "top1_hit": true,
+      "top3_hit": true,
+      "scores": [
+        0.1901,
+        0.1693,
+        0.0365
+      ]
+    }
+  ]
+}

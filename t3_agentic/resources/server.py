@@ -6,6 +6,7 @@ from mcp.server.fastmcp import FastMCP
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from content import EXAMPLES, GUIDELINES_PNEUMONIA, PROTOTYPE_WARNING
+from retrieval import search
 
 mcp = FastMCP("resources")
 
@@ -14,6 +15,16 @@ mcp = FastMCP("resources")
 def get_guideline(topic: str = "") -> str:
     """Repères de lecture d'une radiographie thoracique (ressource guidelines://pneumonia)."""
     return GUIDELINES_PNEUMONIA
+
+
+@mcp.tool()
+def search_guidelines(query: str, k: int = 3) -> list[dict]:
+    """Recherche les passages de reference les plus pertinents pour une question.
+
+    Utilise pour les questions de connaissances (radiographie, signes, limites,
+    ethique) quand aucune image ni note n'est fournie.
+    """
+    return search(query, k=k)
 
 
 @mcp.resource("guidelines://pneumonia")
@@ -38,12 +49,12 @@ def demo_cases() -> str:
 def cautious_radiology_assistant(question: str) -> list[dict]:
     """Systeme prompt pour un assistant d'interpretation prudent."""
     return [
-        {"role": "system",
+        {"role": "user",
          "content": "Tu es un assistant prudent d'interpretation d'imagerie medicale. "
                     "Aucun diagnostic. Si l'image et le texte se contredisent, "
                     "refuse de conclure. Termine toujours par: "
-                    "Prototype pedagogique, ne constitue pas un diagnostic medical."},
-        {"role": "user", "content": question},
+                    "Prototype pedagogique, ne constitue pas un diagnostic medical.\n\n"
+                    f"{question}"},
     ]
 
 

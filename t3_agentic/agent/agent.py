@@ -84,7 +84,7 @@ def _provenance_ok(answer, allowed_text):
     return True
 
 
-def _tool_args(tool, image_path, note, already_preprocessed):
+def _tool_args(tool, image_path, note, already_preprocessed, question=""):
     if tool == "classify_image":
         return {"path": image_path, "already_preprocessed": already_preprocessed}
     if tool == "explain_image":
@@ -93,11 +93,13 @@ def _tool_args(tool, image_path, note, already_preprocessed):
         return {"note": note or ""}
     if tool == "get_guideline":
         return {"topic": ""}
+    if tool == "search_guidelines":
+        return {"query": question, "k": 3}
     return {}
 
 
-def _execute(tool, trace, pool, image_path, note, already_preprocessed):
-    args = _tool_args(tool, image_path, note, already_preprocessed)
+def _execute(tool, trace, pool, image_path, note, already_preprocessed, question=""):
+    args = _tool_args(tool, image_path, note, already_preprocessed, question)
     key = (tool, json.dumps(args, sort_keys=True))
     if key in trace.setdefault("_seen_calls", set()):
         return None, True  # useless loop: identical call already made
@@ -137,7 +139,8 @@ def _template_answer(fusion, vision, text):
 
 
 def run_agent(user_msg, image_path=None, note=None, pool=None,
-              already_preprocessed=False, use_llm=True, max_rounds=MAX_ROUNDS):
+              already_preprocessed=False, use_llm=True, max_rounds=MAX_ROUNDS,
+              use_critic=True):
     """Run one agent turn. pool: an open MCPPool (created/closed by the caller)."""
     trace = {
         "run_id": uuid.uuid4().hex[:8],
@@ -204,7 +207,7 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
             if len(executed) >= MAX_CALLS:
                 break
             payload, useless = _execute(tool, trace, pool, image_path, note,
-                                        already_preprocessed)
+                                        already_preprocessed, user_msg)
             if useless:
                 trace["useless_loops"] += 1
                 continue
@@ -223,16 +226,38 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
         trace["_forced_now"] = True
         forced.append(tool)
         payload, _ = _execute(tool, trace, pool, image_path, note,
-                              already_preprocessed)
+                              already_preprocessed, user_msg)
         if payload is not None:
             executed[tool] = payload
+
+    # ---------------- step 4 of the brief: contextualise with the resource ------
+    # Cheap, deterministic, always useful: the guidelines are consulted even when
+    # the LLM never proposed them (they contextualise the answer; they never
+    # change the fusion decision).
+    if (image_path or note) and "get_guideline" not in executed:
+        trace["_forced_now"] = True
+        payload, _ = _execute("get_guideline", trace, pool, image_path, note,
+                              already_preprocessed, user_msg)
+        if payload is not None:
+            executed["get_guideline"] = payload
+            forced.append("get_guideline")
     trace["_forced_now"] = False
     trace["proposed"] = proposed_all
     trace["forced"] = forced
 
     vision = executed.get("classify_image")
     text = executed.get("analyze_text")
-    resource = executed.get("get_guideline")
+    resource = executed.get("get_guideline") or executed.get("search_guidelines")
+
+    def composer_facts(vis):
+        """Facts for the final-wording LLM: calibration artifacts (temperature,
+        TAU thresholds) are model internals, a patient vital they are not. The
+        model has to never be tempted to report them."""
+        if not isinstance(vis, dict):
+            return vis
+        facts = {k: v for k, v in vis.items()
+                 if k not in ("temperature", "calibrated", "model", "patient")}
+        return facts
     if vision and executed.get("explain_image") and "error" not in executed["explain_image"]:
         vision = dict(vision)
         vision["suspect"] = executed["explain_image"].get("suspect")
@@ -245,8 +270,12 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
         trace["fusion"] = fusion
         trace["refusal"] = fusion["refused"]
         logger.log_fusion(trace, fusion)
-        allowed_text = json.dumps({"fusion": fusion, "image": vision, "texte": text},
-                                  ensure_ascii=False)
+        allowed_text = json.dumps(
+            {"fusion": fusion, "image": composer_facts(vision),
+             "texte": text,
+             "reperes_guidelines": (resource.get("result", resource)
+                                    if isinstance(resource, dict) else resource)},
+            ensure_ascii=False)
         answer = _template_answer(fusion, vision, text)
     elif resource:
         # knowledge question: the answer comes from the MCP resource
@@ -256,7 +285,11 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
         trace["fusion"] = fusion
         logger.log_fusion(trace, fusion)
         guidelines = resource.get("result", resource) if isinstance(resource, dict) else resource
-        if not isinstance(guidelines, str) or "error" in guidelines:
+        if isinstance(guidelines, list):  # search_guidelines returns passages
+            guidelines = " ".join(
+                f"- {h.get('title', '')} : {h.get('text', '')}" for h in guidelines
+                if isinstance(h, dict) and "error" not in h)
+        if not isinstance(guidelines, str) or "error" in guidelines or not guidelines.strip():
             # the MCP resource call failed: fall back to the same content in-process,
             # a transport error must never reach the user
             from ..resources.content import GUIDELINES_PNEUMONIA
@@ -291,6 +324,29 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
                 trace["llm_candidate"] = candidate[:500]
         except Exception as e:
             trace["llm_error"] = str(e)[:200]
+
+    # ---------------- critic pass: a second LLM reviews the drafted answer ---
+    if use_critic and use_llm and (vision or text or resource):
+        from .critic import critique, apply_critic
+        facts = {"fusion": fusion, "image": composer_facts(vision), "texte": text}
+        if resource and not (vision or text):
+            facts = {"fusion": fusion, "ressource": resource}
+        try:
+            verdict, revised, issues = critique(answer, facts, user_msg)
+        except Exception as e:
+            verdict, revised, issues = "ok", "", [f"critic error: {str(e)[:120]}"]
+        trace["critic_verdict"] = verdict
+        trace["critic_issues"] = issues
+        if verdict in ("revise", "reject"):
+            template = _template_answer(fusion, vision, text)
+            if resource and not (vision or text):
+                template = answer
+            final, used_template = apply_critic(verdict, revised, answer, template, facts)
+            if final != answer:
+                trace["critic_modified"] = True
+            answer = final
+            if used_template:
+                trace["critic_template_fallback"] = True
 
     trace.pop("_seen_calls", None)
     trace["answer"] = answer

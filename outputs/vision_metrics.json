@@ -1,0 +1,24 @@
+{
+  "split": "Kermany official test (624, untouched)",
+  "accuracy": 0.883,
+  "auc": 0.975,
+  "confusion_matrix": [
+    [
+      163,
+      71
+    ],
+    [
+      2,
+      388
+    ]
+  ],
+  "recall_normal": 0.6966,
+  "recall_pneumonia": 0.9949,
+  "precision_normal": 0.9879,
+  "precision_pneumonia": 0.8453,
+  "f1_normal": 0.817,
+  "f1_pneumonia": 0.914,
+  "f1_macro": 0.8655,
+  "n_normal": 234,
+  "n_pneumonia": 390
+}

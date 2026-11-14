@@ -47,3 +47,31 @@ def test_english_note():
     r = analyze_text("Cough with fever and chest pain since three days.")
     assert "toux" in r["entities"]
     assert r["suffisant"] is True
+
+
+def test_accented_french_is_matched():
+    # the brief's own example note, with accents
+    r = analyze_text("Patient de 64 ans, toux productive depuis 5 jours, "
+                     "fièvre à 38,9 °C, douleur thoracique à l'inspiration.")
+    assert "fievre" in r["entities"] and "toux" in r["entities"]
+    assert r["orientation"] == "infection respiratoire probable"
+    assert r["suffisant"] is True
+
+
+def test_accented_rales_and_dyspnee_are_matched():
+    r = analyze_text("Râles crépitants en base droite, dyspnée importante, fièvre.")
+    assert "rales" in r["entities"] and "dyspnee" in r["entities"]
+
+
+def test_accented_negation_is_not_counted():
+    r = analyze_text("Pas de fièvre, patient asymptomatique.")
+    assert "fievre" not in r["entities"]
+    assert "fievre" in r["denied"]
+    assert r["orientation"] == "non infectieux"
+
+
+def test_accented_scrub():
+    # accented diagnostic mentions must also be redacted
+    r = analyze_text("Diagnostic de sarcoïdose retenu. Toux et fièvre.")
+    assert r["redactions"] >= 1
+    assert "sar" not in r["evidence"]
