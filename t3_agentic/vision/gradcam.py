@@ -1,8 +1,17 @@
 import numpy as np
-import tensorflow as tf
+
+# tensorflow is lazy-imported inside the gradient functions so importing the
+# vision server does not pay the TF import cost when only ONNX classify is used.
+def _tf():
+    global _tf
+    if _tf is None:
+        import tensorflow as tf
+        _tf = tf
+    return _tf
 
 
 def _forward_factory(model):
+    tf = _tf()
     """Build the forward pass that exposes (last conv activations, positive logit).
 
     The DenseNet121 backbone is a NESTED Functional model inside the outer model,
@@ -35,6 +44,7 @@ def _forward_factory(model):
 
 
 def explain(model, xb, class_idx=1):
+    tf = _tf()
     """Grad-CAM on the predicted class. Returns (cam 8x8 float32, p_pneumonia)."""
     forward = _forward_factory(model)
     with tf.GradientTape() as tape:

@@ -1,3 +1,17 @@
+"""CNN preprocessing and inference for the T3 vision server.
+
+Two inference backends are supported, picked in this order:
+
+  1. onnxruntime-directml (DmlExecutionProvider) — Windows + RTX 3050.
+     The merged model is exported as weights/densenet_merged.onnx (27.9 MB);
+     inference is ~0.01 s and TF is never imported.
+  2. Keras 3 / TensorFlow (fallback for machines without the .onnx export or
+     without a DirectML-capable GPU).
+
+Grad-CAM specifically requires a differentiable TF graph and is NOT used on the
+ONNX path; it lazy-imports tensorflow only when called.
+"""
+
 import os
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
@@ -11,21 +25,13 @@ os.environ.setdefault("OMP_NUM_THREADS", _TF_THREADS)
 
 import cv2
 import numpy as np
-import tensorflow as tf
-
-try:
-    tf.config.threading.set_intra_op_parallelism_threads(
-        int(os.environ.get("T3_TF_THREADS", "13")))
-    tf.config.threading.set_inter_op_parallelism_threads(
-        int(os.environ.get("T3_TF_THREADS", "13")))
-except Exception:
-    pass
 
 IMG_SIZE = (256, 256)
 CROP = 0.05
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 MODEL_PATH = os.environ.get(
     "T3_WEIGHTS", os.path.join(ROOT, "weights", "densenet_merged.keras"))
+ONNX_PATH = os.path.join(ROOT, "weights", "densenet_merged.onnx")
 
 _model = None
 _clahe = None
@@ -33,13 +39,15 @@ _onnx = None
 
 
 def get_model():
-    """Load the merged Keras model once per process.
-
-    Keras 3 saves .keras as a bundle: either a zip file or a directory holding
-    config.json + metadata.json + model.weights.h5. Both are accepted here.
-    """
+    """TF/Keras model, lazily. Imported by Grad-CAM; not needed for ONNX classify."""
     global _model
     if _model is None:
+        import tensorflow as tf
+        try:
+            tf.config.threading.set_intra_op_parallelism_threads(int(_TF_THREADS))
+            tf.config.threading.set_inter_op_parallelism_threads(int(_TF_THREADS))
+        except Exception:
+            pass
         if not os.path.exists(MODEL_PATH):
             raise FileNotFoundError(
                 f"poids CNN introuvables: {MODEL_PATH} (lancer fetch_assets.py)")
@@ -47,25 +55,20 @@ def get_model():
     return _model
 
 
-_ONNX_PATH = os.path.join(ROOT, "weights", "densenet_merged.onnx")
-
-
 def get_onnx():
-    """DirectML (RTX 3050) inference via onnxruntime, fallback CPU.
-
-    Returns an InferenceSession or None when unavailable. TF's native-Windows
-    GPU support ended at TF 2.10, so ONNX+DirectML is how we get GPU on
-    Windows without moving to WSL2.
-    """
+    """DirectML InferenceSession (Windows/RTX); falls back to CPU provider."""
     global _onnx
-    if _onnx is None and os.path.exists(_ONNX_PATH):
-        try:
-            import onnxruntime as ort
-            _onnx = ort.InferenceSession(
-                _ONNX_PATH,
-                providers=["DmlExecutionProvider", "CPUExecutionProvider"])
-        except Exception as e:
-            print("ONNX/DirectML unavailable, falling back to TF:", e)
+    if _onnx is None:
+        if os.path.exists(ONNX_PATH):
+            try:
+                import onnxruntime as ort
+                _onnx = ort.InferenceSession(
+                    ONNX_PATH,
+                    providers=["DmlExecutionProvider", "CPUExecutionProvider"])
+            except Exception as e:
+                print("ONNX unavailable, falling back to Keras:", e)
+                _onnx = False
+        else:
             _onnx = False
     return _onnx or None
 
@@ -78,7 +81,7 @@ def get_clahe():
 
 
 def preprocess_gray(g):
-    """THE preprocessing. Training, evaluation, external tests and Flask must all use this."""
+    """THE preprocessing. Training, evaluation, external tests and scripts must all use this."""
     h, w = g.shape
     dy, dx = int(h * CROP), int(w * CROP)
     g = g[dy:h - dy, dx:w - dx]
