@@ -1,10 +1,25 @@
 import os
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+# Give TF a real thread budget: by default it uses only a fraction of the
+# machine's cores, which shows up as ~13% CPU during inference. We reserve
+# ~80% of the 16 logical cores (13), leaving 3 for everything else.
+_TF_THREADS = os.environ.get("T3_TF_THREADS", "13")
+os.environ.setdefault("TF_NUM_INTRAOP_THREADS", _TF_THREADS)
+os.environ.setdefault("TF_NUM_INTEROP_THREADS", _TF_THREADS)
+os.environ.setdefault("OMP_NUM_THREADS", _TF_THREADS)
 
 import cv2
 import numpy as np
 import tensorflow as tf
+
+try:
+    tf.config.threading.set_intra_op_parallelism_threads(
+        int(os.environ.get("T3_TF_THREADS", "13")))
+    tf.config.threading.set_inter_op_parallelism_threads(
+        int(os.environ.get("T3_TF_THREADS", "13")))
+except Exception:
+    pass
 
 IMG_SIZE = (256, 256)
 CROP = 0.05
