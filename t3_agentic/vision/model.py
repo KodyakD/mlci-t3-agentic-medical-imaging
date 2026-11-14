@@ -29,6 +29,7 @@ MODEL_PATH = os.environ.get(
 
 _model = None
 _clahe = None
+_onnx = None
 
 
 def get_model():
@@ -44,6 +45,29 @@ def get_model():
                 f"poids CNN introuvables: {MODEL_PATH} (lancer fetch_assets.py)")
         _model = tf.keras.models.load_model(MODEL_PATH)
     return _model
+
+
+_ONNX_PATH = os.path.join(ROOT, "weights", "densenet_merged.onnx")
+
+
+def get_onnx():
+    """DirectML (RTX 3050) inference via onnxruntime, fallback CPU.
+
+    Returns an InferenceSession or None when unavailable. TF's native-Windows
+    GPU support ended at TF 2.10, so ONNX+DirectML is how we get GPU on
+    Windows without moving to WSL2.
+    """
+    global _onnx
+    if _onnx is None and os.path.exists(_ONNX_PATH):
+        try:
+            import onnxruntime as ort
+            _onnx = ort.InferenceSession(
+                _ONNX_PATH,
+                providers=["DmlExecutionProvider", "CPUExecutionProvider"])
+        except Exception as e:
+            print("ONNX/DirectML unavailable, falling back to TF:", e)
+            _onnx = False
+    return _onnx or None
 
 
 def get_clahe():
@@ -90,7 +114,11 @@ def to_input(a):
 def classify(path, already_preprocessed=False):
     """Return (label, p_pneumonia, gray_uint8). label in {'pneumonie', 'normal'}."""
     a = preprocess_file(path, already_preprocessed)
-    x = np.expand_dims(to_input(a), 0)
-    p = float(get_model().predict(x, verbose=0)[0][0])
+    x = np.expand_dims(to_input(a), 0).astype("float32")
+    sess = get_onnx()
+    if sess is not None:
+        p = float(sess.run(None, {"input": x})[0].flatten()[0])
+    else:
+        p = float(get_model().predict(x, verbose=0)[0][0])
     label = "pneumonie" if p > 0.5 else "normal"
     return label, p, a
