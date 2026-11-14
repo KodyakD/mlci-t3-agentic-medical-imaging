@@ -12,7 +12,9 @@ evidence is not trusted, journals every tool call, and is evaluated on dedicated
 
 | Path | Content |
 |---|---|
+| **`docs/GETTING_STARTED.md`** | **START HERE** - 10-minute setup, what each file does, how to reproduce every number, troubleshooting |
 | `t3_agentic/` | the system: MCP servers (vision / NLP / resources), agent loop, evaluation harness, Streamlit UI |
+| `weights/densenet_merged.keras` | **the trained CNN (34 MB, versioned)** - a clone runs the vision part without any Kaggle access |
 | `docs/Report_T3_Agentic_System.md` / `.docx` | the report (English) with all measured numbers |
 | `docs/superpowers/specs/` | design spec |
 | `docs/superpowers/plans/` | implementation plan |
@@ -68,6 +70,10 @@ Key design rules:
 | Calibration (312 test half, 1 000 bootstrap resamples) | accuracy 0.872 [0.840, 0.904] · AUC 0.975 [0.957, 0.988] |
 
 ## Reproduce
+
+The trained CNN is included (`weights/densenet_merged.keras`), so a clone runs the vision
+part immediately. Only the demo image corpus has to be rebuilt (optional - the measurements
+are already in `outputs/`).
 
 ```powershell
 python -m pip install -r t3_agentic/requirements.txt

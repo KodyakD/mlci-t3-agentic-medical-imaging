@@ -1,7 +1,9 @@
 # Heavy artefacts (not versioned)
-weights/
 demo_images/
 data/
+# the trained CNN IS versioned (34 MB) so a clone can run without Kaggle access
+weights/*
+!weights/densenet_merged.keras
 # ArASL TP belongs to another theme — kept out of this repository
 src/
 results/
