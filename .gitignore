@@ -23,3 +23,6 @@ outputs/*.png
 # scratch files from the other TP
 _tmp_*.py
 /requirements.txt
+
+# course brief: kept local, not redistributed
+T3_SysA*.pdf
