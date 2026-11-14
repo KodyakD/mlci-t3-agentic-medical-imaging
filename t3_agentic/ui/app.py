@@ -21,14 +21,16 @@ from t3_agentic.agent.mcp_client import MCPPool
 st.set_page_config(page_title="T3 - Medical image analysis agent",
                    page_icon="🩻", layout="wide")
 
-POOL = None
-
-
+@st.cache_resource
 def get_pool():
-    global POOL
-    if POOL is None:
-        POOL = MCPPool()
-    return POOL
+    """One shared MCP pool per Streamlit process.
+
+    Module-level globals re-run on every Streamlit rerun, so a plain
+    `global POOL = None` resurrected the MCP servers on every interaction.
+    `cache_resource` persists the pool for the lifetime of the app process,
+    which loads TF exactly once.
+    """
+    return MCPPool()
 
 
 def demo_images():

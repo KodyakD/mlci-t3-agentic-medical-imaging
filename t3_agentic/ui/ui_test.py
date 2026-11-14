@@ -158,6 +158,10 @@ def main():
             fill_note(page, "No fever, no cough, no dyspnoea. Completely asymptomatic.")
             fill_question(page, "What can be said about this case?")
             body = click_analyse(page)
+            page.screenshot(path=r"C:\Users\PC\AppData\Local\Temp\opencode\contra_check2.jpg",
+                            full_page=True)
+            print("len:", len(body), "| spinner:", "analysing" in body.lower(),
+                  "| answer:", "Agent answer" in body, flush=True)
             low = body.lower()
             ok_warn = WARNING in body
             assertive = any(k in low for k in
