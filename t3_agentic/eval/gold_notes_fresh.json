@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "note": "SPLIT NEUF, TENU A PART. Ecrit apres la correction du lexique (inflexions verbales) et apres l'inspection des splits dev/test : il n'a jamais ete utilise pour regler quoi que ce soit, et ne doit pas l'etre apres lecture. 14 notes. Les notes melangent formes nominales et verbales, synonymes, negations, denis, mentions diagnostiques, anglais et cas vides.",
+    "labels": ["toux", "fievre", "dyspnee", "douleur thoracique", "expectoration", "frissons", "fatigue", "rales"]
+  },
+  "notes": [
+    {"id": "f01", "text": "La patiente tousse depuis quatre jours et presente de la fievre elevee le soir.", "entities": ["toux", "fievre"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "f02", "text": "Le patient expectore beaucoup et se plaint de fievre et de dyspnee.", "entities": ["expectoration", "fievre", "dyspnee"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "f03", "text": "Elle decrit une douleur thoracique et des frissons depuis la nuit.", "entities": ["douleur thoracique", "frissons"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "f04", "text": "Le petit patient respire rapidement, tousse et a de la fievre.", "entities": ["dyspnee", "toux", "fievre"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "f05", "text": "Fatigue importante, toux nocturne et fievre moderee.", "entities": ["fatigue", "toux", "fievre"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "f06", "text": "Coughing with high fever and chest pain since Tuesday.", "entities": ["toux", "fievre", "douleur thoracique"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "f07", "text": "Wheezing sounds, cough and fever on auscultation.", "entities": ["rales", "toux", "fievre"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "f08", "text": "Le patient ne tousse pas et n'a pas de fievre, mais il est essouffle.", "entities": ["dyspnee"], "orientation": "orientation insuffisante", "suffisant": false},
+    {"id": "f09", "text": "Pas de fievre chez ce patient, radiographie consideree normale.", "entities": [], "orientation": "non infectieux", "suffisant": true},
+    {"id": "f10", "text": "Aucun signe respiratoire retrouve, examen sans anomalie.", "entities": [], "orientation": "non infectieux", "suffisant": true},
+    {"id": "f11", "text": "Le patient se plaignait de fatigue passagere, rien d'autre.", "entities": ["fatigue"], "orientation": "orientation insuffisante", "suffisant": false},
+    {"id": "f12", "text": "Diagnostic de bronchite asthmatique, toux nocturne et sibilants.", "entities": ["toux", "rales"], "orientation": "orientation insuffisante", "suffisant": false},
+    {"id": "f13", "text": "Suivi de routine, aucune plainte ce jour.", "entities": [], "orientation": "aucun symptome respiratoire detecte", "suffisant": false},
+    {"id": "f14", "text": "", "entities": [], "orientation": "note vide", "suffisant": false}
+  ]
+}

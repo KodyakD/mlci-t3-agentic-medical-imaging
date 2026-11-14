@@ -1,0 +1,192 @@
+{
+  "summary": {
+    "n_runs_with_tools": 20,
+    "n_runs_with_both_modalities": 11,
+    "both_image_vs_multimodal_agreement": 0.727,
+    "both_text_vs_multimodal_agreement": 0.182,
+    "both_all_three_agreement": 0.182,
+    "both_refusal_rate_multimodal": 0.545
+  },
+  "runs": [
+    {
+      "run_id": "c104db5a",
+      "modality": "image",
+      "image_only": "pneumonie_suspecte",
+      "text_only": null,
+      "multimodal": "pneumonie_suspecte",
+      "coherence_both": "image_seule",
+      "refused_both": false
+    },
+    {
+      "run_id": "f7653115",
+      "modality": "image",
+      "image_only": "normal_suspecte",
+      "text_only": null,
+      "multimodal": "normal_suspecte",
+      "coherence_both": "image_seule",
+      "refused_both": false
+    },
+    {
+      "run_id": "4a2b2420",
+      "modality": "image",
+      "image_only": "pneumonie_suspecte",
+      "text_only": null,
+      "multimodal": "pneumonie_suspecte",
+      "coherence_both": "image_seule",
+      "refused_both": false
+    },
+    {
+      "run_id": "a6720982",
+      "modality": "image",
+      "image_only": "normal_suspecte",
+      "text_only": null,
+      "multimodal": "normal_suspecte",
+      "coherence_both": "image_seule",
+      "refused_both": false
+    },
+    {
+      "run_id": "18ac4d47",
+      "modality": "text",
+      "image_only": null,
+      "text_only": "pneumonie_suspectee",
+      "multimodal": "pneumonie_suspectee",
+      "coherence_both": "texte_seule",
+      "refused_both": false
+    },
+    {
+      "run_id": "e7686a21",
+      "modality": "text",
+      "image_only": null,
+      "text_only": null,
+      "multimodal": null,
+      "coherence_both": "insuffisant",
+      "refused_both": true
+    },
+    {
+      "run_id": "b3b7ed19",
+      "modality": "text",
+      "image_only": null,
+      "text_only": "normal_suspecte",
+      "multimodal": "normal_suspecte",
+      "coherence_both": "texte_seule",
+      "refused_both": false
+    },
+    {
+      "run_id": "4862d4d3",
+      "modality": "text",
+      "image_only": null,
+      "text_only": null,
+      "multimodal": null,
+      "coherence_both": "insuffisant",
+      "refused_both": true
+    },
+    {
+      "run_id": "481877c1",
+      "modality": "both",
+      "image_only": "pneumonie_suspecte",
+      "text_only": "pneumonie_suspectee",
+      "multimodal": "pneumonie_suspecte",
+      "coherence_both": "concordant",
+      "refused_both": false
+    },
+    {
+      "run_id": "9c8138d2",
+      "modality": "both",
+      "image_only": "normal_suspecte",
+      "text_only": "normal_suspecte",
+      "multimodal": "normal_suspecte",
+      "coherence_both": "concordant",
+      "refused_both": false
+    },
+    {
+      "run_id": "8e1aaea8",
+      "modality": "both",
+      "image_only": "pneumonie_suspecte",
+      "text_only": "pneumonie_suspectee",
+      "multimodal": "pneumonie_suspecte",
+      "coherence_both": "concordant",
+      "refused_both": false
+    },
+    {
+      "run_id": "78b916d0",
+      "modality": "both",
+      "image_only": null,
+      "text_only": "normal_suspecte",
+      "multimodal": null,
+      "coherence_both": "insuffisant",
+      "refused_both": true
+    },
+    {
+      "run_id": "3101a9e4",
+      "modality": "both",
+      "image_only": "pneumonie_suspecte",
+      "text_only": "normal_suspecte",
+      "multimodal": null,
+      "coherence_both": "contradictoire",
+      "refused_both": true
+    },
+    {
+      "run_id": "10ffd334",
+      "modality": "both",
+      "image_only": null,
+      "text_only": "pneumonie_suspectee",
+      "multimodal": null,
+      "coherence_both": "insuffisant",
+      "refused_both": true
+    },
+    {
+      "run_id": "64c11617",
+      "modality": "both",
+      "image_only": "pneumonie_suspecte",
+      "text_only": "normal_suspecte",
+      "multimodal": null,
+      "coherence_both": "contradictoire",
+      "refused_both": true
+    },
+    {
+      "run_id": "e3e42e12",
+      "modality": "both",
+      "image_only": "normal_suspecte",
+      "text_only": "pneumonie_suspectee",
+      "multimodal": null,
+      "coherence_both": "contradictoire",
+      "refused_both": true
+    },
+    {
+      "run_id": "cc27fea5",
+      "modality": "both",
+      "image_only": "pneumonie_suspecte",
+      "text_only": null,
+      "multimodal": "pneumonie_suspecte",
+      "coherence_both": "image_seule",
+      "refused_both": false
+    },
+    {
+      "run_id": "a51240ba",
+      "modality": "both",
+      "image_only": "normal_suspecte",
+      "text_only": null,
+      "multimodal": "normal_suspecte",
+      "coherence_both": "image_seule",
+      "refused_both": false
+    },
+    {
+      "run_id": "a7a1e94a",
+      "modality": "both",
+      "image_only": null,
+      "text_only": null,
+      "multimodal": null,
+      "coherence_both": "insuffisant",
+      "refused_both": true
+    },
+    {
+      "run_id": "970596ee",
+      "modality": "text",
+      "image_only": null,
+      "text_only": "pneumonie_suspectee",
+      "multimodal": "pneumonie_suspectee",
+      "coherence_both": "texte_seule",
+      "refused_both": false
+    }
+  ]
+}

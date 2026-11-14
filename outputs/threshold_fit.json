@@ -1,0 +1,110 @@
+{
+  "protocol": {
+    "source": "test officiel Kermany (624 images, jamais vu a l'entrainement)",
+    "split": "stratified 312/312, seed 42",
+    "fitted_on": "validation half (312) uniquement",
+    "reported_on": "test half (312)",
+    "n_val": 312,
+    "n_test": 312,
+    "criteria": {
+      "tau_low_accuracy": 0.95,
+      "tau_high_accuracy": 0.99,
+      "tau_high_min_coverage": 0.3
+    },
+    "nih": "jamais utilise pour l'ajustement (controle de decalage non ajuste)"
+  },
+  "fitted": {
+    "tau_low": 0.7559,
+    "tau_high": 0.9994,
+    "temperature": 1.4403
+  },
+  "validation_half": {
+    "accuracy_raw": 0.8942,
+    "accuracy_calibrated": 0.8942,
+    "auc": 0.975,
+    "threshold_sweep": [
+      {
+        "t": 0.5,
+        "coverage": 1.0,
+        "accuracy": 0.8942
+      },
+      {
+        "t": 0.55,
+        "coverage": 0.974,
+        "accuracy": 0.9079
+      },
+      {
+        "t": 0.6,
+        "coverage": 0.933,
+        "accuracy": 0.9175
+      },
+      {
+        "t": 0.65,
+        "coverage": 0.91,
+        "accuracy": 0.9296
+      },
+      {
+        "t": 0.7,
+        "coverage": 0.881,
+        "accuracy": 0.9345
+      },
+      {
+        "t": 0.75,
+        "coverage": 0.83,
+        "accuracy": 0.9498
+      },
+      {
+        "t": 0.8,
+        "coverage": 0.772,
+        "accuracy": 0.9627
+      },
+      {
+        "t": 0.85,
+        "coverage": 0.74,
+        "accuracy": 0.9654
+      },
+      {
+        "t": 0.9,
+        "coverage": 0.663,
+        "accuracy": 0.971
+      },
+      {
+        "t": 0.95,
+        "coverage": 0.513,
+        "accuracy": 0.975
+      }
+    ]
+  },
+  "test_half": {
+    "accuracy_raw": 0.8718,
+    "accuracy_calibrated": 0.8718,
+    "auc": 0.9748,
+    "pr_auc": 0.9857,
+    "ece_before_temperature": 0.0439,
+    "ece_after_temperature": 0.032,
+    "coverage_trusted": 0.7436,
+    "accuracy_on_trusted": 0.9526,
+    "abstained": 80,
+    "confusion_matrix": [
+      [
+        79,
+        38
+      ],
+      [
+        2,
+        193
+      ]
+    ],
+    "confusion_matrix_trusted_only": [
+      [
+        39,
+        10
+      ],
+      [
+        1,
+        182
+      ]
+    ]
+  },
+  "caveat": "312 images par demi : intervalles de confiance larges, les seuils sont indicatifs et a reconduire sur un jeu plus grand."
+}

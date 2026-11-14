@@ -1,0 +1,11 @@
+{
+  "n": 624,
+  "local_accuracy": 0.883,
+  "local_auc": 0.975,
+  "kaggle_accuracy": 0.966,
+  "kaggle_auc": 0.9893,
+  "delta_accuracy": -0.083,
+  "delta_auc": -0.0143,
+  "within_tolerance": false,
+  "split_note": "local = test officiel Kermany (624 imgs, JAMAIS vu a l'entrainement) ; Kaggle = re-split patient du notebook (940 imgs, issu du pool train+val). Les deux chiffres sont vrais mais ne se comparent pas directement."
+}

@@ -1,0 +1,25 @@
+# Heavy artefacts (not versioned)
+weights/
+demo_images/
+data/
+# ArASL TP belongs to another theme — kept out of this repository
+src/
+results/
+figs/
+Rapport_TP_CNN_ArASL*.docx
+TP_ArASL_CNN.ipynb
+/run_all.ps1
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+# outputs: keep the measurement JSONs, drop the bulk heatmaps
+outputs/*.png
+!outputs/reliability_curve.png
+!outputs/gradcam_person100_bacteria_475.png
+
+# verification artefacts from the browser tooling
+.playwright-mcp/
+# scratch files from the other TP
+_tmp_*.py
+/requirements.txt

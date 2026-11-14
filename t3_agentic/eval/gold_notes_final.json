@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "note": "FINAL NLP SPLIT. Written AFTER the code was frozen (lexicon with verb inflections, 'ne ... pas' post-negation, 'aucun signe respiratoire' denial, orientation rule '>=2 symptoms and >=1 strong'). Never run before, never used for tuning. 12 notes. This is the number quoted as the final NLP generalisation estimate.",
+    "labels": ["toux", "fievre", "dyspnee", "douleur thoracique", "expectoration", "frissons", "fatigue", "rales"]
+  },
+  "notes": [
+    {"id": "z01", "text": "Le patient tousse beaucoup, il a de la fievre et il est essouffle.", "entities": ["toux", "fievre", "dyspnee"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "z02", "text": "Elle presente une douleur thoracique et des frissons depuis hier soir.", "entities": ["douleur thoracique", "frissons"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "z03", "text": "Le patient expectore, il tousse et il a de la fievre.", "entities": ["expectoration", "toux", "fievre"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "z04", "text": "Cough, high fever and chest pain since Monday.", "entities": ["toux", "fievre", "douleur thoracique"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "z05", "text": "Fatigue, toux nocturne et fievre le soir.", "entities": ["fatigue", "toux", "fievre"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "z06", "text": "Il ne tousse pas et il n'a pas de fievre, mais il est essouffle.", "entities": ["dyspnee"], "orientation": "orientation insuffisante", "suffisant": false},
+    {"id": "z07", "text": "Aucun signe respiratoire retrouve chez ce patient.", "entities": [], "orientation": "non infectieux", "suffisant": true},
+    {"id": "z08", "text": "Pas de toux, pas de fievre, examen sans particularite.", "entities": [], "orientation": "non infectieux", "suffisant": true},
+    {"id": "z09", "text": "Le patient signale une fatigue passagere, sans autre element.", "entities": ["fatigue"], "orientation": "orientation insuffisante", "suffisant": false},
+    {"id": "z10", "text": "Diagnostic de pneumonie communautaire, toux et fievre.", "entities": ["toux", "fievre"], "orientation": "infection respiratoire probable", "suffisant": true},
+    {"id": "z11", "text": "Radiographie thoracique, sans anomalie, patient asymptomatique.", "entities": [], "orientation": "non infectieux", "suffisant": true},
+    {"id": "z12", "text": "Le patient se plaint de fievre et de touxproductive depuis cinq jours.", "entities": ["fievre", "toux"], "orientation": "infection respiratoire probable", "suffisant": true}
+  ]
+}

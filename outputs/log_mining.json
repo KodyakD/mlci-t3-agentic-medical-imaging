@@ -1,0 +1,1494 @@
+{
+  "n_log_lines": 294,
+  "n_runs": 72,
+  "per_eval": {
+    "agent_eval_dev": {
+      "n_cases": 22,
+      "raw_tool_choice_misses": [
+        {
+          "case": "c01",
+          "question": "Que peut-on dire de cette radiographie ?",
+          "gold_tools": [
+            "classify_image",
+            "explain_image"
+          ],
+          "proposed": [
+            "classify_image"
+          ],
+          "called": [
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:1",
+            "agent_log_agent_eval_dev.jsonl:2",
+            "agent_log_agent_eval_dev.jsonl:3",
+            "agent_log_agent_eval_dev.jsonl:4"
+          ]
+        },
+        {
+          "case": "c02",
+          "question": "Analyse cette radio.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image"
+          ],
+          "proposed": [
+            "classify_image"
+          ],
+          "called": [
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:5",
+            "agent_log_agent_eval_dev.jsonl:6",
+            "agent_log_agent_eval_dev.jsonl:7",
+            "agent_log_agent_eval_dev.jsonl:8"
+          ]
+        },
+        {
+          "case": "c03",
+          "question": "Cette radio montre-t-elle une anomalie ?",
+          "gold_tools": [
+            "classify_image",
+            "explain_image"
+          ],
+          "proposed": [
+            "classify_image"
+          ],
+          "called": [
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:9",
+            "agent_log_agent_eval_dev.jsonl:10",
+            "agent_log_agent_eval_dev.jsonl:11",
+            "agent_log_agent_eval_dev.jsonl:12"
+          ]
+        },
+        {
+          "case": "c10",
+          "question": "Analyse de la radio et de la note.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:34",
+            "agent_log_agent_eval_dev.jsonl:35",
+            "agent_log_agent_eval_dev.jsonl:36",
+            "agent_log_agent_eval_dev.jsonl:37",
+            "agent_log_agent_eval_dev.jsonl:38"
+          ]
+        },
+        {
+          "case": "c11",
+          "question": "Radio + note : que concluez-vous ?",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:39",
+            "agent_log_agent_eval_dev.jsonl:40",
+            "agent_log_agent_eval_dev.jsonl:41",
+            "agent_log_agent_eval_dev.jsonl:42",
+            "agent_log_agent_eval_dev.jsonl:43"
+          ]
+        },
+        {
+          "case": "c14",
+          "question": "Analyse ce dossier.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:54",
+            "agent_log_agent_eval_dev.jsonl:55",
+            "agent_log_agent_eval_dev.jsonl:56",
+            "agent_log_agent_eval_dev.jsonl:57",
+            "agent_log_agent_eval_dev.jsonl:58"
+          ]
+        },
+        {
+          "case": "c15",
+          "question": "Confronte la radio et la note.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:59",
+            "agent_log_agent_eval_dev.jsonl:60",
+            "agent_log_agent_eval_dev.jsonl:61",
+            "agent_log_agent_eval_dev.jsonl:62",
+            "agent_log_agent_eval_dev.jsonl:63"
+          ]
+        },
+        {
+          "case": "c17",
+          "question": "Radio et note.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:69",
+            "agent_log_agent_eval_dev.jsonl:70",
+            "agent_log_agent_eval_dev.jsonl:71",
+            "agent_log_agent_eval_dev.jsonl:72",
+            "agent_log_agent_eval_dev.jsonl:73"
+          ]
+        },
+        {
+          "case": "c18",
+          "question": "Analyse de ce cas.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:74",
+            "agent_log_agent_eval_dev.jsonl:75",
+            "agent_log_agent_eval_dev.jsonl:76",
+            "agent_log_agent_eval_dev.jsonl:77",
+            "agent_log_agent_eval_dev.jsonl:78"
+          ]
+        }
+      ],
+      "n_raw_misses": 9,
+      "tool_choice_source_counts": {
+        "llm": 22,
+        "fallback_or_router": 0
+      },
+      "runs_with_forced_completion": 9,
+      "forced_completion_rate": 0.409,
+      "cases": [
+        {
+          "case": "c01",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9673,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:1",
+            "agent_log_agent_eval_dev.jsonl:2",
+            "agent_log_agent_eval_dev.jsonl:3",
+            "agent_log_agent_eval_dev.jsonl:4"
+          ]
+        },
+        {
+          "case": "c02",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "normal",
+            "score": 0.8101,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:5",
+            "agent_log_agent_eval_dev.jsonl:6",
+            "agent_log_agent_eval_dev.jsonl:7",
+            "agent_log_agent_eval_dev.jsonl:8"
+          ]
+        },
+        {
+          "case": "c03",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9132,
+            "suspect": true
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:9",
+            "agent_log_agent_eval_dev.jsonl:10",
+            "agent_log_agent_eval_dev.jsonl:11",
+            "agent_log_agent_eval_dev.jsonl:12"
+          ]
+        },
+        {
+          "case": "c04",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "normal",
+            "score": 0.8348,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:13",
+            "agent_log_agent_eval_dev.jsonl:14",
+            "agent_log_agent_eval_dev.jsonl:15",
+            "agent_log_agent_eval_dev.jsonl:16"
+          ]
+        },
+        {
+          "case": "c05",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:17",
+            "agent_log_agent_eval_dev.jsonl:18",
+            "agent_log_agent_eval_dev.jsonl:19"
+          ]
+        },
+        {
+          "case": "c06",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "aucun symptome respiratoire detecte",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:20",
+            "agent_log_agent_eval_dev.jsonl:21",
+            "agent_log_agent_eval_dev.jsonl:22"
+          ]
+        },
+        {
+          "case": "c07",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:23",
+            "agent_log_agent_eval_dev.jsonl:24",
+            "agent_log_agent_eval_dev.jsonl:25"
+          ]
+        },
+        {
+          "case": "c08",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "note vide",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:26",
+            "agent_log_agent_eval_dev.jsonl:27",
+            "agent_log_agent_eval_dev.jsonl:28"
+          ]
+        },
+        {
+          "case": "c09",
+          "fusion_ok": true,
+          "fusion_coherence": "concordant",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9917,
+            "suspect": false
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:29",
+            "agent_log_agent_eval_dev.jsonl:30",
+            "agent_log_agent_eval_dev.jsonl:31",
+            "agent_log_agent_eval_dev.jsonl:32",
+            "agent_log_agent_eval_dev.jsonl:33"
+          ]
+        },
+        {
+          "case": "c10",
+          "fusion_ok": true,
+          "fusion_coherence": "concordant",
+          "refused": false,
+          "vision": {
+            "label": "normal",
+            "score": 0.8385,
+            "suspect": false
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:34",
+            "agent_log_agent_eval_dev.jsonl:35",
+            "agent_log_agent_eval_dev.jsonl:36",
+            "agent_log_agent_eval_dev.jsonl:37",
+            "agent_log_agent_eval_dev.jsonl:38"
+          ]
+        },
+        {
+          "case": "c11",
+          "fusion_ok": true,
+          "fusion_coherence": "concordant",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9986,
+            "suspect": false
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:39",
+            "agent_log_agent_eval_dev.jsonl:40",
+            "agent_log_agent_eval_dev.jsonl:41",
+            "agent_log_agent_eval_dev.jsonl:42",
+            "agent_log_agent_eval_dev.jsonl:43"
+          ]
+        },
+        {
+          "case": "c12",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.5149,
+            "suspect": true
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:44",
+            "agent_log_agent_eval_dev.jsonl:45",
+            "agent_log_agent_eval_dev.jsonl:46",
+            "agent_log_agent_eval_dev.jsonl:47",
+            "agent_log_agent_eval_dev.jsonl:48"
+          ]
+        },
+        {
+          "case": "c13",
+          "fusion_ok": true,
+          "fusion_coherence": "contradictoire",
+          "refused": true,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9132,
+            "suspect": true
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:29",
+            "agent_log_agent_eval_dev.jsonl:30",
+            "agent_log_agent_eval_dev.jsonl:31",
+            "agent_log_agent_eval_dev.jsonl:32",
+            "agent_log_agent_eval_dev.jsonl:33"
+          ]
+        },
+        {
+          "case": "c14",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": "normal",
+            "score": 0.6614,
+            "suspect": false
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:54",
+            "agent_log_agent_eval_dev.jsonl:55",
+            "agent_log_agent_eval_dev.jsonl:56",
+            "agent_log_agent_eval_dev.jsonl:57",
+            "agent_log_agent_eval_dev.jsonl:58"
+          ]
+        },
+        {
+          "case": "c15",
+          "fusion_ok": true,
+          "fusion_coherence": "contradictoire",
+          "refused": true,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9937,
+            "suspect": false
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:59",
+            "agent_log_agent_eval_dev.jsonl:60",
+            "agent_log_agent_eval_dev.jsonl:61",
+            "agent_log_agent_eval_dev.jsonl:62",
+            "agent_log_agent_eval_dev.jsonl:63"
+          ]
+        },
+        {
+          "case": "c16",
+          "fusion_ok": true,
+          "fusion_coherence": "contradictoire",
+          "refused": true,
+          "vision": {
+            "label": "normal",
+            "score": 0.8101,
+            "suspect": false
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:64",
+            "agent_log_agent_eval_dev.jsonl:65",
+            "agent_log_agent_eval_dev.jsonl:66",
+            "agent_log_agent_eval_dev.jsonl:67",
+            "agent_log_agent_eval_dev.jsonl:68"
+          ]
+        },
+        {
+          "case": "c17",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9761,
+            "suspect": false
+          },
+          "text_orientation": "orientation insuffisante",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:69",
+            "agent_log_agent_eval_dev.jsonl:70",
+            "agent_log_agent_eval_dev.jsonl:71",
+            "agent_log_agent_eval_dev.jsonl:72",
+            "agent_log_agent_eval_dev.jsonl:73"
+          ]
+        },
+        {
+          "case": "c18",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "normal",
+            "score": 0.7406,
+            "suspect": true
+          },
+          "text_orientation": "orientation insuffisante",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:74",
+            "agent_log_agent_eval_dev.jsonl:75",
+            "agent_log_agent_eval_dev.jsonl:76",
+            "agent_log_agent_eval_dev.jsonl:77",
+            "agent_log_agent_eval_dev.jsonl:78"
+          ]
+        },
+        {
+          "case": "c19",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": "normal",
+            "score": 0.5593,
+            "suspect": false
+          },
+          "text_orientation": "aucun symptome respiratoire detecte",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:29",
+            "agent_log_agent_eval_dev.jsonl:30",
+            "agent_log_agent_eval_dev.jsonl:31",
+            "agent_log_agent_eval_dev.jsonl:32",
+            "agent_log_agent_eval_dev.jsonl:33"
+          ]
+        },
+        {
+          "case": "c20",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:20",
+            "agent_log_agent_eval_dev.jsonl:21",
+            "agent_log_agent_eval_dev.jsonl:22"
+          ]
+        },
+        {
+          "case": "c21",
+          "fusion_ok": true,
+          "fusion_coherence": "ressource",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:87",
+            "agent_log_agent_eval_dev.jsonl:88",
+            "agent_log_agent_eval_dev.jsonl:89"
+          ]
+        },
+        {
+          "case": "c22",
+          "fusion_ok": true,
+          "fusion_coherence": "ressource",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:90",
+            "agent_log_agent_eval_dev.jsonl:91",
+            "agent_log_agent_eval_dev.jsonl:92"
+          ]
+        }
+      ]
+    },
+    "agent_eval_heldout": {
+      "n_cases": 18,
+      "raw_tool_choice_misses": [
+        {
+          "case": "h01",
+          "question": "Peux-tu analyser cette radiographie ?",
+          "gold_tools": [
+            "classify_image",
+            "explain_image"
+          ],
+          "proposed": [
+            "classify_image"
+          ],
+          "called": [
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:1",
+            "agent_log_agent_eval_heldout.jsonl:2",
+            "agent_log_agent_eval_heldout.jsonl:3",
+            "agent_log_agent_eval_heldout.jsonl:4"
+          ]
+        },
+        {
+          "case": "h02",
+          "question": "J'ai une radio thoracique ici. Dis-moi ce que tu en penses.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image"
+          ],
+          "proposed": [
+            "classify_image"
+          ],
+          "called": [
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:5",
+            "agent_log_agent_eval_heldout.jsonl:6",
+            "agent_log_agent_eval_heldout.jsonl:7",
+            "agent_log_agent_eval_heldout.jsonl:8"
+          ]
+        },
+        {
+          "case": "h03",
+          "question": "Cette image correspond a quoi ?",
+          "gold_tools": [
+            "classify_image",
+            "explain_image"
+          ],
+          "proposed": [
+            "classify_image"
+          ],
+          "called": [
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:9",
+            "agent_log_agent_eval_heldout.jsonl:10",
+            "agent_log_agent_eval_heldout.jsonl:11",
+            "agent_log_agent_eval_heldout.jsonl:12"
+          ]
+        },
+        {
+          "case": "h10",
+          "question": "Radio et note : analyse.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:34",
+            "agent_log_agent_eval_heldout.jsonl:35",
+            "agent_log_agent_eval_heldout.jsonl:36",
+            "agent_log_agent_eval_heldout.jsonl:37",
+            "agent_log_agent_eval_heldout.jsonl:38"
+          ]
+        },
+        {
+          "case": "h11",
+          "question": "Que disent ces deux sources ?",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:39",
+            "agent_log_agent_eval_heldout.jsonl:40",
+            "agent_log_agent_eval_heldout.jsonl:41",
+            "agent_log_agent_eval_heldout.jsonl:42",
+            "agent_log_agent_eval_heldout.jsonl:43"
+          ]
+        },
+        {
+          "case": "h12",
+          "question": "Analyse ce dossier.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:54",
+            "agent_log_agent_eval_dev.jsonl:55",
+            "agent_log_agent_eval_dev.jsonl:56",
+            "agent_log_agent_eval_dev.jsonl:57",
+            "agent_log_agent_eval_dev.jsonl:58"
+          ]
+        },
+        {
+          "case": "h13",
+          "question": "Radio et note.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:69",
+            "agent_log_agent_eval_dev.jsonl:70",
+            "agent_log_agent_eval_dev.jsonl:71",
+            "agent_log_agent_eval_dev.jsonl:72",
+            "agent_log_agent_eval_dev.jsonl:73"
+          ]
+        }
+      ],
+      "n_raw_misses": 7,
+      "tool_choice_source_counts": {
+        "llm": 18,
+        "fallback_or_router": 0
+      },
+      "runs_with_forced_completion": 7,
+      "forced_completion_rate": 0.389,
+      "cases": [
+        {
+          "case": "h01",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9915,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:1",
+            "agent_log_agent_eval_heldout.jsonl:2",
+            "agent_log_agent_eval_heldout.jsonl:3",
+            "agent_log_agent_eval_heldout.jsonl:4"
+          ]
+        },
+        {
+          "case": "h02",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "normal",
+            "score": 0.9108,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:5",
+            "agent_log_agent_eval_heldout.jsonl:6",
+            "agent_log_agent_eval_heldout.jsonl:7",
+            "agent_log_agent_eval_heldout.jsonl:8"
+          ]
+        },
+        {
+          "case": "h03",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9062,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:9",
+            "agent_log_agent_eval_heldout.jsonl:10",
+            "agent_log_agent_eval_heldout.jsonl:11",
+            "agent_log_agent_eval_heldout.jsonl:12"
+          ]
+        },
+        {
+          "case": "h04",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": "normal",
+            "score": 0.5496,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:13",
+            "agent_log_agent_eval_heldout.jsonl:14",
+            "agent_log_agent_eval_heldout.jsonl:15",
+            "agent_log_agent_eval_heldout.jsonl:16"
+          ]
+        },
+        {
+          "case": "h05",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:17",
+            "agent_log_agent_eval_heldout.jsonl:18",
+            "agent_log_agent_eval_heldout.jsonl:19"
+          ]
+        },
+        {
+          "case": "h06",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:20",
+            "agent_log_agent_eval_heldout.jsonl:21",
+            "agent_log_agent_eval_heldout.jsonl:22"
+          ]
+        },
+        {
+          "case": "h07",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:23",
+            "agent_log_agent_eval_heldout.jsonl:24",
+            "agent_log_agent_eval_heldout.jsonl:25"
+          ]
+        },
+        {
+          "case": "h08",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "note vide",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:26",
+            "agent_log_agent_eval_heldout.jsonl:27",
+            "agent_log_agent_eval_heldout.jsonl:28"
+          ]
+        },
+        {
+          "case": "h09",
+          "fusion_ok": true,
+          "fusion_coherence": "concordant",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9993,
+            "suspect": false
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:29",
+            "agent_log_agent_eval_heldout.jsonl:30",
+            "agent_log_agent_eval_heldout.jsonl:31",
+            "agent_log_agent_eval_heldout.jsonl:32",
+            "agent_log_agent_eval_heldout.jsonl:33"
+          ]
+        },
+        {
+          "case": "h10",
+          "fusion_ok": true,
+          "fusion_coherence": "concordant",
+          "refused": false,
+          "vision": {
+            "label": "normal",
+            "score": 0.7658,
+            "suspect": false
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:34",
+            "agent_log_agent_eval_heldout.jsonl:35",
+            "agent_log_agent_eval_heldout.jsonl:36",
+            "agent_log_agent_eval_heldout.jsonl:37",
+            "agent_log_agent_eval_heldout.jsonl:38"
+          ]
+        },
+        {
+          "case": "h11",
+          "fusion_ok": true,
+          "fusion_coherence": "contradictoire",
+          "refused": true,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.992,
+            "suspect": false
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:39",
+            "agent_log_agent_eval_heldout.jsonl:40",
+            "agent_log_agent_eval_heldout.jsonl:41",
+            "agent_log_agent_eval_heldout.jsonl:42",
+            "agent_log_agent_eval_heldout.jsonl:43"
+          ]
+        },
+        {
+          "case": "h12",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": "normal",
+            "score": 0.6308,
+            "suspect": false
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:54",
+            "agent_log_agent_eval_dev.jsonl:55",
+            "agent_log_agent_eval_dev.jsonl:56",
+            "agent_log_agent_eval_dev.jsonl:57",
+            "agent_log_agent_eval_dev.jsonl:58"
+          ]
+        },
+        {
+          "case": "h13",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.6475,
+            "suspect": true
+          },
+          "text_orientation": "orientation insuffisante",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:69",
+            "agent_log_agent_eval_dev.jsonl:70",
+            "agent_log_agent_eval_dev.jsonl:71",
+            "agent_log_agent_eval_dev.jsonl:72",
+            "agent_log_agent_eval_dev.jsonl:73"
+          ]
+        },
+        {
+          "case": "h14",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9774,
+            "suspect": false
+          },
+          "text_orientation": "aucun symptome respiratoire detecte",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:29",
+            "agent_log_agent_eval_dev.jsonl:30",
+            "agent_log_agent_eval_dev.jsonl:31",
+            "agent_log_agent_eval_dev.jsonl:32",
+            "agent_log_agent_eval_dev.jsonl:33"
+          ]
+        },
+        {
+          "case": "h15",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:20",
+            "agent_log_agent_eval_dev.jsonl:21",
+            "agent_log_agent_eval_dev.jsonl:22"
+          ]
+        },
+        {
+          "case": "h16",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:62",
+            "agent_log_agent_eval_heldout.jsonl:63",
+            "agent_log_agent_eval_heldout.jsonl:64"
+          ]
+        },
+        {
+          "case": "h17",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:65",
+            "agent_log_agent_eval_heldout.jsonl:66",
+            "agent_log_agent_eval_heldout.jsonl:67"
+          ]
+        },
+        {
+          "case": "h18",
+          "fusion_ok": true,
+          "fusion_coherence": "ressource",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_heldout.jsonl:68",
+            "agent_log_agent_eval_heldout.jsonl:69",
+            "agent_log_agent_eval_heldout.jsonl:70"
+          ]
+        }
+      ]
+    },
+    "agent_eval_fresh": {
+      "n_cases": 10,
+      "raw_tool_choice_misses": [
+        {
+          "case": "f02",
+          "question": "J'ai monte cette radio, tu en penses quoi ?",
+          "gold_tools": [
+            "classify_image",
+            "explain_image"
+          ],
+          "proposed": [
+            "classify_image"
+          ],
+          "called": [
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:5",
+            "agent_log_agent_eval_fresh.jsonl:6",
+            "agent_log_agent_eval_fresh.jsonl:7",
+            "agent_log_agent_eval_fresh.jsonl:8"
+          ]
+        },
+        {
+          "case": "f06",
+          "question": "Analyse le dossier complet.",
+          "gold_tools": [
+            "classify_image",
+            "explain_image",
+            "analyze_text"
+          ],
+          "proposed": [
+            "analyze_text"
+          ],
+          "called": [
+            "analyze_text",
+            "classify_image",
+            "explain_image"
+          ],
+          "forced": [
+            "classify_image",
+            "explain_image"
+          ],
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:20",
+            "agent_log_agent_eval_fresh.jsonl:21",
+            "agent_log_agent_eval_fresh.jsonl:22",
+            "agent_log_agent_eval_fresh.jsonl:23",
+            "agent_log_agent_eval_fresh.jsonl:24"
+          ]
+        }
+      ],
+      "n_raw_misses": 2,
+      "tool_choice_source_counts": {
+        "llm": 10,
+        "fallback_or_router": 0
+      },
+      "runs_with_forced_completion": 2,
+      "forced_completion_rate": 0.2,
+      "cases": [
+        {
+          "case": "f01",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.7883,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:1",
+            "agent_log_agent_eval_fresh.jsonl:2",
+            "agent_log_agent_eval_fresh.jsonl:3",
+            "agent_log_agent_eval_fresh.jsonl:4"
+          ]
+        },
+        {
+          "case": "f02",
+          "fusion_ok": true,
+          "fusion_coherence": "insuffisant",
+          "refused": true,
+          "vision": {
+            "label": "normal",
+            "score": 0.6129,
+            "suspect": false
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:5",
+            "agent_log_agent_eval_fresh.jsonl:6",
+            "agent_log_agent_eval_fresh.jsonl:7",
+            "agent_log_agent_eval_fresh.jsonl:8"
+          ]
+        },
+        {
+          "case": "f03",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:9",
+            "agent_log_agent_eval_fresh.jsonl:10",
+            "agent_log_agent_eval_fresh.jsonl:11"
+          ]
+        },
+        {
+          "case": "f04",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:12",
+            "agent_log_agent_eval_fresh.jsonl:13",
+            "agent_log_agent_eval_fresh.jsonl:14"
+          ]
+        },
+        {
+          "case": "f05",
+          "fusion_ok": true,
+          "fusion_coherence": "concordant",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9777,
+            "suspect": false
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:15",
+            "agent_log_agent_eval_fresh.jsonl:16",
+            "agent_log_agent_eval_fresh.jsonl:17",
+            "agent_log_agent_eval_fresh.jsonl:18",
+            "agent_log_agent_eval_fresh.jsonl:19"
+          ]
+        },
+        {
+          "case": "f06",
+          "fusion_ok": true,
+          "fusion_coherence": "concordant",
+          "refused": false,
+          "vision": {
+            "label": "normal",
+            "score": 0.8047,
+            "suspect": false
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:20",
+            "agent_log_agent_eval_fresh.jsonl:21",
+            "agent_log_agent_eval_fresh.jsonl:22",
+            "agent_log_agent_eval_fresh.jsonl:23",
+            "agent_log_agent_eval_fresh.jsonl:24"
+          ]
+        },
+        {
+          "case": "f07",
+          "fusion_ok": true,
+          "fusion_coherence": "contradictoire",
+          "refused": true,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9925,
+            "suspect": false
+          },
+          "text_orientation": "non infectieux",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:25",
+            "agent_log_agent_eval_fresh.jsonl:26",
+            "agent_log_agent_eval_fresh.jsonl:27",
+            "agent_log_agent_eval_fresh.jsonl:28",
+            "agent_log_agent_eval_fresh.jsonl:29"
+          ]
+        },
+        {
+          "case": "f08",
+          "fusion_ok": true,
+          "fusion_coherence": "image_seule",
+          "refused": false,
+          "vision": {
+            "label": "pneumonie",
+            "score": 0.9864,
+            "suspect": false
+          },
+          "text_orientation": "aucun symptome respiratoire detecte",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_dev.jsonl:29",
+            "agent_log_agent_eval_dev.jsonl:30",
+            "agent_log_agent_eval_dev.jsonl:31",
+            "agent_log_agent_eval_dev.jsonl:32",
+            "agent_log_agent_eval_dev.jsonl:33"
+          ]
+        },
+        {
+          "case": "f09",
+          "fusion_ok": true,
+          "fusion_coherence": "texte_seule",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": "infection respiratoire probable",
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:35",
+            "agent_log_agent_eval_fresh.jsonl:36",
+            "agent_log_agent_eval_fresh.jsonl:37"
+          ]
+        },
+        {
+          "case": "f10",
+          "fusion_ok": true,
+          "fusion_coherence": "ressource",
+          "refused": false,
+          "vision": {
+            "label": null,
+            "score": null,
+            "suspect": null
+          },
+          "text_orientation": null,
+          "tool_choice_source": "llm",
+          "log_lines": [
+            "agent_log_agent_eval_fresh.jsonl:38",
+            "agent_log_agent_eval_fresh.jsonl:39",
+            "agent_log_agent_eval_fresh.jsonl:40"
+          ]
+        }
+      ]
+    }
+  }
+}

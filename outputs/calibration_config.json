@@ -1,0 +1,8 @@
+{
+  "tau_low": 0.7559,
+  "tau_high": 0.9994,
+  "temperature": 1.4403,
+  "source": "fitted on the Kermany official-test validation half (312 images, seed 42)",
+  "fitted_on": "Kermany val half",
+  "never_fitted_on": "NIH"
+}

@@ -1,0 +1,6 @@
+outputs/
+__pycache__/
+*.pyc
+demo_images/
+weights/
+.pytest_cache/

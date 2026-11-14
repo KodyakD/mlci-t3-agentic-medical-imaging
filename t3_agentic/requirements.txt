@@ -1,0 +1,20 @@
+# T3 — systeme agentique d'analyse d'images medicales
+# Versions utilisees et verifiees sur Python 3.13.7 / Windows.
+#
+# NOTE (ecart documente) : scispaCy n'est PAS installable ici. Il impose
+# spacy<3.8 (nous avons 3.8.11) puis tente de compiler spacy/thinc/blis
+# depuis les sources sur Python 3.13 (aucun wheel) -> echec de build.
+# L'extraction d'entites est donc faite par regles + expressions regulieres,
+# et evaluee sur un jeu de notes annotees (F1 = 0.965 sur le split teste).
+mcp==1.28.1
+numpy==2.2.2
+opencv-python==4.12.0.88
+tensorflow==2.20.0
+scikit-learn==1.7.2
+scipy==1.16.3
+matplotlib==3.10.7
+pandas==2.2.3
+pillow==10.4.0
+pytest==8.3.4
+python-docx==1.2.0
+# spacy==3.8.11        # installe mais non utilise (voir note ci-dessus)

@@ -1,0 +1,93 @@
+{
+  "n": 394,
+  "class_balance": {
+    "negatives": 200,
+    "positives": 194
+  },
+  "label_definition": "positive = Pneumonia|Consolidation|Infiltration ; negative = No Finding",
+  "label_breakdown": {
+    "Consolidation": 28,
+    "Infiltration": 152,
+    "No_Finding": 200,
+    "Pneumonia": 14
+  },
+  "calibration": {
+    "tau_low": 0.7559,
+    "tau_high": 0.9994,
+    "temperature": 1.4403,
+    "fitted_on": "Kermany validation half only (unfitted on NIH)"
+  },
+  "accuracy": 0.6091,
+  "balanced_accuracy": 0.6041,
+  "auc": 0.7354,
+  "pr_auc": 0.7149,
+  "ece": 0.1379,
+  "recall_normal": 0.935,
+  "recall_pneumonia_like": 0.2732,
+  "trusted_coverage": 0.4442,
+  "trusted_accuracy": 0.7257,
+  "trusted_n": 175,
+  "majority_baseline_accuracy": 0.5076,
+  "confident_normal_on_positive_top10": [
+    {
+      "image": "00013670_154.png",
+      "label": "Consolidation",
+      "p_raw": 0.4879,
+      "p_cal": 0.4916
+    },
+    {
+      "image": "00006720_005.png",
+      "label": "Infiltration",
+      "p_raw": 0.4869,
+      "p_cal": 0.4909
+    },
+    {
+      "image": "00016291_055.png",
+      "label": "Infiltration",
+      "p_raw": 0.4865,
+      "p_cal": 0.4906
+    },
+    {
+      "image": "00011391_013.png",
+      "label": "Infiltration",
+      "p_raw": 0.4749,
+      "p_cal": 0.4826
+    },
+    {
+      "image": "00028924_005.png",
+      "label": "Pneumonia",
+      "p_raw": 0.4651,
+      "p_cal": 0.4758
+    },
+    {
+      "image": "00018187_060.png",
+      "label": "Infiltration",
+      "p_raw": 0.4533,
+      "p_cal": 0.4675
+    },
+    {
+      "image": "00013670_135.png",
+      "label": "Consolidation",
+      "p_raw": 0.4533,
+      "p_cal": 0.4675
+    },
+    {
+      "image": "00019550_001.png",
+      "label": "Infiltration",
+      "p_raw": 0.4521,
+      "p_cal": 0.4667
+    },
+    {
+      "image": "00013992_021.png",
+      "label": "Infiltration",
+      "p_raw": 0.452,
+      "p_cal": 0.4666
+    },
+    {
+      "image": "00015160_022.png",
+      "label": "Infiltration",
+      "p_raw": 0.4466,
+      "p_cal": 0.4628
+    }
+  ]
+}
