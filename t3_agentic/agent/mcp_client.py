@@ -54,19 +54,29 @@ class MCPPool:
             async with AsyncExitStack() as stack:
                 env = {**os.environ, "PYTHONUNBUFFERED": "1", "PYTHONUTF8": "1"}
                 for name, module in self.servers.items():
+                    t0 = time.time()
+                    print(f"[MCP] spawn {name} …", flush=True)
                     params = StdioServerParameters(command=sys.executable,
                                                    args=["-m", module],
                                                    env=env, cwd=self.cwd)
                     r, w = await stack.enter_async_context(stdio_client(params))
+                    t1 = time.time()
+                    print(f"[MCP]     stdio up +{t1-t0:.1f}s — initialize …", flush=True)
                     session = await stack.enter_async_context(ClientSession(r, w))
                     await session.initialize()
+                    t2 = time.time()
+                    print(f"[MCP]     initialize +{t2-t1:.1f}s", flush=True)
                     self.sessions[name] = session
                     listed = await session.list_tools()
+                    t3 = time.time()
+                    print(f"[MCP]     list_tools +{t3-t2:.1f}s ({len(listed.tools)} tools)", flush=True)
                     for tool in listed.tools:
                         self.tool2srv[tool.name] = name
                 self._ready.set()
+                print("[MCP] pool READY", flush=True)
                 await self._stop.wait()
         except Exception as e:  # pragma: no cover
+            print(f"[MCP] pool FAILED: {type(e).__name__}: {e}", flush=True)
             self._error = e
             self._ready.set()
 
