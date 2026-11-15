@@ -640,7 +640,7 @@ the Analyse button disabled until both are done):
 | `import onnxruntime` + DirectML session on the RTX 3050 | 19.0 s |
 | TensorFlow import + Keras load | 3.8 s |
 | Grad-CAM graph build + compile | 1.7 s |
-| MCP pool ready (4 servers: vision, nlp, resources, nih) | 49.8 s |
+| MCP pool ready (4 servers, started concurrently) | 39.4 s |
 | Vision server hot (warm-up calls) | 8.7 s |
 
 **Per analysis, warm** (the numbers the interface prints per step):

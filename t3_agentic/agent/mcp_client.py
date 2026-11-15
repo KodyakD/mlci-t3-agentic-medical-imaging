@@ -49,31 +49,39 @@ class MCPPool:
         if self._error:
             raise self._error
 
+    async def _start_one(self, stack, name, module, env):
+        """Spawn + initialize one MCP server."""
+        t0 = time.time()
+        params = StdioServerParameters(command=sys.executable,
+                                       args=["-m", module],
+                                       env=env, cwd=self.cwd)
+        r, w = await stack.enter_async_context(stdio_client(params))
+        session = await stack.enter_async_context(ClientSession(r, w))
+        t1 = time.time()
+        await session.initialize()
+        t2 = time.time()
+        listed = await session.list_tools()
+        print(f"[MCP] {name:10s} up +{t1-t0:.1f}s, init +{t2-t1:.1f}s, "
+              f"tools +{time.time()-t2:.1f}s ({len(listed.tools)})", flush=True)
+        return name, session, listed
+
     async def _session(self):
         try:
             async with AsyncExitStack() as stack:
                 env = {**os.environ, "PYTHONUNBUFFERED": "1", "PYTHONUTF8": "1"}
-                for name, module in self.servers.items():
-                    t0 = time.time()
-                    print(f"[MCP] spawn {name} …", flush=True)
-                    params = StdioServerParameters(command=sys.executable,
-                                                   args=["-m", module],
-                                                   env=env, cwd=self.cwd)
-                    r, w = await stack.enter_async_context(stdio_client(params))
-                    t1 = time.time()
-                    print(f"[MCP]     stdio up +{t1-t0:.1f}s — initialize …", flush=True)
-                    session = await stack.enter_async_context(ClientSession(r, w))
-                    await session.initialize()
-                    t2 = time.time()
-                    print(f"[MCP]     initialize +{t2-t1:.1f}s", flush=True)
+                # The four servers start CONCURRENTLY: they are independent
+                # processes, and starting them one after another added their
+                # import times together (4 x 4 s) instead of overlapping them.
+                t0 = time.time()
+                results = await asyncio.gather(*[
+                    self._start_one(stack, name, module, env)
+                    for name, module in self.servers.items()])
+                for name, session, listed in results:
                     self.sessions[name] = session
-                    listed = await session.list_tools()
-                    t3 = time.time()
-                    print(f"[MCP]     list_tools +{t3-t2:.1f}s ({len(listed.tools)} tools)", flush=True)
                     for tool in listed.tools:
                         self.tool2srv[tool.name] = name
+                print(f"[MCP] pool READY in {time.time()-t0:.1f}s", flush=True)
                 self._ready.set()
-                print("[MCP] pool READY", flush=True)
                 await self._stop.wait()
         except Exception as e:  # pragma: no cover
             print(f"[MCP] pool FAILED: {type(e).__name__}: {e}", flush=True)

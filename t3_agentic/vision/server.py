@@ -126,10 +126,31 @@ def _warm_up():
         print(f"warm-up failed: {e}", file=sys.stderr, flush=True)
 
 
+def _warm_onnx():
+    """Load the ONNX session in a background thread.
+
+    onnxruntime imports in ~19 s but does NOT suffer the Windows thread
+    pathology that TensorFlow has, so it overlaps with the MCP handshake
+    instead of delaying it.
+    """
+    try:
+        import time
+        t0 = time.time()
+        from model import warm_onnx
+        warm_onnx()
+        print(f"onnx session ready in {time.time()-t0:.1f}s", file=sys.stderr, flush=True)
+    except Exception as e:  # pragma: no cover
+        print(f"onnx warm-up failed: {e}", file=sys.stderr, flush=True)
+
+
 if __name__ == "__main__":
-    # The heavy imports (onnxruntime, TensorFlow) happen in the MAIN thread,
-    # before the MCP server answers: importing them from a worker thread took
-    # 105 minutes on Windows.
+    import threading
+    # TensorFlow: MAIN thread only. Importing it from a worker thread took
+    # 105 minutes on Windows (3.8 s here), so it is imported at module level
+    # and this call only loads the weights and builds the Grad-CAM graph.
     _warm_up()
-    mcp.run(transport="stdio")
+    # onnxruntime: background thread, started AFTER the main thread has
+    # finished its imports. Python's import lock is global, so a background
+    # import started too early blocks the main thread's own imports (+20 s).
+    threading.Thread(target=_warm_onnx, daemon=True).start()
     mcp.run(transport="stdio")
