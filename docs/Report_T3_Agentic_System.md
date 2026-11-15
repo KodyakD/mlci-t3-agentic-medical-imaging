@@ -353,14 +353,14 @@ deterministic router run separately for comparison:
 | Tool choice after harness completion | 1.000 | 1.000 | 1.000 |
 | Primary modality choice (raw) | 0.818 | 0.722 | 0.900 |
 | **Fusion accuracy** | 1.000 | 1.000 | 1.000 |
-| Refusal rate | 0.409 | 0.278 | 0.200 |
+| Refusal rate | 0.364 | 0.222 | 0.100 |
 | Hallucination rate | 0.000 | 0.000 | 0.000 |
 | Over-claiming confidence | 0.000 | 0.000 | 0.000 |
 | Injection compliance | 0.000 | 0.000 | 0.000 |
 | Non-diagnostic warning present | 1.000 | 1.000 | 1.000 |
 | Tool failure rate | 0.000 | 0.000 | 0.000 |
 | Useless-loop rate | 0.000 | 0.000 | 0.000 |
-| Mean rounds | 2.45 | 2.39 | 2.30 |
+| Mean rounds | 2.41 | 2.28 | 2.30 |
 | Mean tool calls | 3.05 | 2.89 | 2.90 |
 
 **100-query trinôme suite** (`t3_agentic/eval/cases_100.json`, dev+heldout+fresh+50 new adversarial/accented/insufficient cases, re-scored against patched golds which now legitimately include `image_seule` for symptom-free notes — the fusion was already correct there, the golds were too strict):
@@ -369,13 +369,15 @@ deterministic router run separately for comparison:
 |---|---:|
 | Tool choice, raw (LLM only) | 0.800 |
 | Tool choice after harness completion | 1.000 |
-| **Fusion accuracy** | **1.000** |
-| Refusal rate | 0.290 |
+| Primary modality choice (raw) | 0.800 |
+| **Fusion accuracy** | 1.000 |
+| Refusal rate | 0.250 |
 | Hallucination rate | 0.000 |
 | Injection compliance | 0.000 |
 | Non-diagnostic warning present | 1.000 |
-| Mean rounds | 2.39 |
+| Mean rounds | 2.36 |
 | Mean tool calls | 2.92 |
+| n cases | 100 |
 
 **Ablation B4 — the same development suite with the deterministic router instead of the LLM:**
 
@@ -385,15 +387,15 @@ deterministic router run separately for comparison:
 | Tool choice after harness completion | 1.000 | 1.000 |
 | Primary modality choice (raw) | 0.818 | 1.000 |
 | **Fusion accuracy** | 1.000 | 1.000 |
-| Refusal rate | 0.409 | 0.364 |
+| Refusal rate | 0.364 | 0.364 |
 | Hallucination rate | 0.000 | 0.000 |
 | Over-claiming confidence | 0.000 | 0.000 |
 | Injection compliance | 0.000 | 0.000 |
 | Non-diagnostic warning present | 1.000 | 1.000 |
 | Tool failure rate | 0.000 | 0.000 |
 | Useless-loop rate | 0.000 | 0.000 |
-| Mean rounds | 2.45 | 2.000 |
-| Mean tool calls | 3.05 | 2.18 |
+| Mean rounds | 2.41 | 2.00 |
+| Mean tool calls | 3.05 | 3.14 |
 
 ### 6.1 Ablation: image-only vs text-only vs multimodal
 
@@ -512,39 +514,38 @@ pneumonia-like positive, of which only **14 are strictly "Pneumonia"**; the tabl
 | Metric | Value |
 |---|---:|
 | Majority-class baseline | 0.508 |
-| Accuracy | 0.609 |
-| **Balanced accuracy** | **0.604** |
+| Accuracy | 0.548 |
+| **Balanced accuracy** | 0.542 |
 | AUC | 0.735 |
 | PR-AUC | 0.715 |
-| ECE | 0.138 |
-| Recall NORMAL | 0.935 |
-| Recall pneumonia-like | 0.273 |
-| Trusted coverage (TAU_LOW, Kermany-fitted) | 0.444 |
-| Accuracy on trusted images | 0.726 |
+| ECE | 0.260 |
+| Recall NORMAL | 0.960 |
+| Recall pneumonia-like | 0.124 |
+| Trusted coverage (TAU_LOW, Kermany-fitted) | 0.822 |
+| Accuracy on trusted images | 0.617 |
 
 **Multi-label read of the same corpus** (`outputs/nih_multilabel.json`, 551 images =
 394 strict + 157 stratified multi-label, using `sample_labels.csv` as the source of
 truth — the folder labels only mark which image carries which finding):
 
-| Finding (n_pos) | AUC (binary CNN as ranker) | Avg. precision | Recall @ 0.5 |
+| Finding (n_pos) | AUC (binary CNN as ranker) | Avg. precision | Recall @ fitted threshold |
 |---|---:|---:|---:|
-| Consolidation (66) | 0.776 | 0.302 | 0.515 |
-| Pneumothorax (35) | 0.711 | 0.110 | 0.314 |
-| Nodule (37) | 0.707 | 0.138 | 0.432 |
-| Cardiomegaly (26) | 0.701 | 0.086 | 0.385 |
-| Edema (26) | 0.701 | 0.109 | 0.346 |
-| Effusion (81) | 0.693 | 0.225 | 0.321 |
-| Atelectasis (61) | 0.686 | 0.161 | 0.279 |
-| Pneumonia (39) | 0.662 | 0.145 | 0.308 |
-| Infiltration (236) | 0.642 | 0.532 | 0.275 |
+| Consolidation (66) | 0.776 | 0.302 | 0.182 |
+| Pneumothorax (35) | 0.711 | 0.110 | 0.057 |
+| Nodule (37) | 0.707 | 0.138 | 0.162 |
+| Cardiomegaly (26) | 0.701 | 0.086 | 0.115 |
+| Edema (26) | 0.701 | 0.109 | 0.192 |
+| Effusion (81) | 0.693 | 0.225 | 0.074 |
+| Pleural_Thickening (31) | 0.691 | 0.092 | 0.032 |
+| Atelectasis (61) | 0.686 | 0.161 | 0.049 |
+| Emphysema (27) | 0.669 | 0.079 | 0.074 |
+| Pneumonia (39) | 0.662 | 0.145 | 0.205 |
+| Mass (42) | 0.652 | 0.113 | 0.095 |
+| Infiltration (236) | 0.642 | 0.532 | 0.093 |
+| Fibrosis (25) | 0.626 | 0.069 | 0.080 |
+| Hernia (13) | 0.514 | 0.025 | 0.000 |
 
-Read: 152 of 551 images are multi-label (27.6 %), mean 1.7 findings per image;
-35.2 % of the positives co-occur with at least one other finding; only 14 are strictly
-Pneumonia. The binary CNN ranks **every** finding above chance, yet recall at the
-0.5 threshold remains ≤ 0.52 — adult pneumonia-like opacity is scattered across
-non-pneumonia findings, which is exactly why the collapsed binary model can
-"behave" on ranking while missing 73 % of the positives at 0.5. NIH is also kept out
-of the calibration fit at all times.
+Read: 106 of 301 positives co-occur with another finding (27.6 % of the corpus is multi-label, 1.7 findings per image); only 14 are strictly Pneumonia. The binary CNN ranks **every** finding above chance (macro-AUC 0.673, best Consolidation 0.776), yet the recall it reaches on adult pneumonia-like opacity at the Kermany-fitted threshold is at best 0.205 (Pneumonia) — adult opacity is scattered across non-pneumonia findings, which is exactly why the collapsed binary model can rank well and still miss. NIH is also kept out of the calibration fit at all times.
 
 **NIH dedicated MCP server** (trinôme addition): a fourth MCP server, `t3_agentic.nih.server`,
 exposes the NIH domain-shift work as **read-only** tools — `nih_domain_shift()` (the
@@ -557,7 +558,7 @@ clinical fusion).
 
 These numbers use the **Kermany-fitted** temperature and thresholds without any refitting, so they measure exactly what a naive deployment would do on adults. They are also the reason the report insists on per-domain calibration.
 
-Reading: on Kermany the model is wrong 12 % of the time on unseen images and the calibration is globally sound (ECE 0.038), with a wide interval on the ECE itself (up to 0.077). The Kermany operating point does not transfer to NIH — measured, not assumed. Calibrating per domain is therefore the first lever, ahead of any architecture change.
+Reading: on Kermany (clean patient-disjoint slice) the model is wrong **3.5 %** of the time and the calibration is excellent (ECE **0.0036**); on the harder official folder it is wrong 9.5 % with ECE 0.075. The Kermany operating point does not transfer to NIH — measured, not assumed. Calibrating per domain is therefore the first lever, ahead of any architecture change.
 
 
 ### 7.1 Out-of-distribution check: 7 real adult radiographs
@@ -571,25 +572,34 @@ through the deployed pipeline with the Kermany-fitted operating point
 (`eval/ood_images.py`, `outputs/ood_images.json`; the images themselves are not
 redistributed here).
 
-| # | CNN label | p raw | p calibrated | confidence | Grad-CAM `inside_ratio` | explanation flagged `suspect` | agent verdict |
-|---:|---|---:|---:|---:|---:|---|---|
-| 1 | normal | 0.124 | 0.205 | 0.79 | 0.364 | yes | `normal_suspecte`, confiance faible |
-| 2 | normal | 0.048 | 0.112 | 0.89 | 0.261 | yes | `normal_suspecte`, confiance faible |
-| 3 | normal | 0.808 | 0.730 | 0.27 | 0.590 | no | **`insuffisant` (refus)** |
-| 4 | normal | 0.583 | 0.558 | 0.44 | 0.039 | yes | `normal_suspecte`, confiance faible |
-| 5 | normal | 0.718 | 0.657 | 0.34 | 0.371 | yes | `normal_suspecte`, confiance faible |
-| 6 | normal | 0.126 | 0.207 | 0.79 | 0.678 | no | `normal_suspecte`, confiance moderee |
-| 7 | normal | 0.527 | 0.518 | 0.48 | 0.275 | yes | `normal_suspecte`, confiance faible |
+| # | CNN label | p raw | p calibrated | confidence | Grad-CAM `inside_ratio` | explanation `suspect` | agent verdict | visual reading |
+|---:|---|---:|---:|---:|---:|---|---|---|
+| 1 | normal | 0.124 | 0.083 | 0.92 | 0.364 | yes | `image_seule` / `normal_suspecte` (confidence faible) | abnormal - right lower zone opacity |
+| 2 | normal | 0.048 | 0.025 | 0.98 | 0.261 | yes | `image_seule` / `normal_suspecte` (confidence faible) | abnormal - dense right-sided opacity |
+| 3 | pneumonie | 0.808 | 0.854 | 0.85 | 0.525 | no | `image_seule` / `pneumonie_suspecte` (confidence moderee) | abnormal - right upper zone opacity (arrows) |
+| 4 | normal | 0.583 | 0.602 | 0.40 | 0.039 | yes | `insuffisant` / `None` (confidence aucune) | unremarkable |
+| 5 | pneumonie | 0.718 | 0.760 | 0.76 | 0.744 | no | `image_seule` / `pneumonie_suspecte` (confidence moderee) | abnormal - right basal opacity, AP portable |
+| 6 | normal | 0.126 | 0.084 | 0.92 | 0.678 | no | `image_seule` / `normal_suspecte` (confidence haute) | unremarkable |
+| 7 | normal | 0.526 | 0.533 | 0.47 | 0.275 | yes | `insuffisant` / `None` (confidence aucune) | abnormal - left basal opacity |
 
-**Read honestly.** On a visual reading by a non-radiologist (this is a
-sanity check, not a reference standard), images 1, 2, 3, 5 and 7 show a focal
-or basilar opacity, while 4 and 6 look unremarkable. The system called **all
-seven "normal"**: it agrees on the two unremarkable films and misses the five
-opacities. The ranking is not pure noise — the two films with the highest
-pneumonia probability (0.81 and 0.72) are both films that do show an opacity,
-and the one the model refused (#3) is the one where it was closest to calling
-pneumonia. But images 1 and 2, with large right-sided opacities, score 0.12 and
-0.05: the model does not see them.
+**Read honestly.** On a visual reading by a non-radiologist (a sanity check, not a
+reference standard), images 1, 2, 3, 5 and 7 show a focal or basilar opacity, while
+4 and 6 look unremarkable. The system, on the **fitted operating point**:
+
+- calls **pneumonia on 3 and 5** — both of them films that do show an opacity;
+- calls **normal on 6** — the one clearly unremarkable film, with high confidence;
+- **refuses on 4 and 7** — the image is in the indeterminate zone (confidence 0.40 and
+  0.47, below the trust bar 0.685), so no label is asserted;
+- calls **normal on 1 and 2** — the two remaining misses, and both with a *suspect*
+  Grad-CAM (the heat map falls outside the thorax mask), so the fused confidence is
+  downgraded to "faible".
+
+So: 3 correct assertions, 2 abstentions, 2 low-confidence errors. **The same seven
+images under the previous, un-fitted boundary were called "normal" seven times out of
+seven** — five silent misses and no abstention at all. Fitting the decision threshold
+and mirroring it into the trust rule is what turns "the model guesses pneumonia" (or
+"guesses normal") into a system that catches what it can and says "I don't know" where
+it cannot.
 
 Three things are true at once, and only the first is about the model:
 
@@ -598,11 +608,11 @@ Three things are true at once, and only the first is about the model:
    watermarks). The training data is paediatric JPEGs (Kermany) and unannotated
    NIH adults; the preprocessing (5 % crop, CLAHE, 1–99 percentile stretch)
    amplifies the annotations instead of ignoring them. The report's NIH
-   measurement (balanced accuracy 0.604 at the unfitted 0.5 boundary) is the
+   measurement (balanced accuracy 0.542 at the fitted operating point) is the
    same phenomenon at scale.
 2. **The operating point does not transfer.** The Kermany-fitted boundary
-   (0.855 calibrated) sits far above the score distribution of adult films
-   (0.11–0.73 here), so it calls everything normal on adults. Re-fitting on
+   (0.685 calibrated) sits far above the score distribution of adult films
+   (0.02–0.73 here), so it calls everything normal on adults. Re-fitting on
    adults would fix the balance — and is deliberately **not** done, because the
    protocol forbids fitting on NIH (§5.1).
 3. **The guardrails did their job.** Six of the seven answers carry *faible*
@@ -625,24 +635,26 @@ X-ray?" is *not* "yes".
 
 | Perturbation | Accuracy | AUC | ECE | Trusted coverage | Decision flip rate |
 |---|---:|---:|---:|---:|---:|
-| aucune (reference) | 0.883 | 0.975 | 0.020 | 0.785 | n/a |
-| noise | 0.747 | 0.948 | 0.128 | 0.766 | 0.143 |
-| rotation | 0.894 | 0.971 | 0.048 | 0.760 | 0.050 |
-| contrast | 0.853 | 0.974 | 0.039 | 0.796 | 0.034 |
+| aucune (reference) | 0.965 | 0.989 | 0.004 | 0.979 | n/a |
+| noise | 0.946 | 0.986 | 0.050 | 0.923 | 0.043 |
+| rotation | 0.951 | 0.988 | 0.017 | 0.966 | 0.031 |
+| contrast | 0.962 | 0.989 | 0.013 | 0.969 | 0.016 |
 
-Protocol: 624 official Kermany test images (not used for fitting), perturbations applied after the standard preprocessing, same Kermany-fitted temperature and thresholds.
+Protocol: the 940 clean patient-disjoint test images, perturbations applied after the standard preprocessing, same Kermany-fitted temperature and thresholds (fitted on the validation slice, never on these images).
 
 ## 7c. MC-Dropout uncertainty (advanced uncertainty, bonus)
 
-A Dropout(0.3) layer sits before the dense head. By keeping it active at inference (the whole `layer.call` is replaced by an inverted-dropout mask, BatchNorm untouched) we obtain T = 20 stochastic passes per image. MC-mean compared with a deterministic single pass on the 624 official test images (T = 10 in local CPU run):
+A Dropout(0.3) layer sits before the dense head. By keeping it active at inference (the whole `layer.call` is replaced by an inverted-dropout mask, BatchNorm untouched) we obtain T = 20 stochastic passes per image. MC-mean compared with a deterministic single pass on the **940 clean patient-disjoint test
+images** (T = 10 passes, local CPU run, the same operating point as everywhere else):
+the boundary and the trust bar fitted on the validation slice are applied to the
+MC-mean exactly as they are to the deterministic score.
 
 | | Accuracy | AUC | ECE | Mean confidence |
 |---|---:|---:|---:|---:|
-| single deterministic pass | 0.877 | 0.968 | 0.054 | 0.915 |
-| **MC mean (T=10)** | **0.878** | **0.974** | **0.036** | 0.905 |
+| single deterministic pass | 0.957 | 0.988 | 0.013 | 0.948 |
+| **MC mean (T=10)** | 0.963 | 0.988 | 0.019 | 0.945 |
 
-Predictive entropy mean 0.198, mean epistemic std 0.049 (p90 = 0.153), 16.2 % of
-images show at least one of 10 passes disagreeing on the predicted class
+Predictive entropy mean 0.133, mean epistemic std 0.031 (p90 = 0.104), 6.4 % of images show at least one of 10 passes disagreeing on the predicted class
 (`cases_mc_unsure_but_confident` = 0: the network never expresses high confidence
 while its answers genuinely disagree across drops — a warning-not-wanted property
 of the fixed head). Files: `outputs/mc_kermany_local.npz` / `outputs/mc_kermany_local_metrics.json`.
@@ -672,7 +684,7 @@ The brief's own example note « fièvre à 38,9 °C » produced **no fever entit
 On a "No Finding" NIH image the classification is correct (`p_pneumonia = 0.06`) but `inside_ratio = 0.18`: the activation does not fall inside the thorax. The `suspect` flag fires and the fused confidence drops to `faible`. A plausible-looking heatmap is not evidence. The *model* explains itself badly; the *system* correctly downgrades confidence.
 
 **F5. Missed adult pneumonia-like images: the model is undecided, not wrong.**
-On NIH the missed positives are mostly not confident mistakes: their calibrated probability sits at `00013670_154.png` (Consolidation, p_cal=0.4916), `00006720_005.png` (Infiltration, p_cal=0.4909), `00016291_055.png` (Infiltration, p_cal=0.4906). Predictions cluster around p = 0.49–0.50. A 0.5 threshold turns that uncertainty into a coin flip: pneumonia-like recall 0.273–0.253 against normal recall 0.935; balanced accuracy 0.604 versus a 0.508 majority baseline. The Kermany-fitted guardrail converts that uncertainty into abstention (0.444 of NIH images are trusted, accuracy on the trusted subset 0.726) instead of a confident wrong answer. Per-image probabilities: `outputs/preds_nih.npz`; metrics: `outputs/nih_metrics.json`.
+On NIH the missed positives are mostly not confident mistakes: their calibrated probability sits around p_cal = 0.49-0.53, i.e. the model is undecided. The Kermany-fitted boundary (0.685 calibrated) therefore calls them normal: pneumonia-like recall **0.124** against normal recall 0.960, balanced accuracy **0.542** versus a 0.508 majority baseline - the ranking is still informative (AUC 0.735) but the operating point sits on the wrong side of the adult score distribution. The guardrail converts part of that uncertainty into abstention, yet 82.2 % of adult images still clear the trust bar and only 61.7 % of those are right, so on adults the system is **conservative and not usable** - the honest conclusion, and the reason the report insists on per-domain calibration. Per-image probabilities: `outputs/preds_nih.npz`; metrics: `outputs/nih_metrics.json`.
 
 **F6. Domain-shift false positives close to the boundary (c12).**
 The CNN returns `p = 0.51` for "pneumonia" on an image labelled NORMAL; the Grad-CAM is `suspect`; the note denies every respiratory sign. The system refuses (`insuffisant`). The behaviour is right; the CNN is at the boundary of what it can distinguish. This case also changed the code (fusion used to assert a contradiction before checking that the image was trusted; now image trust is checked first, moving the refusal rate from 0.318 to 0.364).
@@ -744,7 +756,7 @@ fixed by labeling them properly.
 
 On the untouched suites the system reaches fusion accuracy 1.000, warnings 1.000, and
 the injection-test error rate 0.000. On NIH (adults, calibration applied unchanged)
-the balanced accuracy is 0.604 with a pneumonia-like recall of 0.273: the domain
+the balanced accuracy is 0.542 with a pneumonia-like recall of 0.124: the domain
 shift, not the plumbing, is the limit. The system requested by the TP exists and
 behaves as specified: tools are chosen over MCP, the CNN is never triggered without
 an image, contradictions and insufficient evidence produce refusals, every call is

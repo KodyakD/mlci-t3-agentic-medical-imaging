@@ -79,7 +79,7 @@ def collect(dirpath, limit_per_class=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dir", required=True)
+    ap.add_argument("--dir", default=None)
     ap.add_argument("--out", required=True)
     ap.add_argument("--mc", type=int, default=10)
     ap.add_argument("--limit-per-class", type=int, default=0)
@@ -97,7 +97,7 @@ def main():
         y = np.array([1 if "PNEUMONIA" in p else 0 for p in paths])
     else:
         files, y = collect(args.dir, args.limit_per_class or None)
-    print(f"{len(files)} images from {args.dir}", flush=True)
+    print(f"{len(files)} images from {args.files or args.dir}", flush=True)
     if len(files) < 20:
         print("ABORT: not enough images")
         return
@@ -157,7 +157,7 @@ def main():
     mc_pred = (p_mc >= mc_threshold).astype(int)
 
     report = {
-        "dir": args.dir, "n": int(len(p_mc)), "mc_passes": args.mc,
+        "dir": args.files or args.dir, "n": int(len(p_mc)), "mc_passes": args.mc,
         "threshold_fitted_on_validation_half": round(float(mc_threshold), 4),
         "single_pass": stats(p_single),
         "single_pass_at_fitted_threshold": stats(p_single, mc_threshold),

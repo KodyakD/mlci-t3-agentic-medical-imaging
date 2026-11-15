@@ -10,7 +10,7 @@
     "n_image_cases": 31,
     "text_only_accuracy": 0.5,
     "n_note_cases": 34,
-    "both_accuracy": 0.857,
+    "both_accuracy": 0.905,
     "n_both_cases": 21
   },
   "cases": [
@@ -123,9 +123,9 @@
       "gold": [
         "contradictoire"
       ],
-      "image_only": "image_seule",
+      "image_only": "insuffisant",
       "text_only": "texte_seule",
-      "both": "contradictoire"
+      "both": "insuffisant"
     },
     {
       "id": "c14",
@@ -133,9 +133,9 @@
       "gold": [
         "contradictoire"
       ],
-      "image_only": "insuffisant",
+      "image_only": "image_seule",
       "text_only": "texte_seule",
-      "both": "insuffisant"
+      "both": "contradictoire"
     },
     {
       "id": "c15",
@@ -173,9 +173,9 @@
       "gold": [
         "image_seule"
       ],
-      "image_only": "insuffisant",
+      "image_only": "image_seule",
       "text_only": "insuffisant",
-      "both": "insuffisant"
+      "both": "image_seule"
     },
     {
       "id": "c19",
@@ -317,9 +317,9 @@
         "contradictoire",
         "insuffisant"
       ],
-      "image_only": "insuffisant",
+      "image_only": "image_seule",
       "text_only": "texte_seule",
-      "both": "insuffisant"
+      "both": "contradictoire"
     },
     {
       "id": "h13",
@@ -328,9 +328,9 @@
         "image_seule",
         "insuffisant"
       ],
-      "image_only": "insuffisant",
+      "image_only": "image_seule",
       "text_only": "insuffisant",
-      "both": "insuffisant"
+      "both": "image_seule"
     },
     {
       "id": "h14",
@@ -390,7 +390,7 @@
         "image_seule",
         "insuffisant"
       ],
-      "image_only": "insuffisant"
+      "image_only": "image_seule"
     },
     {
       "id": "f03",

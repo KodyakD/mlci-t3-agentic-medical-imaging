@@ -96,7 +96,7 @@ html(f"""
   <div>trust &ge; <b>{cfg['tau_low']}</b></div>
   <div>high confidence &ge; <b>{cfg['tau_high']}</b></div>
   <div>temperature <b>{cfg['temperature']}</b></div>
-  <div>fitted on <b>Kermany validation half</b> (312 images, seed 42)</div>
+  <div>fitted on <b>Kermany clean validation slice</b> (871 images, patient-disjoint)</div>
 </div>
 """)
 

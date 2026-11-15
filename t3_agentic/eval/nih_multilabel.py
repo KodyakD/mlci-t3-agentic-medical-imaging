@@ -94,7 +94,7 @@ def main():
 
     model = get_model()
     cfg = load_config()
-    tau_low = float(cfg.get("TAU_LOW", 0.75))
+    tau_low = float(cfg.get("tau_low", 0.75))   # the Kermany-fitted trust bar
 
     probs, kept_files = [], []
     for i, (name, path) in enumerate(items):

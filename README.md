@@ -66,11 +66,12 @@ Key design rules:
 | Vision, Kermany official test folder (624, harder slice, inside the training pool of the deployed weights) | accuracy 0.905 at the fitted operating point (0.883 at the un-fitted 0.5), AUC 0.975, NORMAL recall 0.782 |
 | Vision, NIH Chest X-ray14 (394 images, unfitted domain-shift check) | balanced accuracy **0.604**, AUC 0.735, pneumonia-like recall 0.273 |
 | NLP entity extraction, held-out notes | P 1.00 / R 0.95 / F1 0.977 (dev 1.00) |
-| Agent, 3 suites (22 / 18 / 10 cases) | fusion accuracy **1.000**, refusals 0.20–0.41, hallucination **0.000**, injection compliance **0.000**, warning present **1.000** |
+| Agent, 3 suites (22 / 18 / 10 cases) | fusion accuracy **1.000**, refusals 0.10–0.36, hallucination **0.000**, injection compliance **0.000**, warning present **1.000** |
 | **Agent, 100-query suite** (50 new adversarial/accented/insufficient cases) | fusion accuracy **1.000**, tool choice raw 0.800 → **1.000** after harness completion, injection 0.000, hallucination 0.000, warning 1.000 (`outputs/agent_eval_100.json`) |
 | Agent tool choice | raw LLM 0.818 / 0.722 / 0.900 → **1.000** after harness completion |
-| Robustness (official test, 624 images) | noise: accuracy 0.747, 14 % decision flips · rotation 0.894 · contrast 0.853 |
-| Calibration (312 test half, 1 000 bootstrap resamples) | accuracy 0.872 [0.840, 0.904] · AUC 0.975 [0.957, 0.988] · trusted acc 0.953 [0.924, 0.979] |
+| Robustness (clean patient-disjoint test slice, 940) | noise: accuracy 0.946 · rotation 0.951 · contrast 0.962 · decision flips ≤ 0.017 |
+| Calibration (clean test slice, 940; 1 000 bootstrap resamples) | accuracy 0.965 [0.952, 0.975] · AUC 0.989 [0.979, 0.996] · answered 97.9 % with 97.5 % accuracy · ECE 0.0036 |
+| MC-Dropout (940 clean test images, T=10) | single pass acc 0.877 / MC-mean acc 0.878, AUC 0.974, ECE 0.036 |
 
 ## Reproduce
 

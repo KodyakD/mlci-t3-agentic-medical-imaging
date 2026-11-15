@@ -1,0 +1,87 @@
+{
+  "protocol": {
+    "images": 7,
+    "source": "C:\\Users\\PC\\AppData\\Local\\Temp\\opencode\\user_xrays",
+    "note": "out-of-distribution sanity check, NOT a benchmark: no ground truth, images may carry watermarks, annotations, portable technique or letterboxing that the training preprocessing (Kermany paediatric JPEGs, NIH adults) never saw",
+    "operating_point": "Kermany-fitted (never fitted on this corpus)"
+  },
+  "results": [
+    {
+      "file": "user_1.jpg",
+      "label": "normal",
+      "p_pneumonia_raw": 0.1244,
+      "p_pneumonia_calibrated": 0.0827,
+      "label_threshold": 0.685,
+      "confidence_in_label": 0.9173,
+      "inside_ratio": 0.364,
+      "gradcam_suspect": true,
+      "seconds": 8.99
+    },
+    {
+      "file": "user_2.jpg",
+      "label": "normal",
+      "p_pneumonia_raw": 0.0483,
+      "p_pneumonia_calibrated": 0.0247,
+      "label_threshold": 0.685,
+      "confidence_in_label": 0.9753,
+      "inside_ratio": 0.261,
+      "gradcam_suspect": true,
+      "seconds": 1.66
+    },
+    {
+      "file": "user_3.jpg",
+      "label": "pneumonie",
+      "p_pneumonia_raw": 0.8076,
+      "p_pneumonia_calibrated": 0.8543,
+      "label_threshold": 0.685,
+      "confidence_in_label": 0.8543,
+      "inside_ratio": 0.525,
+      "gradcam_suspect": false,
+      "seconds": 1.66
+    },
+    {
+      "file": "user_4.jpg",
+      "label": "normal",
+      "p_pneumonia_raw": 0.5828,
+      "p_pneumonia_calibrated": 0.6017,
+      "label_threshold": 0.685,
+      "confidence_in_label": 0.3983,
+      "inside_ratio": 0.039,
+      "gradcam_suspect": true,
+      "seconds": 1.61
+    },
+    {
+      "file": "user_5.jpg",
+      "label": "pneumonie",
+      "p_pneumonia_raw": 0.7184,
+      "p_pneumonia_calibrated": 0.7604,
+      "label_threshold": 0.685,
+      "confidence_in_label": 0.7604,
+      "inside_ratio": 0.744,
+      "gradcam_suspect": false,
+      "seconds": 1.66
+    },
+    {
+      "file": "user_6.jpg",
+      "label": "normal",
+      "p_pneumonia_raw": 0.1259,
+      "p_pneumonia_calibrated": 0.0839,
+      "label_threshold": 0.685,
+      "confidence_in_label": 0.9161,
+      "inside_ratio": 0.678,
+      "gradcam_suspect": false,
+      "seconds": 1.69
+    },
+    {
+      "file": "user_7.jpg",
+      "label": "normal",
+      "p_pneumonia_raw": 0.5265,
+      "p_pneumonia_calibrated": 0.5327,
+      "label_threshold": 0.685,
+      "confidence_in_label": 0.4673,
+      "inside_ratio": 0.275,
+      "gradcam_suspect": true,
+      "seconds": 1.61
+    }
+  ]
+}

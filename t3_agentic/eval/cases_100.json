@@ -937,7 +937,8 @@
       ],
       "gold_coherence": [
         "concordant",
-        "insuffisant"
+        "insuffisant",
+        "image_seule"
       ]
     },
     {

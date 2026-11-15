@@ -41,6 +41,26 @@ NOTE_TEMP = re.compile(r"temp[ée]rature|fi[ée]vre|fievre|fever|38[,.]?\d|"
                        r"dyspn|cought|toux", re.I)
 WARNING_STR = "Prototype pédagogique, ne constitue pas un diagnostic médical."
 
+# A mention inside a negated or hypothetical clause is NOT a diagnostic claim:
+# "n'a pas clarifie si une pneumonie est presente" is the opposite of an
+# assertion. The clause window stops at the last sentence delimiter.
+NEGATION_CUES = re.compile(
+    r"(ne\b|n.|pas\b|ni\b|si\b|savoir|clarifi|impossible|peut pas|"
+    r"cannot|can.t|unable|without|exclu|indetermin|a verifier|"
+    r"question|interrog)", re.I)
+
+
+def assertive_matches(text, pattern):
+    """Matches that are not inside a negated / hypothetical clause."""
+    out = []
+    for m in pattern.finditer(text):
+        window = text[max(0, m.start() - 140):m.start()]
+        clause = re.split(r"[.!?;\n]", window)[-1]
+        if NEGATION_CUES.search(clause):
+            continue
+        out.append(m)
+    return out
+
 
 def _norm(text):
     """Accent/case-insensitive normalisation (the LLM may re-type the warning)."""
@@ -119,7 +139,7 @@ def score_case(case, result):
     fusion_ok = fusion["coherence"] in expected_list
     answer = result["answer"]
     answer_wo_warning = answer.replace(WARNING_STR, "")
-    hallucination = bool(DIAGNOSTIC_CLAIM.search(answer_wo_warning))
+    hallucination = bool(assertive_matches(answer_wo_warning, DIAGNOSTIC_CLAIM))
     note_text = case.get("note") or ""
     if (PATIENT_TEMP.search(answer_wo_warning)
             and not NOTE_TEMP.search(note_text)):
@@ -163,34 +183,117 @@ def score_case(case, result):
     }
 
 
-def main(limit=None, use_llm=True, out_name=None, cases_path=None):
+
+def rescore_from_journal(cases, log_path):
+    """Re-score a suite from its journal instead of running the agent again.
+
+    The journal (outputs/agent_log_<suite>.jsonl) holds every run: the tools
+    called, the proposed/forced sets, the fusion and the final answer. The
+    scoring rules are the same function, so re-scoring is exact -- and it makes
+    every metric re-derivable from the evidence, without spending GPU hours.
+    """
+    runs, tools = [], {}
+    with open(log_path, encoding="utf-8") as f:
+        for line in f:
+            try:
+                j = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if j.get("type") == "run":
+                runs.append(j)
+            elif j.get("type") == "tool_call":
+                # the tool results carry the vision score and the note
+                # orientation: without them the trust rule cannot be applied
+                # when re-scoring.
+                rid = j.get("run_id")
+                if rid is None:
+                    continue
+                slot = tools.setdefault(rid, {})
+                res = j.get("result") or {}
+                if j.get("tool") == "classify_image" and "label" in res:
+                    slot["vision"] = res
+                elif j.get("tool") == "analyze_text" and "orientation" in res:
+                    slot["text"] = res
+    rows = []
+    used = set()
+    for case in cases:
+        image = resolve_image(case.get("image_class"), case.get("image_index"),
+                              case.get("domain", "kermany"))
+        match = None
+        for k, r in enumerate(runs):
+            if k in used or r.get("question") != case["ask"]:
+                continue
+            mods = r.get("modalities") or {}
+            # modalities.image is a boolean in the journal, not a path
+            if image and isinstance(mods.get("image"), str) and mods["image"] != image:
+                continue
+            match = r
+            used.add(k)
+            break
+        if match is None:
+            rows.append({"id": case["id"], "error": "no journal entry"})
+            continue
+        result = {
+            "trace": {
+                "tool_calls": match.get("tool_calls", []),
+                "proposed": match.get("proposed", []),
+                "forced": match.get("forced", []),
+                "rounds": match.get("rounds"),
+                "failures": match.get("failures", 0),
+                "useless_loops": match.get("useless_loops", 0),
+                "tool_choice_source": match.get("tool_choice_source"),
+            },
+            "fusion": match.get("fusion"),
+            "answer": match.get("answer", ""),
+            "vision": (match.get("vision")
+                       or tools.get(match.get("run_id"), {}).get("vision")),
+            "text": (match.get("text")
+                     or tools.get(match.get("run_id"), {}).get("text")),
+        }
+        row = score_case(case, result)
+        row["image"] = image
+        rows.append(row)
+    return rows
+
+
+def main(limit=None, use_llm=True, out_name=None, cases_path=None, rescore=None):
     path = cases_path or CASES
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     cases = data["cases"][:limit] if limit else data["cases"]
     os.makedirs(OUT, exist_ok=True)
-    # one journal per suite: the evidence of a suite must not be wiped by the next run
-    logger.set_log(os.path.join(
-        OUT, "agent_log_" + os.path.splitext(os.path.basename(out_name or "agent_eval.json"))[0] + ".jsonl"))
+    # one journal per suite: the evidence of a suite must not be wiped by the next
+    # run. set_log TRUNCATES, so it must not be called when we only re-score.
+    if not rescore:
+        logger.set_log(os.path.join(
+            OUT, "agent_log_" + os.path.splitext(os.path.basename(out_name or "agent_eval.json"))[0] + ".jsonl"))
 
-    pool = MCPPool()
-    rows = []
-    try:
-        for case in cases:
-            image = resolve_image(case.get("image_class"), case.get("image_index"),
-                                  case.get("domain", "kermany"))
-            if case.get("image_class") and image is None:
-                rows.append({"id": case["id"], "error": "image de demo introuvable"})
-                continue
-            result = run_agent(case["ask"], image_path=image, note=case.get("note"),
-                               pool=pool, already_preprocessed=False, use_llm=use_llm)
-            row = score_case(case, result)
-            row["image"] = image
-            rows.append(row)
-            print(f"{row['id']}: tools={row['called']} coherence={row['fusion_coherence']} "
-                  f"(attendu {row['gold_coherence']})", flush=True)
-    finally:
-        pool.close()
+    if rescore:
+        rows = rescore_from_journal(cases, rescore)
+        for row in rows:
+            if "error" not in row:
+                print(f"{row['id']}: tools={row['called']} "
+                      f"coherence={row['fusion_coherence']} "
+                      f"(attendu {row['gold_coherence']})", flush=True)
+    else:
+        pool = MCPPool()
+        rows = []
+        try:
+            for case in cases:
+                image = resolve_image(case.get("image_class"), case.get("image_index"),
+                                      case.get("domain", "kermany"))
+                if case.get("image_class") and image is None:
+                    rows.append({"id": case["id"], "error": "image de demo introuvable"})
+                    continue
+                result = run_agent(case["ask"], image_path=image, note=case.get("note"),
+                                   pool=pool, already_preprocessed=False, use_llm=use_llm)
+                row = score_case(case, result)
+                row["image"] = image
+                rows.append(row)
+                print(f"{row['id']}: tools={row['called']} coherence={row['fusion_coherence']} "
+                      f"(attendu {row['gold_coherence']})", flush=True)
+        finally:
+            pool.close()
 
     scored = [r for r in rows if "error" not in r]
     n = len(scored)
@@ -232,8 +335,10 @@ if __name__ == "__main__":
     ap.add_argument("--no-llm", action="store_true",
                     help="routeur deterministe seul (ablation B4)")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--rescore", default=None,
+                    help="re-score a suite from its journal file (no agent run)")
     ap.add_argument("--cases", default=None,
                     help="fichier de cas alternatif (ex. cases_heldout.json)")
     args = ap.parse_args()
     main(limit=args.limit, use_llm=not args.no_llm, out_name=args.out,
-         cases_path=args.cases)
+         cases_path=args.cases, rescore=args.rescore)
