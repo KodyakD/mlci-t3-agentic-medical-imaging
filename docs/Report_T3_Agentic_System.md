@@ -627,6 +627,41 @@ worth carrying to the defence: the code, not the 3B model, is what guarantees th
 behaviour; the honest limit is the population shift; and an external pass over one's
 own code reliably finds bugs one is blind to.
 
+## 10b. Runtime cost (measured on the development machine)
+
+Windows 11, i7-11800H (8 cores / 16 threads), RTX 3050 4 GB, 32 GB RAM, Ollama
+qwen2.5:3b on CPU.
+
+**One-off, at start-up, in the background** (the UI shows an engine strip and keeps
+the Analyse button disabled until both are done):
+
+| Step | Cost |
+|---|---:|
+| MCP pool spawn (4 servers: vision, nlp, resources, nih) | 16.6 s |
+| TensorFlow import + Keras load + Grad-CAM graph compile | 53.6 s |
+
+**Per analysis, warm** (the numbers the interface prints per step):
+
+| Step | Cost |
+|---|---:|
+| `classify_image` (ONNX + DirectML on the RTX 3050) | 0.08 s |
+| `explain_image` (Grad-CAM, TensorFlow) | 1.53 s |
+| `analyze_text` (rule based) | 0.01 s |
+| `get_guideline` (MCP resource) | 0.01 s |
+| **Agent total** | **~2 s** |
+| LLM tool-choice turn (qwen2.5:3b, CPU) | 0.9 s |
+| LLM final wording turn | 1.3 s |
+
+Reading: the two costs that used to hurt were the **TensorFlow cold start**
+(import + graph compile, 21 s in the server, previously paid on the click) and
+**five warm-ups running in parallel**, which starved the LLM server and turned a
+1 s answer into 198 s. Both are fixed: the model is warmed once in the
+background, the pool lives in one place for the whole process, and the
+classification itself runs on the GPU. Grad-CAM still needs TensorFlow, because
+DirectML exposes no gradients.
+
+---
+
 ## 11. Reproducibility
 
 - **Pinned versions**: `t3_agentic/requirements.txt` (mcp 1.28.1, tensorflow 2.20.0,

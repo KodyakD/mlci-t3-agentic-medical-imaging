@@ -2,8 +2,8 @@
 
 Streamlit scripts are synchronous, so the agent runs in a worker thread and
 pushes events into a queue; the script drains the queue and updates two
-placeholders. The user sees which tool is being called right now, and how far
-along the run is.
+placeholders. The user sees which tool is running right now, how long each
+step took and the total elapsed time.
 """
 import queue
 import threading
@@ -33,11 +33,13 @@ def run_with_progress(question, image_path, note, pool, use_llm, placeholder_bar
                       placeholder_log, timeout=900):
     """Run the agent in a thread; update the bar and the log while it works.
 
-    Returns the agent result dict (or None on timeout/error).
+    Returns (result, error, timing) where timing is
+    {"total_s": float, "steps": [{"label": ..., "duration_s": ..., "at_s": ...}]}
     """
     events = queue.Queue()
-    state = {"result": None, "error": None, "tools": [], "stage": "route",
-             "text": "reading the request"}
+    state = {"result": None, "error": None, "text": "reading the request"}
+    timing = {"total_s": 0.0, "steps": []}
+    t0 = time.time()
 
     def on_event(ev):
         events.put(ev)
@@ -63,41 +65,46 @@ def run_with_progress(question, image_path, note, pool, use_llm, placeholder_bar
         except queue.Empty:
             continue
         stage = ev.get("stage")
+        at = time.time() - t0
         if stage == "tool":
             seen_tools += 1
             tool = ev.get("tool", "?")
             hint = TOOL_HINT.get(tool, "")
             dur = ev.get("duration_s")
             forced = " (forced)" if ev.get("forced") else ""
-            lines.append(f"{tool}{forced}"
-                         + (f" · {dur} s" if dur else "")
-                         + (f" · {hint}" if hint else ""))
-            state["tools"].append(tool)
-            state["text"] = f"{tool}: {hint}"
+            label = f"{tool}{forced}"
+            lines.append(f"{label} · {dur:.2f} s" if dur else label)
+            timing["steps"].append({"label": label, "duration_s": dur, "at_s": at})
+            state["text"] = f"{tool} · {dur:.2f} s" if dur else tool
         elif stage == "fusion":
-            state["text"] = f"fusion decision: {ev.get('text')}"
-            lines.append(f"fusion → {ev.get('text')}"
+            state["text"] = f"fusion: {ev.get('text')} · t+{at:.1f} s"
+            lines.append(f"fusion → {ev.get('text')} · t+{at:.1f} s"
                          + (" (refused)" if ev.get("refused") else ""))
+            timing["steps"].append({"label": "fusion", "duration_s": None, "at_s": at})
         elif stage == "critic":
-            state["text"] = f"critic: {ev.get('text')}"
-            lines.append(f"critic → {ev.get('text')}")
+            state["text"] = f"critic: {ev.get('text')} · t+{at:.1f} s"
+            lines.append(f"critic → {ev.get('text')} · t+{at:.1f} s")
+            timing["steps"].append({"label": "critic", "duration_s": None, "at_s": at})
         elif stage == "answer":
-            state["text"] = "answer ready"
-            lines.append("answer ready")
+            state["text"] = f"answer ready · t+{at:.1f} s"
+            lines.append(f"answer ready · t+{at:.1f} s")
+            timing["steps"].append({"label": "answer", "duration_s": None, "at_s": at})
         elif stage == "error":
             state["text"] = "error"
-            lines.append(f"error → {ev.get('text')}")
+            lines.append(f"error → {ev.get('text')} · t+{at:.1f} s")
 
         frac = 0.05 + 0.7 * min(seen_tools, 4) / 4
-        for name, value in STAGES:
-            if name == state.get("last_stage"):
-                frac = value
-        placeholder_bar.progress(min(frac, 0.99), text=state["text"])
+        placeholder_bar.progress(min(frac, 0.99),
+                                 text=f"{state['text']} · elapsed {time.time()-t0:.1f} s")
         placeholder_log.markdown(
             "<div class='t3-log'>"
             + "".join(f"<div class='t3-log-row'>{l}</div>" for l in lines)
             + "</div>", unsafe_allow_html=True)
 
+    total = time.time() - t0
+    timing["total_s"] = total
     if not thread.is_alive():
-        placeholder_bar.progress(1.0, text=state["text"])
-    return state["result"], state["error"]
+        placeholder_bar.progress(1.0, text=f"done · total {total:.2f} s")
+    else:
+        placeholder_bar.progress(1.0, text=f"timed out after {total:.0f} s")
+    return state["result"], state["error"], timing

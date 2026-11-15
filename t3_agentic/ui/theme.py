@@ -192,6 +192,12 @@ hr { border-color: var(--t3-border); }
            border: 1px solid var(--t3-accent); color: var(--t3-accent); }
 [data-testid="stJson"] { background: var(--t3-surface); border: 1px solid var(--t3-border);
                          border-radius: 3px; font-family: var(--t3-mono); font-size: 0.72rem; }
+.t3-engine { display: flex; align-items: center; gap: var(--t3-s2);
+           font-family: var(--t3-mono); font-size: 0.74rem; color: var(--t3-accent);
+           border: 1px solid var(--t3-border); border-left: 3px solid var(--t3-accent);
+           border-radius: 3px; padding: var(--t3-s2) var(--t3-s3); margin-bottom: var(--t3-s4); }
+.t3-engine--ready { color: var(--t3-primary); border-left-color: var(--t3-primary); }
+.t3-engine .t3-icon { color: currentColor; }
 .t3-log { border: 1px solid var(--t3-border); border-radius: 3px;
           background: var(--t3-surface); padding: var(--t3-s3); margin-bottom: var(--t3-s3); }
 .t3-log-row { font-family: var(--t3-mono); font-size: 0.74rem; color: var(--t3-text);

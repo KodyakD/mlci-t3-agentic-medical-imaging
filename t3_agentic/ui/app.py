@@ -31,7 +31,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 
 # The pool lives in t3_agentic.ui.runtime (an imported module), so Streamlit
 # reruns cannot spawn a second one. See that module for the details.
-from t3_agentic.ui.runtime import get_pool
+from t3_agentic.ui.runtime import get_pool, status as engine_status, ready as engine_ready
 
 
 # Warm the pool in the background as soon as the app module loads, so the
@@ -112,12 +112,35 @@ with st.sidebar:
                "nlp (analyze_text), resources (get_guideline, search_guidelines, "
                "read in every analysed case), nih (domain shift, read only).")
 
+@st.fragment(run_every=1.0)
+def engine_panel():
+    """Live engine state: MCP pool + TensorFlow/Grad-CAM warm-up.
+
+    Nothing is analysed before this says warm, so a result can never come
+    from a half-loaded model.
+    """
+    st_ = engine_status()
+    pool_s = st_.get("pool_s", 0.0)
+    vision_s = st_.get("vision_s", 0.0)
+    if st_.get("pool") == "ready" and st_.get("vision") == "warm":
+        html(f'<div class="t3-engine t3-engine--ready">'
+             f'{icon("shield-check", 16)} engine ready · MCP pool {pool_s:.0f} s '
+             f'· TensorFlow + Grad-CAM {vision_s:.0f} s</div>')
+    else:
+        what = ("MCP servers" if st_.get("pool") != "ready"
+                else "TensorFlow + Grad-CAM")
+        html(f'<div class="t3-engine">{icon("activity", 16)} loading {what} …</div>')
+
+
+engine_panel()
+
 question = st.text_input("Question", "What can be said about this case?")
 note = st.text_area("Clinical note (optional)", height=110,
                     placeholder="64-year-old patient, productive cough for 5 days, fever 38.9 C ...")
 upload = st.file_uploader("Chest X-ray (optional)", type=["png", "jpg", "jpeg"])
 
-def _render_body(out):
+def _render_body(out, timing=None):
+    timing = timing or {"total_s": 0.0, "steps": []}
     left, right = st.columns([3, 2])
 
     with left:
@@ -179,16 +202,19 @@ def _render_body(out):
              f'<div>tool choice <b>{source}</b></div>'
              f'<div>rounds <b>{trace.get("rounds")}</b></div>'
              f'<div>calls <b>{len(trace.get("tool_calls") or [])}</b></div>'
-             f'<div>forced <b>{len(trace.get("forced") or [])}</b></div></div>')
+             f'<div>forced <b>{len(trace.get("forced") or [])}</b></div>'
+             f'<div>total <b>{timing.get("total_s", 0.0):.2f} s</b></div></div>')
         steps = []
         for call in trace.get("tool_calls") or []:
             forced = call.get("tool") in (trace.get("forced") or [])
             ic = "shield-check" if forced else "activity"
+            dur = call.get("duration_s")
+            dur_text = f"{dur:.2f} s" if dur is not None else "\u00b7"
             steps.append(
                 f'<div class="t3-step{" t3-step--forced" if forced else ""}">'
                 f'{icon(ic, 16)}'
                 f'<span class="t3-tool">{call.get("tool")}</span>'
-                f'<span class="t3-dur">{call.get("duration_s")} s</span></div>')
+                f'<span class="t3-dur">{dur_text}</span></div>')
         html("".join(steps) or '<div class="t3-note">No tool call was recorded.</div>')
 
         heat = (out.get("vision") or {}).get("heatmap")
@@ -204,7 +230,9 @@ def _render_body(out):
 
 
 out = None
-run = st.button("Analyse", type="primary")
+_ready = engine_ready()
+run = st.button("Analyse", type="primary", disabled=not _ready,
+                help=("The engine is still loading" if not _ready else ""))
 
 if run:
     image_path = None
@@ -226,9 +254,9 @@ if run:
     log = st.empty()
     try:
         from t3_agentic.ui.progress import run_with_progress
-        out, err = run_with_progress(question, image_path,
-                                     note if note.strip() else None,
-                                     get_pool(), use_llm, bar, log)
+        out, err, timing = run_with_progress(question, image_path,
+                                             note if note.strip() else None,
+                                             get_pool(), use_llm, bar, log)
         if err is not None:
             raise err
         print(f"[UI] agent done in {time.time()-_t0:.1f}s "
@@ -241,12 +269,13 @@ if run:
         bar.empty()
         st.error(f"Agent error: {type(e).__name__}: {e}")
         out = None
+        timing = {"total_s": time.time() - _t0, "steps": []}
 
 if out:
     _tr = time.time()
-    print("[UI] render start", flush=True)
+    print(f"[UI] render start (total {timing.get('total_s', 0.0):.2f}s)", flush=True)
     try:
-        _render_body(out)
+        _render_body(out, timing)
     except Exception as _e:
         import traceback
         traceback.print_exc()
