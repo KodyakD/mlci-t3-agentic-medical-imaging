@@ -101,8 +101,5 @@ def explain_image(path: str, already_preprocessed: bool = False) -> dict:
 
 
 if __name__ == "__main__":
-    try:
-        get_model()  # warm-up: charge le modele une seule fois
-    except Exception as e:  # pragma: no cover
-        print(f"warm-up failed: {e}", file=sys.stderr)
+    mcp.run(transport="stdio")
     mcp.run(transport="stdio")

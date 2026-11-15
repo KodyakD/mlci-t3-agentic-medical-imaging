@@ -1,0 +1,18 @@
+[theme]
+# Locked palette (technical / dark, seed 13) from the tastemaker generator,
+# verified with its contrast matrix. Mirrors t3_agentic/ui/theme.py.
+base = "dark"
+primaryColor = "#0681a0"
+backgroundColor = "#0a1114"
+secondaryBackgroundColor = "#151d1f"
+textColor = "#e6f5fb"
+borderColor = "#21292c"
+font = "sans serif"
+
+[server]
+headless = true
+fileWatcherType = "none"
+maxUploadSize = 200
+
+[browser]
+gatherUsageStats = false

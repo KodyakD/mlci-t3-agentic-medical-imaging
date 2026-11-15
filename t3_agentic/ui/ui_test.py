@@ -74,27 +74,35 @@ def pick_option(page, needle):
     return None
 
 
-def click_analyse(page, timeout=300):
+def click_analyse(page, timeout=600):
+    """Click Analyse and wait until the ANSWER is rendered.
+
+    Waiting for the spinner to vanish is not enough: Streamlit keeps the
+    previous run's DOM until the new one arrives, and a lost click leaves the
+    page in the 'analysing' state forever. We therefore wait for the answer
+    block itself, and re-click once if nothing appears.
+    """
     btn = page.get_by_role("button", name=re.compile("Analyse", re.I)).first
+
+    def answered():
+        body = page.inner_text("body")
+        return "Agent answer" in body or "Agent error" in body
+
     before = page.inner_text("body")
     btn.click()
-    spinner = re.compile(r"The agent is analysing", re.I)
-    # wait for spinner to appear (or timeout) — then for it to disappear
-    deadline = time.time() + 30
-    spinner_seen = False
+    deadline = time.time() + timeout
     while time.time() < deadline:
-        if spinner.search(page.inner_text("body")):
-            spinner_seen = True
-            break
-        page.wait_for_timeout(400)
-    if spinner_seen:
-        deadline = time.time() + timeout
-        while time.time() < deadline:
-            if not spinner.search(page.inner_text("body")):
-                return page.inner_text("body")
-            page.wait_for_timeout(800)
-        return page.inner_text("body")
-    page.wait_for_timeout(1200)
+        if answered():
+            return page.inner_text("body")
+        page.wait_for_timeout(1000)
+    # the click may have been swallowed by a rerun: click once more
+    print("  (no answer yet, clicking again)", flush=True)
+    btn.click()
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if answered():
+            return page.inner_text("body")
+        page.wait_for_timeout(1000)
     return page.inner_text("body")
 
 
@@ -110,10 +118,16 @@ def main():
     env = dict(os.environ, PYTHONIOENCODING="utf-8",
                STREAMLIT_BROWSER_GATHER_USAGE_STATS="false",
                T3_TF_THREADS="13")
+    # The app's stdout MUST go to a file: with a PIPE that nobody drains, the
+    # app blocks once the pipe buffer fills (64 KB of MCP/TF logs) and the page
+    # never renders the answer -> the test hangs on an app that works fine.
+    app_log = os.path.join(os.environ.get("TEMP", "."), "t3_ui_app.log")
+    app_log_f = open(app_log, "w", encoding="utf-8")
     proc = subprocess.Popen(
         [sys.executable, "-m", "streamlit", "run", APP,
          "--server.port", str(port), "--server.headless", "true"],
-        cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        cwd=ROOT, env=env, stdout=app_log_f, stderr=subprocess.STDOUT)
+    print(f"app log: {app_log}", flush=True)
 
     failures = []
     try:
@@ -204,6 +218,10 @@ def main():
             proc.wait(timeout=15)
         except Exception:
             proc.kill()
+        try:
+            app_log_f.close()
+        except Exception:
+            pass
 
     print("\n" + "=" * 60, flush=True)
     if failures:

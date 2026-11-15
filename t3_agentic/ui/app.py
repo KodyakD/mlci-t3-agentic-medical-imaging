@@ -6,8 +6,10 @@ Run:
 The page holds NO business logic: it calls the same agent as the evaluation
 (agent/agent.py) and renders the tool-call journal.
 """
+import json
 import os
 import sys
+import time
 
 import streamlit as st
 
@@ -17,9 +19,15 @@ sys.path.insert(0, ROOT)
 from t3_agentic.agent.agent import run_agent
 from t3_agentic.agent.calibration import load_config
 from t3_agentic.agent.mcp_client import MCPPool
+from t3_agentic.ui.theme import CSS, TOKENS, icon
 
-st.set_page_config(page_title="T3 - Medical image analysis agent",
-                   page_icon="🩻", layout="wide")
+st.set_page_config(page_title="T3 · Medical image analysis workbench",
+                   page_icon=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                         "assets", "icons", "scan-line.svg"),
+                   layout="wide")
+
+st.markdown(CSS, unsafe_allow_html=True)
+
 
 @st.cache_resource
 def get_pool():
@@ -27,10 +35,48 @@ def get_pool():
 
     Module-level globals re-run on every Streamlit rerun, so a plain
     `global POOL = None` resurrected the MCP servers on every interaction.
-    `cache_resource` persists the pool for the lifetime of the app process,
-    which loads TF exactly once.
+    `cache_resource` persists the pool for the lifetime of the app process.
+
+    The pool is ALSO warmed here (servers spawned + TensorFlow/XLA compiled)
+    so the first click on "Analyse" is answered in seconds instead of a
+    minute. Warming happens at import time, i.e. while the browser is still
+    connecting.
     """
-    return MCPPool()
+    t0 = time.time()
+    pool = MCPPool()
+    print(f"[UI] pool warmed in {time.time()-t0:.1f}s", flush=True)
+    return pool
+
+
+# Warm the pool as soon as the app module loads, in the background, so the
+# first user click does not pay the cold start.
+import threading as _threading
+
+
+def _warm_in_background():
+    """Pool + model warm-up, off the click path.
+
+    Pool start spawns the four MCP servers; the first vision call then pulls
+    TensorFlow into the server process and compiles the Grad-CAM graph (~25 s).
+    Doing that here, in the background, means the first click is already hot.
+    """
+    try:
+        pool = get_pool()
+        warm = os.path.join(ROOT, "demo_images", "kermany_test", "NORMAL")
+        if os.path.isdir(warm):
+            sample = sorted(os.listdir(warm))[0]
+            t0 = time.time()
+            pool.call_tool("classify_image",
+                          {"path": os.path.join(warm, sample)})
+            pool.call_tool("explain_image",
+                          {"path": os.path.join(warm, sample)})
+            print(f"[UI] vision model warm after {time.time()-t0:.1f}s", flush=True)
+    except Exception as _e:  # pragma: no cover
+        print(f"[UI] warm-up failed: {_e}", flush=True)
+
+
+if os.environ.get("T3_WARM_POOL", "1") == "1":
+    _threading.Thread(target=_warm_in_background, daemon=True).start()
 
 
 def demo_images():
@@ -49,30 +95,144 @@ def demo_images():
     return out
 
 
-st.title("Agentic system for medical image analysis")
-st.warning("Educational prototype. Not a medical diagnosis.")
+def chip(label, value, accent=False):
+    cls = "t3-chip t3-chip--accent" if accent else "t3-chip"
+    return f'<span class="{cls}">{label} <b>{value}</b></span>'
 
+
+def meter(pct, accent=False):
+    cls = "t3-meter t3-meter--accent" if accent else "t3-meter"
+    return f'<div class="{cls}"><i style="width:{max(0.0, min(1.0, pct)) * 100:.1f}%"></i></div>'
+
+
+def html(markup):
+    st.markdown(markup, unsafe_allow_html=True)
+
+
+# ----------------------------------------------------------------- masthead
 cfg = load_config()
+html(f"""
+<div class="t3-masthead">
+  <div class="t3-brand">{icon("layers", 20)}
+    <span><span class="t3-kicker">T3 · medical imaging workbench</span><br>
+    <span style="font-size:1.32rem;font-weight:620;letter-spacing:-0.015em">
+      Agent that reads the image, reads the note, and refuses when they disagree</span></span>
+  </div>
+  <div class="t3-warn">Prototype pédagogique · non diagnostique</div>
+</div>
+<div class="t3-rail">
+  <div>TAU_LOW <b>{cfg['tau_low']}</b></div>
+  <div>TAU_HIGH <b>{cfg['tau_high']}</b></div>
+  <div>temperature <b>{cfg['temperature']}</b></div>
+  <div>fitted on <b>Kermany validation half</b> (312 images, seed 42)</div>
+</div>
+""")
+
 with st.sidebar:
     st.header("Configuration")
-    st.write(f"**Fitted thresholds**: TAU_LOW = {cfg['tau_low']} - TAU_HIGH = {cfg['tau_high']}")
-    st.write(f"**Temperature**: {cfg['temperature']}")
     st.caption(cfg["source"])
     use_llm = st.checkbox("Use the LLM (Ollama qwen2.5:3b)", value=True)
-    st.caption("When disabled, the deterministic router is used (ablation B4).")
+    st.caption("Off = deterministic router (ablation B4).")
     demos = demo_images()
     demo_choice = st.selectbox("Demo image",
                                ["(no image)"] + [d[0] for d in demos])
     st.divider()
     st.caption("MCP servers: vision (classify_image, explain_image), "
-               "nlp (analyze_text), resources (get_guideline, search_guidelines — "
-               "read in every analyzed case).")
+               "nlp (analyze_text), resources (get_guideline, search_guidelines, "
+               "read in every analysed case), nih (domain shift, read only).")
 
 question = st.text_input("Question", "What can be said about this case?")
-note = st.text_area("Clinical note (optional)", height=120,
+note = st.text_area("Clinical note (optional)", height=110,
                     placeholder="64-year-old patient, productive cough for 5 days, fever 38.9 C ...")
 upload = st.file_uploader("Chest X-ray (optional)", type=["png", "jpg", "jpeg"])
 
+def _render_body(out):
+    left, right = st.columns([3, 2])
+
+    with left:
+        st.subheader("Agent answer")
+        html(f'<div class="t3-panel t3-answer">{out["answer"]}</div>')
+
+        fusion = out.get("fusion") or {}
+        if fusion:
+            st.subheader("Fusion decision")
+            refused = bool(fusion.get("refused"))
+            chips = [
+                chip("coherence", fusion.get("coherence", "?")),
+                chip("decision", fusion.get("final") or "no conclusion", accent=refused),
+                chip("confidence", fusion.get("confidence", "?"), accent=refused),
+                chip("refused", "yes" if refused else "no", accent=refused),
+            ]
+            html('<div class="t3-verdict">' + "".join(chips) + "</div>")
+            html(f'<div class="t3-note">{fusion.get("reason", "")}</div>')
+
+        vision = out.get("vision")
+        if vision:
+            st.subheader("CNN result")
+            score = vision.get("score")
+            p_raw = vision.get("p_pneumonia")
+            html(f'<div class="t3-label">P(pneumonia) · calibrated score</div>')
+            html(f'<div class="t3-value">{p_raw:.4f} raw · {score:.4f} trusted</div>')
+            html(meter(float(score or 0.0), accent=vision.get("suspect")))
+            if vision.get("suspect"):
+                html(f'<div class="t3-note" style="color:{TOKENS["accent"]}">'
+                     f'Grad-CAM falls outside the thorax mask, confidence downgraded.</div>')
+
+        text = out.get("text")
+        if text:
+            st.subheader("Note analysis")
+            ent = "".join(f'<span class="t3-entity">{e}</span>'
+                          for e in (text.get("entities") or []))
+            den = "".join(f'<span class="t3-entity t3-entity--denied">{e}</span>'
+                          for e in (text.get("denied") or []))
+            html(f'<div class="t3-label">orientation · {text.get("orientation")}</div>')
+            html(f'<div>{ent}{den}</div>')
+
+        resource = out.get("resource")
+        if resource:
+            st.subheader("MCP resource consulted")
+            payload = resource.get("result", resource)
+            if isinstance(payload, list):
+                body = " ".join(
+                    f'<div class="t3-note"><b>{h.get("title", "")}</b> {h.get("text", "")}</div>'
+                    for h in payload if isinstance(h, dict))
+            else:
+                body = f'<div class="t3-note">{payload}</div>'
+            html(body)
+
+    with right:
+        trace = out.get("trace", {})
+        st.subheader("Tool-call journal")
+        source = trace.get("tool_choice_source")
+        html(f'<div class="t3-rail">'
+             f'<div>tool choice <b>{source}</b></div>'
+             f'<div>rounds <b>{trace.get("rounds")}</b></div>'
+             f'<div>calls <b>{len(trace.get("tool_calls") or [])}</b></div>'
+             f'<div>forced <b>{len(trace.get("forced") or [])}</b></div></div>')
+        steps = []
+        for call in trace.get("tool_calls") or []:
+            forced = call.get("tool") in (trace.get("forced") or [])
+            ic = "shield-check" if forced else "activity"
+            steps.append(
+                f'<div class="t3-step{" t3-step--forced" if forced else ""}">'
+                f'{icon(ic, 16)}'
+                f'<span class="t3-tool">{call.get("tool")}</span>'
+                f'<span class="t3-dur">{call.get("duration_s")} s</span></div>')
+        html("".join(steps) or '<div class="t3-note">No tool call was recorded.</div>')
+
+        heat = (out.get("vision") or {}).get("heatmap")
+        if heat and os.path.exists(heat):
+            st.subheader("Grad-CAM heatmap")
+            st.image(heat, caption=f'inside_ratio = '
+                                 f'{(out.get("vision") or {}).get("inside_ratio")}')
+        elif out.get("vision"):
+            html('<div class="t3-note">No Grad-CAM map for this run.</div>')
+
+        with st.expander("Raw trace"):
+            st.json({k: v for k, v in trace.items() if k != "answer"})
+
+
+out = None
 run = st.button("Analyse", type="primary")
 
 if run:
@@ -88,49 +248,39 @@ if run:
                 image_path = path
                 break
 
-    with st.spinner("The agent is analysing the case ..."):
-        try:
-            out = run_agent(question, image_path=image_path,
-                            note=note if note.strip() else None,
-                            pool=get_pool(), use_llm=use_llm)
-        except Exception as e:
-            import traceback
-            traceback.print_exc()   # full traceback in the server log
-            st.error(f"Agent error: {type(e).__name__}: {e}")
-            out = None
+    _t0 = time.time()
+    print(f"[UI] agent start (image={bool(image_path)}, note={bool(note)}, "
+          f"llm={use_llm})", flush=True)
+    bar = st.progress(0.02, text="preparing the request")
+    log = st.empty()
+    try:
+        from t3_agentic.ui.progress import run_with_progress
+        out, err = run_with_progress(question, image_path,
+                                     note if note.strip() else None,
+                                     get_pool(), use_llm, bar, log)
+        if err is not None:
+            raise err
+        print(f"[UI] agent done in {time.time()-_t0:.1f}s "
+              f"answer_len={len((out or {}).get('answer') or '')}", flush=True)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()   # full traceback in the server log
+        print(f"[UI] AGENT FAILED after {time.time()-_t0:.1f}s: "
+              f"{type(e).__name__}: {e}", flush=True)
+        bar.empty()
+        st.error(f"Agent error: {type(e).__name__}: {e}")
+        out = None
 
-    if out:
-        left, right = st.columns([3, 2])
-        with left:
-            st.subheader("Agent answer")
-            st.write(out["answer"])
-            if out.get("fusion"):
-                st.subheader("Fusion decision")
-                st.json(out["fusion"])
-            if out.get("vision"):
-                st.subheader("CNN result")
-                st.json(out["vision"])
-            if out.get("text"):
-                st.subheader("Note analysis")
-                st.json(out["text"])
-            if out.get("resource"):
-                st.subheader("MCP resource consulted")
-                st.json(out["resource"])
-        with right:
-            trace = out.get("trace", {})
-            st.subheader("Tool-call journal")
-            st.write(f"tool-choice source: **{trace.get('tool_choice_source')}** | "
-                     f"rounds: {trace.get('rounds')} | calls: "
-                     f"{len(trace.get('tool_calls') or [])} | "
-                     f"forced tools: {trace.get('forced')}")
-            for call in trace.get("tool_calls", []):
-                st.write(f"- `{call['tool']}` ({call.get('duration_s')} s)")
-            heat = (out.get("vision") or {}).get("heatmap")
-            if heat and os.path.exists(heat):
-                st.subheader("Grad-CAM heatmap")
-                st.image(heat, caption="Visual explanation (controlled by inside_ratio)")
-                st.caption(f"inside_ratio = {(out.get('vision') or {}).get('inside_ratio')}")
-            else:
-                st.info("No Grad-CAM heatmap (no image, or the Grad-CAM is flagged suspect).")
-            with st.expander("Raw trace"):
-                st.json({k: v for k, v in trace.items() if k != "answer"})
+if out:
+    _tr = time.time()
+    print("[UI] render start", flush=True)
+    try:
+        _render_body(out)
+    except Exception as _e:
+        import traceback
+        traceback.print_exc()
+        print(f"[UI] RENDER FAILED: {type(_e).__name__}: {_e}", flush=True)
+        st.error(f"Render failed: {type(_e).__name__}: {_e}")
+    print(f"[UI] render done in {time.time()-_tr:.1f}s", flush=True)
+elif out is None and run:
+    html('<div class="t3-panel"><span class="t3-note">No result was produced for this run.</span></div>')

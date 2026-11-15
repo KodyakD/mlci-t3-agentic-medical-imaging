@@ -2,12 +2,16 @@ import numpy as np
 
 # tensorflow is lazy-imported inside the gradient functions so importing the
 # vision server does not pay the TF import cost when only ONNX classify is used.
+_TF = None
+
+
 def _tf():
-    global _tf
-    if _tf is None:
+    """Import TensorFlow on first use (importing it costs ~15 s)."""
+    global _TF
+    if _TF is None:
         import tensorflow as tf
-        _tf = tf
-    return _tf
+        _TF = tf
+    return _TF
 
 
 def _forward_factory(model):

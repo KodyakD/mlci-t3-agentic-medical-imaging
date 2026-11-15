@@ -140,8 +140,22 @@ def _template_answer(fusion, vision, text):
 
 def run_agent(user_msg, image_path=None, note=None, pool=None,
               already_preprocessed=False, use_llm=True, max_rounds=MAX_ROUNDS,
-              use_critic=True):
-    """Run one agent turn. pool: an open MCPPool (created/closed by the caller)."""
+              use_critic=True, progress=None):
+    """Run one agent turn. pool: an open MCPPool (created/closed by the caller).
+
+    progress: optional callback invoked with a dict at each step, so a UI can
+    show what is happening while the agent works:
+        {"stage": "route"|"tool"|"fusion"|"critic"|"answer", "tool": name,
+         "duration_s": float, "forced": bool, "text": str}
+    """
+
+    def emit(**kw):
+        if progress is not None:
+            try:
+                progress(kw)
+            except Exception:
+                pass
+
     trace = {
         "run_id": uuid.uuid4().hex[:8],
         "question": user_msg,
@@ -156,6 +170,9 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
         "useless_loops": 0,
         "_seen_calls": set(),
     }
+    emit(stage="route",
+         text="image" if image_path else "no image",
+         text2="note" if note else "no note")
     allowed = allowed_tools(bool(image_path), note is not None)
     required = required_tools(bool(image_path), note is not None)
     if not allowed:
@@ -213,6 +230,10 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
                 continue
             if payload is not None:
                 executed[tool] = payload
+            emit(stage="tool", tool=tool,
+                 duration_s=(trace["tool_calls"][-1].get("duration_s")
+                             if trace["tool_calls"] else None),
+                 forced=tool in forced)
 
         # OBSERVATION -> the next round sees what the tools returned
         messages.append({"role": "user",
@@ -267,6 +288,8 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
     # ---------------- fusion (only if a modality produced something) ----------
     if vision or text:
         fusion = fuse(vision, text)
+        emit(stage="fusion", text=fusion["coherence"],
+             refused=bool(fusion["refused"]))
         trace["fusion"] = fusion
         trace["refusal"] = fusion["refused"]
         logger.log_fusion(trace, fusion)
@@ -333,6 +356,7 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
             facts = {"fusion": fusion, "ressource": resource}
         try:
             verdict, revised, issues = critique(answer, facts, user_msg)
+            emit(stage="critic", text=verdict)
         except Exception as e:
             verdict, revised, issues = "ok", "", [f"critic error: {str(e)[:120]}"]
         trace["critic_verdict"] = verdict
@@ -350,6 +374,7 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
 
     trace.pop("_seen_calls", None)
     trace["answer"] = answer
+    emit(stage="answer", text=answer[:120])
     logger.log_run(trace)
     return {"answer": answer, "fusion": fusion, "vision": vision, "text": text,
             "resource": resource, "trace": trace}
