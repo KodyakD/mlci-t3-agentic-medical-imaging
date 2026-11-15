@@ -1,4 +1,4 @@
-"""A1 + B2 + B5 : fit the fusion thresholds and a temperature on a validation half.
+"""A1 + B2 + B5 : fit the label threshold, the trust thresholds and a temperature.
 
 Protocol (disclosed in the report):
   - untouched OFFICIAL Kermany test split (624 images, never seen during training);
@@ -6,6 +6,15 @@ Protocol (disclosed in the report):
   - thresholds and temperature are fitted on the VALIDATION half only;
   - everything is reported on the TEST half;
   - NIH is never used for fitting (it stays the unfitted domain-shift check).
+
+What is fitted on the validation half:
+  - temperature     : minimises NLL (logit scaling);
+  - label_threshold : the decision boundary on the CALIBRATED score, chosen to
+                      maximise balanced accuracy (Youden's J). The default 0.5
+                      boundary called 73.6% of the official test "pneumonia"
+                      (prevalence 62.5%) because the ranking is good (AUC
+                      0.975) but 0.5 sits far below the model's operating point;
+  - tau_low/tau_high: trust levels on the confidence in the predicted label.
 
 Usage: python t3_agentic/eval/fit_thresholds.py
 """
@@ -33,11 +42,12 @@ OUT = os.path.join(ROOT, "outputs")
 TRUST_ACC = 0.95     # TAU_LOW : below this, the image is not trusted (refuse)
 STRONG_ACC = 0.99    # TAU_HIGH: above this, confidence is called "haute"
 STRONG_COVERAGE = 0.30
+THRESHOLD_GRID = np.arange(0.05, 0.995, 0.005)
 
 
-def confidence(p, y):
+def confidence(p, y, threshold):
     """Confidence in the PREDICTED label."""
-    return np.where(p >= 0.5, p, 1.0 - p)
+    return np.where(p >= threshold, p, 1.0 - p)
 
 
 def fit_temperature(p, y):
@@ -54,6 +64,45 @@ def fit_temperature(p, y):
 
     res = minimize_scalar(nll, bounds=(-2.0, 2.0), method="bounded")
     return float(np.exp(res.x))
+
+
+def balanced_stats(p, y, t):
+    """Accuracy / balanced accuracy / recalls / predicted positive rate at t."""
+    pred = (p >= t).astype(int)
+    tn, fp, fn, tp = confusion_matrix(y, pred, labels=[0, 1]).ravel()
+    n = len(y)
+    tpr = tp / (tp + fn) if tp + fn else 0.0
+    tnr = tn / (tn + fp) if tn + fp else 0.0
+    return {
+        "threshold": round(float(t), 3),
+        "accuracy": round(float((pred == y).mean()), 4),
+        "balanced_accuracy": round(float(0.5 * (tpr + tnr)), 4),
+        "recall_pneumonia": round(float(tpr), 4),
+        "recall_normal": round(float(tnr), 4),
+        "precision_pneumonia": round(float(tp / (tp + fp)), 4) if tp + fp else None,
+        "predicted_positive_rate": round(float(pred.mean()), 4),
+        "false_positive": int(fp), "false_negative": int(fn),
+    }
+
+
+def fit_label_threshold(p_cal, y, grid=THRESHOLD_GRID):
+    """Threshold on the CALIBRATED score maximising Youden's J (TPR - FPR).
+
+    Ties are broken towards the HIGHER threshold (more specific), because the
+    default 0.5 boundary over-called pneumonia and the false positives are
+    what a clinician notices.
+    """
+    best_t, best_j = 0.5, -1.0
+    for t in grid:
+        pred = (p_cal >= t).astype(int)
+        tp = float(((pred == 1) & (y == 1)).sum())
+        fn = float(((pred == 0) & (y == 1)).sum())
+        tn = float(((pred == 0) & (y == 0)).sum())
+        fp = float(((pred == 1) & (y == 0)).sum())
+        j = (tp / (tp + fn) if tp + fn else 0.0) - (fp / (fp + tn) if fp + tn else 0.0)
+        if j > best_j + 1e-12 or (abs(j - best_j) <= 1e-12 and t > best_t):
+            best_t, best_j = float(t), j
+    return best_t
 
 
 def fit_tau_low(conf, pred, y, min_acc=TRUST_ACC):
@@ -86,6 +135,13 @@ def fit_tau_high(conf, pred, y, min_acc=STRONG_ACC, min_cov=STRONG_COVERAGE):
     return float(cs[max(k, 0)])
 
 
+def raw_equivalent(p_cal_threshold, temperature):
+    """The raw P(pneumonia) that maps to a calibrated threshold."""
+    t = min(max(float(p_cal_threshold), 1e-7), 1 - 1e-7)
+    lg = np.log(t / (1 - t)) * temperature
+    return float(1 / (1 + np.exp(-lg)))
+
+
 def main():
     d = np.load(PREDS)
     p, y, names = d["p"], d["y"], d["names"]
@@ -98,28 +154,28 @@ def main():
     # ---- fit on VALIDATION ----
     temperature = fit_temperature(pv, yv)
     pv_cal = np.array([apply_temperature(x, temperature) for x in pv])
-    conf_v = confidence(pv_cal, yv)
-    pred_v = (pv_cal >= 0.5).astype(int)
+    label_threshold = fit_label_threshold(pv_cal, yv)
+    conf_v = confidence(pv_cal, yv, label_threshold)
+    pred_v = (pv_cal >= label_threshold).astype(int)
     tau_low = fit_tau_low(conf_v, pred_v, yv)
     tau_high = fit_tau_high(conf_v, pred_v, yv)
 
     # ---- report on TEST ----
     pt_cal = np.array([apply_temperature(x, temperature) for x in pt])
-    conf_t = confidence(pt_cal, yt)
-    pred = (pt >= 0.5).astype(int)
+    conf_t = confidence(pt_cal, yt, label_threshold)
+    pred = (pt_cal >= label_threshold).astype(int)
     trusted = conf_t >= tau_low
     ece_before, _ = ece(pt, yt)
     ece_after, _ = ece(pt_cal, yt)
 
-    # trade-off curve on the VALIDATION half (accuracy / coverage vs threshold)
+    # trade-off curve (validation half): the evidence behind the threshold
     sweep = []
     for t in np.arange(0.50, 1.001, 0.05):
-        m = conf_v >= t
-        if m.sum() == 0:
-            continue
-        sweep.append({"t": round(float(t), 2),
-                      "coverage": round(float(m.mean()), 3),
-                      "accuracy": round(float((pred_v[m] == yv[m]).mean()), 4)})
+        s = balanced_stats(pv_cal, yv, t)
+        s["step"] = "val"
+        sweep.append(s)
+    sweep_test = [dict(balanced_stats(pt_cal, yt, t), step="test")
+                  for t in np.arange(0.50, 1.001, 0.05)]
 
     report = {
         "protocol": {
@@ -130,23 +186,38 @@ def main():
             "n_val": int(len(pv)), "n_test": int(len(pt)),
             "criteria": {"tau_low_accuracy": TRUST_ACC,
                          "tau_high_accuracy": STRONG_ACC,
-                         "tau_high_min_coverage": STRONG_COVERAGE},
+                         "tau_high_min_coverage": STRONG_COVERAGE,
+                         "label_threshold": "max balanced accuracy (Youden J), "
+                                            "ties -> higher threshold"},
             "nih": "jamais utilise pour l'ajustement (controle de decalage non ajuste)",
         },
         "fitted": {
+            "label_threshold": round(label_threshold, 4),
+            "label_threshold_equivalent_raw_p": round(
+                raw_equivalent(label_threshold, temperature), 4),
             "tau_low": round(tau_low, 4),
             "tau_high": round(tau_high, 4),
             "temperature": round(temperature, 4),
         },
+        "operating_point": {
+            "validation_half": balanced_stats(pv_cal, yv, label_threshold),
+            "test_half": balanced_stats(pt_cal, yt, label_threshold),
+            "official_test_full_624": balanced_stats(
+                np.array([apply_temperature(x, temperature) for x in p]), y,
+                label_threshold),
+            "official_test_full_624_at_default_0.5": balanced_stats(
+                np.array([apply_temperature(x, temperature) for x in p]), y, 0.5),
+        },
         "validation_half": {
             "accuracy_raw": round(accuracy_score(yv, (pv >= 0.5).astype(int)), 4),
-            "accuracy_calibrated": round(accuracy_score(yv, (pv_cal >= 0.5).astype(int)), 4),
+            "accuracy_calibrated_at_fitted": round(
+                accuracy_score(yv, (pv_cal >= label_threshold).astype(int)), 4),
             "auc": round(roc_auc_score(yv, pv), 4),
-            "threshold_sweep": sweep,
         },
         "test_half": {
-            "accuracy_raw": round(accuracy_score(yt, pred), 4),
-            "accuracy_calibrated": round(accuracy_score(yt, (pt_cal >= 0.5).astype(int)), 4),
+            "accuracy_raw_at_0.5": round(accuracy_score(yt, (pt >= 0.5).astype(int)), 4),
+            "accuracy_calibrated_at_fitted": round(
+                accuracy_score(yt, (pt_cal >= label_threshold).astype(int)), 4),
             "auc": round(roc_auc_score(yt, pt), 4),
             "pr_auc": round(average_precision_score(yt, pt), 4),
             "ece_before_temperature": round(ece_before, 4),
@@ -159,6 +230,8 @@ def main():
             "confusion_matrix_trusted_only": confusion_matrix(
                 yt[trusted], pred[trusted]).tolist() if trusted.any() else None,
         },
+        "threshold_sweep_validation": sweep,
+        "threshold_sweep_test": sweep_test,
         "caveat": "312 images per half: wide confidence intervals; the thresholds "
                   "are indicative and must be re-fitted on a larger set.",
     }
@@ -166,14 +239,17 @@ def main():
     with open(os.path.join(OUT, "threshold_fit.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
     with open(os.path.join(OUT, "calibration_config.json"), "w", encoding="utf-8") as f:
-        json.dump({"tau_low": round(tau_low, 4), "tau_high": round(tau_high, 4),
+        json.dump({"label_threshold": round(label_threshold, 4),
+                   "tau_low": round(tau_low, 4), "tau_high": round(tau_high, 4),
                    "temperature": round(temperature, 4),
-                   "source": "fitted on the Kermany official-test validation half (312 images, seed 42)",
+                   "source": "fitted on the Kermany official-test validation half "
+                             "(312 images, seed 42)",
                    "fitted_on": "Kermany val half", "never_fitted_on": "NIH"},
                   f, ensure_ascii=False, indent=2)
     np.savez(os.path.join(OUT, "preds_split.npz"), p=p, y=y, names=names,
              val_idx=val_idx, test_idx=test_idx)
-    print(json.dumps(report, ensure_ascii=False, indent=2))
+    print(json.dumps({k: report[k] for k in ("fitted", "operating_point")},
+                     ensure_ascii=False, indent=2))
     return report
 
 

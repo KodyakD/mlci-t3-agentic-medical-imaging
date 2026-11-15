@@ -9,102 +9,367 @@
     "criteria": {
       "tau_low_accuracy": 0.95,
       "tau_high_accuracy": 0.99,
-      "tau_high_min_coverage": 0.3
+      "tau_high_min_coverage": 0.3,
+      "label_threshold": "max balanced accuracy (Youden J), ties -> higher threshold"
     },
     "nih": "jamais utilise pour l'ajustement (controle de decalage non ajuste)"
   },
   "fitted": {
-    "tau_low": 0.7559,
+    "label_threshold": 0.855,
+    "label_threshold_equivalent_raw_p": 0.9279,
+    "tau_low": 0.2827,
     "tau_high": 0.9994,
     "temperature": 1.4403
   },
+  "operating_point": {
+    "validation_half": {
+      "threshold": 0.855,
+      "accuracy": 0.9327,
+      "balanced_accuracy": 0.9325,
+      "recall_pneumonia": 0.9333,
+      "recall_normal": 0.9316,
+      "precision_pneumonia": 0.9579,
+      "predicted_positive_rate": 0.609,
+      "false_positive": 8,
+      "false_negative": 13
+    },
+    "test_half": {
+      "threshold": 0.855,
+      "accuracy": 0.9199,
+      "balanced_accuracy": 0.9256,
+      "recall_pneumonia": 0.9026,
+      "recall_normal": 0.9487,
+      "precision_pneumonia": 0.967,
+      "predicted_positive_rate": 0.5833,
+      "false_positive": 6,
+      "false_negative": 19
+    },
+    "official_test_full_624": {
+      "threshold": 0.855,
+      "accuracy": 0.9263,
+      "balanced_accuracy": 0.9291,
+      "recall_pneumonia": 0.9179,
+      "recall_normal": 0.9402,
+      "precision_pneumonia": 0.9624,
+      "predicted_positive_rate": 0.5962,
+      "false_positive": 14,
+      "false_negative": 32
+    },
+    "official_test_full_624_at_default_0.5": {
+      "threshold": 0.5,
+      "accuracy": 0.883,
+      "balanced_accuracy": 0.8457,
+      "recall_pneumonia": 0.9949,
+      "recall_normal": 0.6966,
+      "precision_pneumonia": 0.8453,
+      "predicted_positive_rate": 0.7356,
+      "false_positive": 71,
+      "false_negative": 2
+    }
+  },
   "validation_half": {
     "accuracy_raw": 0.8942,
-    "accuracy_calibrated": 0.8942,
-    "auc": 0.975,
-    "threshold_sweep": [
-      {
-        "t": 0.5,
-        "coverage": 1.0,
-        "accuracy": 0.8942
-      },
-      {
-        "t": 0.55,
-        "coverage": 0.974,
-        "accuracy": 0.9079
-      },
-      {
-        "t": 0.6,
-        "coverage": 0.933,
-        "accuracy": 0.9175
-      },
-      {
-        "t": 0.65,
-        "coverage": 0.91,
-        "accuracy": 0.9296
-      },
-      {
-        "t": 0.7,
-        "coverage": 0.881,
-        "accuracy": 0.9345
-      },
-      {
-        "t": 0.75,
-        "coverage": 0.83,
-        "accuracy": 0.9498
-      },
-      {
-        "t": 0.8,
-        "coverage": 0.772,
-        "accuracy": 0.9627
-      },
-      {
-        "t": 0.85,
-        "coverage": 0.74,
-        "accuracy": 0.9654
-      },
-      {
-        "t": 0.9,
-        "coverage": 0.663,
-        "accuracy": 0.971
-      },
-      {
-        "t": 0.95,
-        "coverage": 0.513,
-        "accuracy": 0.975
-      }
-    ]
+    "accuracy_calibrated_at_fitted": 0.9327,
+    "auc": 0.975
   },
   "test_half": {
-    "accuracy_raw": 0.8718,
-    "accuracy_calibrated": 0.8718,
+    "accuracy_raw_at_0.5": 0.8718,
+    "accuracy_calibrated_at_fitted": 0.9199,
     "auc": 0.9748,
     "pr_auc": 0.9857,
     "ece_before_temperature": 0.0439,
     "ece_after_temperature": 0.032,
-    "coverage_trusted": 0.7436,
-    "accuracy_on_trusted": 0.9526,
-    "abstained": 80,
+    "coverage_trusted": 0.9391,
+    "accuracy_on_trusted": 0.9454,
+    "abstained": 19,
     "confusion_matrix": [
       [
-        79,
-        38
+        111,
+        6
       ],
       [
-        2,
-        193
+        19,
+        176
       ]
     ],
     "confusion_matrix_trusted_only": [
       [
-        39,
-        10
+        101,
+        6
       ],
       [
-        1,
-        182
+        10,
+        176
       ]
     ]
   },
-  "caveat": "312 images par demi : intervalles de confiance larges, les seuils sont indicatifs et a reconduire sur un jeu plus grand."
+  "threshold_sweep_validation": [
+    {
+      "threshold": 0.5,
+      "accuracy": 0.8942,
+      "balanced_accuracy": 0.859,
+      "recall_pneumonia": 1.0,
+      "recall_normal": 0.7179,
+      "precision_pneumonia": 0.8553,
+      "predicted_positive_rate": 0.7308,
+      "false_positive": 33,
+      "false_negative": 0,
+      "step": "val"
+    },
+    {
+      "threshold": 0.55,
+      "accuracy": 0.9103,
+      "balanced_accuracy": 0.8803,
+      "recall_pneumonia": 1.0,
+      "recall_normal": 0.7607,
+      "precision_pneumonia": 0.8744,
+      "predicted_positive_rate": 0.7147,
+      "false_positive": 28,
+      "false_negative": 0,
+      "step": "val"
+    },
+    {
+      "threshold": 0.6,
+      "accuracy": 0.9135,
+      "balanced_accuracy": 0.8897,
+      "recall_pneumonia": 0.9846,
+      "recall_normal": 0.7949,
+      "precision_pneumonia": 0.8889,
+      "predicted_positive_rate": 0.6923,
+      "false_positive": 24,
+      "false_negative": 3,
+      "step": "val"
+    },
+    {
+      "threshold": 0.65,
+      "accuracy": 0.9199,
+      "balanced_accuracy": 0.9017,
+      "recall_pneumonia": 0.9744,
+      "recall_normal": 0.8291,
+      "precision_pneumonia": 0.9048,
+      "predicted_positive_rate": 0.6731,
+      "false_positive": 20,
+      "false_negative": 5,
+      "step": "val"
+    },
+    {
+      "threshold": 0.7,
+      "accuracy": 0.9263,
+      "balanced_accuracy": 0.9103,
+      "recall_pneumonia": 0.9744,
+      "recall_normal": 0.8462,
+      "precision_pneumonia": 0.9135,
+      "predicted_positive_rate": 0.6667,
+      "false_positive": 18,
+      "false_negative": 5,
+      "step": "val"
+    },
+    {
+      "threshold": 0.75,
+      "accuracy": 0.9327,
+      "balanced_accuracy": 0.9239,
+      "recall_pneumonia": 0.959,
+      "recall_normal": 0.8889,
+      "precision_pneumonia": 0.935,
+      "predicted_positive_rate": 0.641,
+      "false_positive": 13,
+      "false_negative": 8,
+      "step": "val"
+    },
+    {
+      "threshold": 0.8,
+      "accuracy": 0.9327,
+      "balanced_accuracy": 0.9308,
+      "recall_pneumonia": 0.9385,
+      "recall_normal": 0.9231,
+      "precision_pneumonia": 0.9531,
+      "predicted_positive_rate": 0.6154,
+      "false_positive": 9,
+      "false_negative": 12,
+      "step": "val"
+    },
+    {
+      "threshold": 0.85,
+      "accuracy": 0.9327,
+      "balanced_accuracy": 0.9325,
+      "recall_pneumonia": 0.9333,
+      "recall_normal": 0.9316,
+      "precision_pneumonia": 0.9579,
+      "predicted_positive_rate": 0.609,
+      "false_positive": 8,
+      "false_negative": 13,
+      "step": "val"
+    },
+    {
+      "threshold": 0.9,
+      "accuracy": 0.9038,
+      "balanced_accuracy": 0.9128,
+      "recall_pneumonia": 0.8769,
+      "recall_normal": 0.9487,
+      "precision_pneumonia": 0.9661,
+      "predicted_positive_rate": 0.5673,
+      "false_positive": 6,
+      "false_negative": 24,
+      "step": "val"
+    },
+    {
+      "threshold": 0.95,
+      "accuracy": 0.8269,
+      "balanced_accuracy": 0.8547,
+      "recall_pneumonia": 0.7436,
+      "recall_normal": 0.9658,
+      "precision_pneumonia": 0.9732,
+      "predicted_positive_rate": 0.4776,
+      "false_positive": 4,
+      "false_negative": 50,
+      "step": "val"
+    },
+    {
+      "threshold": 1.0,
+      "accuracy": 0.375,
+      "balanced_accuracy": 0.5,
+      "recall_pneumonia": 0.0,
+      "recall_normal": 1.0,
+      "precision_pneumonia": null,
+      "predicted_positive_rate": 0.0,
+      "false_positive": 0,
+      "false_negative": 195,
+      "step": "val"
+    }
+  ],
+  "threshold_sweep_test": [
+    {
+      "threshold": 0.5,
+      "accuracy": 0.8718,
+      "balanced_accuracy": 0.8325,
+      "recall_pneumonia": 0.9897,
+      "recall_normal": 0.6752,
+      "precision_pneumonia": 0.8355,
+      "predicted_positive_rate": 0.7404,
+      "false_positive": 38,
+      "false_negative": 2,
+      "step": "test"
+    },
+    {
+      "threshold": 0.55,
+      "accuracy": 0.8846,
+      "balanced_accuracy": 0.853,
+      "recall_pneumonia": 0.9795,
+      "recall_normal": 0.7265,
+      "precision_pneumonia": 0.8565,
+      "predicted_positive_rate": 0.7147,
+      "false_positive": 32,
+      "false_negative": 4,
+      "step": "test"
+    },
+    {
+      "threshold": 0.6,
+      "accuracy": 0.891,
+      "balanced_accuracy": 0.8632,
+      "recall_pneumonia": 0.9744,
+      "recall_normal": 0.7521,
+      "precision_pneumonia": 0.8676,
+      "predicted_positive_rate": 0.7019,
+      "false_positive": 29,
+      "false_negative": 5,
+      "step": "test"
+    },
+    {
+      "threshold": 0.65,
+      "accuracy": 0.9167,
+      "balanced_accuracy": 0.8974,
+      "recall_pneumonia": 0.9744,
+      "recall_normal": 0.8205,
+      "precision_pneumonia": 0.9005,
+      "predicted_positive_rate": 0.6763,
+      "false_positive": 21,
+      "false_negative": 5,
+      "step": "test"
+    },
+    {
+      "threshold": 0.7,
+      "accuracy": 0.9167,
+      "balanced_accuracy": 0.9026,
+      "recall_pneumonia": 0.959,
+      "recall_normal": 0.8462,
+      "precision_pneumonia": 0.9122,
+      "predicted_positive_rate": 0.6571,
+      "false_positive": 18,
+      "false_negative": 8,
+      "step": "test"
+    },
+    {
+      "threshold": 0.75,
+      "accuracy": 0.9231,
+      "balanced_accuracy": 0.9197,
+      "recall_pneumonia": 0.9333,
+      "recall_normal": 0.906,
+      "precision_pneumonia": 0.943,
+      "predicted_positive_rate": 0.6186,
+      "false_positive": 11,
+      "false_negative": 13,
+      "step": "test"
+    },
+    {
+      "threshold": 0.8,
+      "accuracy": 0.9199,
+      "balanced_accuracy": 0.9188,
+      "recall_pneumonia": 0.9231,
+      "recall_normal": 0.9145,
+      "precision_pneumonia": 0.9474,
+      "predicted_positive_rate": 0.609,
+      "false_positive": 10,
+      "false_negative": 15,
+      "step": "test"
+    },
+    {
+      "threshold": 0.85,
+      "accuracy": 0.9199,
+      "balanced_accuracy": 0.9256,
+      "recall_pneumonia": 0.9026,
+      "recall_normal": 0.9487,
+      "precision_pneumonia": 0.967,
+      "predicted_positive_rate": 0.5833,
+      "false_positive": 6,
+      "false_negative": 19,
+      "step": "test"
+    },
+    {
+      "threshold": 0.9,
+      "accuracy": 0.9071,
+      "balanced_accuracy": 0.9171,
+      "recall_pneumonia": 0.8769,
+      "recall_normal": 0.9573,
+      "precision_pneumonia": 0.9716,
+      "predicted_positive_rate": 0.5641,
+      "false_positive": 5,
+      "false_negative": 24,
+      "step": "test"
+    },
+    {
+      "threshold": 0.95,
+      "accuracy": 0.8397,
+      "balanced_accuracy": 0.8684,
+      "recall_pneumonia": 0.7538,
+      "recall_normal": 0.9829,
+      "precision_pneumonia": 0.9866,
+      "predicted_positive_rate": 0.4776,
+      "false_positive": 2,
+      "false_negative": 48,
+      "step": "test"
+    },
+    {
+      "threshold": 1.0,
+      "accuracy": 0.375,
+      "balanced_accuracy": 0.5,
+      "recall_pneumonia": 0.0,
+      "recall_normal": 1.0,
+      "precision_pneumonia": null,
+      "predicted_positive_rate": 0.0,
+      "false_positive": 0,
+      "false_negative": 195,
+      "step": "test"
+    }
+  ],
+  "caveat": "312 images per half: wide confidence intervals; the thresholds are indicative and must be re-fitted on a larger set."
 }

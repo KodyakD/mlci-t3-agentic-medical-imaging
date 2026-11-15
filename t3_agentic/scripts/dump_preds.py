@@ -44,7 +44,7 @@ def main():
     ps, ys, names = [], [], []
     for i, f in enumerate(files):
         try:
-            label, p, _ = classify(f, already_preprocessed=args.preprocessed)
+            p, _ = classify(f, already_preprocessed=args.preprocessed)
         except Exception as e:
             print(f"skip {f}: {e}")
             continue

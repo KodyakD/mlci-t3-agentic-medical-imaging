@@ -86,6 +86,8 @@ python -m t3_agentic.eval.eval_nlp.py
 python t3_agentic/scripts/dump_preds.py --dir demo_images/kermany_test `
   --out outputs/preds_kermany_full.npz
 python t3_agentic/eval/fit_thresholds.py      # -> outputs/calibration_config.json
+                                             #    (temperature + seuil de decision + TAU_LOW/TAU_HIGH,
+                                             #     ajustes sur la demi-validation Kermany, seed 42)
 python t3_agentic/eval/calibration.py outputs/preds_kermany_full.npz
 
 # 11) export du rapport Word
@@ -135,7 +137,10 @@ powershell -ExecutionPolicy Bypass -File t3_agentic\run_all.ps1
 
 Rappel important : sur NIH, la classe majoritaire (normal) atteint déjà 0.687 d'accuracy ;
 l'accuracy seule est donc un indicateur trompeur, l'**accuracy équilibrée** vaut ~0.593.
-Le seuil de décision doit être calibré sur la validation (voir `agent/fusion.py`).
+Le seuil de décision est désormais **ajusté** sur la demi-validation Kermany
+(seed 42) : `LABEL_THRESHOLD = 0.855` sur le score calibré (≈ 0.928 sur la probabilité brute),
+choisi pour maximiser l'accuracy équilibrée. Sans lui, le modèle déclarait
+"pneumonie" à 73.6 % du test officiel (prévalence 62.5 %). Voir `agent/calibration.py`.
 
 ## Limites connues (à reprendre telles quelles dans le rapport)
 

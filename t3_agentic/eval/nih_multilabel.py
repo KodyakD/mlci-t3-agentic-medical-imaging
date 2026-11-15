@@ -133,7 +133,8 @@ def main():
     kept = collapsed >= 0
     y_col = collapsed[kept]
     p_col = p[kept]
-    pred_col = (p_col >= 0.5).astype(int)
+    t_label = cfg["label_threshold"]
+    pred_col = (p_col >= t_label).astype(int)
     coll = {
         "n_images": int(n),
         "n_kept_by_collapse": int(kept.sum()),
@@ -165,15 +166,17 @@ def main():
             ap = float(average_precision_score(y, p))
         except ValueError:
             continue
-        pred = (p >= 0.5).astype(int)
+        pred = (p >= t_label).astype(int)
         per_label.append({
             "finding": lab,
             "n_positive": int(y.sum()),
             "prevalence": round(float(y.mean()), 4),
             "auc_ranking": round(auc, 4),
             "average_precision": round(ap, 4),
-            "precision_at_0.5": round(float(precision_score(y, pred, zero_division=0)), 4),
-            "recall_at_0.5": round(float(recall_score(y, pred, zero_division=0)), 4),
+            "precision_at_threshold": round(
+                float(precision_score(y, pred, zero_division=0)), 4),
+            "recall_at_threshold": round(
+                float(recall_score(y, pred, zero_division=0)), 4),
             "recall_at_tau_low": round(
                 float(recall_score(y, (p >= tau_low).astype(int), zero_division=0)), 4),
             "trust_threshold_used": tau_low,
@@ -204,7 +207,7 @@ def main():
     print("\nper-label ranking (sorted by AUC):")
     for d in per_label:
         print(f"  {d['finding']:22s} n+={d['n_positive']:4d}  AUC={d['auc_ranking']:.3f}  "
-              f"AP={d['average_precision']:.3f}  R@0.5={d['recall_at_0.5']:.3f}  "
+              f"AP={d['average_precision']:.3f}  R@t={d['recall_at_threshold']:.3f}  "
               f"R@tau={d['recall_at_tau_low']:.3f}")
 
 

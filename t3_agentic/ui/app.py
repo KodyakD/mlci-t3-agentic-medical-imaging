@@ -92,6 +92,7 @@ html(f"""
   <div class="t3-warn">Prototype pédagogique · non diagnostique</div>
 </div>
 <div class="t3-rail">
+  <div>decision threshold <b>{cfg['label_threshold']}</b></div>
   <div>TAU_LOW <b>{cfg['tau_low']}</b></div>
   <div>TAU_HIGH <b>{cfg['tau_high']}</b></div>
   <div>temperature <b>{cfg['temperature']}</b></div>
@@ -165,8 +166,13 @@ def _render_body(out, timing=None):
             st.subheader("CNN result")
             score = vision.get("score")
             p_raw = vision.get("p_pneumonia")
+            p_cal = vision.get("p_pneumonia_calibrated")
+            thr = vision.get("label_threshold", cfg.get("label_threshold"))
             html(f'<div class="t3-label">P(pneumonia) · calibrated score</div>')
-            html(f'<div class="t3-value">{p_raw:.4f} raw · {score:.4f} trusted</div>')
+            html(f'<div class="t3-value">{p_raw:.4f} raw · {p_cal:.4f} calibrated</div>')
+            html(f'<div class="t3-note">decision threshold {thr} → '
+                 f'<b>{vision.get("label", "?")}</b> · confidence in that label '
+                 f'{score:.4f}</div>')
             html(meter(float(score or 0.0), accent=vision.get("suspect")))
             if vision.get("suspect"):
                 html(f'<div class="t3-note" style="color:{TOKENS["accent"]}">'

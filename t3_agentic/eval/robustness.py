@@ -70,8 +70,9 @@ def main():
 
     def stats(p, name, flip=None):
         p_cal = np.array([apply_temperature(x, cfg["temperature"]) for x in p])
-        pred = (p_cal >= 0.5).astype(int)
-        conf = np.where(p_cal >= 0.5, p_cal, 1 - p_cal)
+        t = cfg["label_threshold"]
+        pred = (p_cal >= t).astype(int)
+        conf = np.where(p_cal >= t, p_cal, 1 - p_cal)
         trusted = conf >= cfg["tau_low"]
         e, _ = ece(p_cal, y)
         out = {
@@ -92,7 +93,9 @@ def main():
     for kind in ("noise", "rotation", "contrast"):
         perturbed = [perturb_gray(a, kind, rng) for a in clean]
         p = predict(perturbed)
-        flip = float((((p >= 0.5).astype(int)) != ((p_clean >= 0.5).astype(int))).mean())
+        p_cal = np.array([apply_temperature(x, cfg["temperature"]) for x in p])
+        flip = float((((p_cal >= cfg["label_threshold"]).astype(int))
+                      != ((p_clean_cal >= cfg["label_threshold"]).astype(int))).mean())
         s, _ = stats(p, kind, flip)
         results.append(s)
         print(json.dumps(s, ensure_ascii=False), flush=True)
@@ -105,7 +108,8 @@ def main():
                               "rotation": "+10 degres (bord reflect)",
                               "contrast": "x0.6 autour de 0.5"},
             "calibration": {"tau_low": cfg["tau_low"], "tau_high": cfg["tau_high"],
-                            "temperature": cfg["temperature"]},
+                            "temperature": cfg["temperature"],
+                            "label_threshold": cfg["label_threshold"]},
         },
         "results": results,
     }

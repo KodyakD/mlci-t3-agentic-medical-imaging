@@ -28,7 +28,10 @@ def auc(y, p):
 def main(path="outputs/preds_kermany.npz"):
     data = np.load(os.path.join(ROOT, path))
     p, y = data["p"], data["y"]
-    acc = float(((p >= 0.5).astype(int) == y).mean())
+    from t3_agentic.agent.calibration import load_config
+    t = load_config()["label_threshold"]
+    acc = float(((p >= t).astype(int) == y).mean())
+    acc_default = float(((p >= 0.5).astype(int) == y).mean())
     a = auc(y, p)
     report = {
         "n": int(len(p)),

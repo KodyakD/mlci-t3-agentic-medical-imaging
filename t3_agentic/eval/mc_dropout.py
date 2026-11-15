@@ -120,22 +120,45 @@ def main():
     p_single = np.concatenate(single)
     np.savez(args.out, p=p_mc, y=y, std=sd, entropy=ent, disagree=dis, p_single=p_single)
 
-    def stats(p):
-        pred = (p >= 0.5).astype(int)
-        e, _ = ece(p, y)
+    def stats(p, threshold=None):
+        """Metrics at a decision threshold (None -> 0.5, the un-fitted default)."""
+        t = 0.5 if threshold is None else threshold
+        pred = (p >= t).astype(int)
+        e, _ = ece(p, y, threshold=t)
         try:
             a = roc_auc_score(y, p)
         except ValueError:
             a = float("nan")
-        return {"accuracy": round(float((pred == y).mean()), 4),
+        return {"threshold": round(float(t), 4),
+                "accuracy": round(float((pred == y).mean()), 4),
                 "auc": round(float(a), 4),
                 "ece": round(float(e), 4),
-                "mean_confidence": round(float(np.where(p >= .5, p, 1 - p).mean()), 4)}
+                "predicted_positive_rate": round(float(pred.mean()), 4),
+                "mean_confidence": round(float(np.where(p >= t, p, 1 - p).mean()), 4)}
+
+    # The MC mean is its own estimator, so it gets its OWN threshold, fitted
+    # with the same protocol as the main model (stratified half, seed 42,
+    # fitted on the validation half only, reported on the test half).
+    from sklearn.model_selection import train_test_split
+    from t3_agentic.eval.fit_thresholds import fit_label_threshold
+    idx = np.arange(len(p_mc))
+    val_idx, test_idx = train_test_split(idx, test_size=0.5, stratify=y,
+                                         random_state=42)
+    mc_threshold = fit_label_threshold(p_mc[val_idx], y[val_idx])
+    mc_pred = (p_mc >= mc_threshold).astype(int)
 
     report = {
         "dir": args.dir, "n": int(len(p_mc)), "mc_passes": args.mc,
+        "threshold_fitted_on_validation_half": round(float(mc_threshold), 4),
         "single_pass": stats(p_single),
+        "single_pass_at_fitted_threshold": stats(p_single, mc_threshold),
         "mc_mean": stats(p_mc),
+        "mc_mean_at_fitted_threshold": stats(p_mc, mc_threshold),
+        "mc_mean_test_half_at_fitted_threshold": {
+            "n": int(len(test_idx)),
+            "accuracy": round(float((mc_pred[test_idx] == y[test_idx]).mean()), 4),
+            "predicted_positive_rate": round(float(mc_pred[test_idx].mean()), 4),
+        },
         "epistemic_std_mean": round(float(sd.mean()), 4),
         "epistemic_std_p90": round(float(np.percentile(sd, 90)), 4),
         "predictive_entropy_mean": round(float(ent.mean()), 4),

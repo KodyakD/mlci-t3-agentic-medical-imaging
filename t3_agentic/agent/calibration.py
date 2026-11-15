@@ -14,6 +14,9 @@ CONFIG_PATH = os.path.join(ROOT, "outputs", "calibration_config.json")
 TAU_HIGH_DEFAULT = 0.85
 TAU_LOW_DEFAULT = 0.65
 TEMPERATURE_DEFAULT = 1.0
+# Decision boundary on the CALIBRATED score. Fitted with the other parameters
+# (eval/fit_thresholds.py); 0.5 is only the un-fitted placeholder.
+LABEL_THRESHOLD_DEFAULT = 0.5
 
 _cache = None
 
@@ -24,7 +27,8 @@ def load_config(force=False):
     if _cache is not None and not force:
         return _cache
     cfg = {"tau_high": TAU_HIGH_DEFAULT, "tau_low": TAU_LOW_DEFAULT,
-           "temperature": TEMPERATURE_DEFAULT, "fitted": False,
+           "temperature": TEMPERATURE_DEFAULT,
+           "label_threshold": LABEL_THRESHOLD_DEFAULT, "fitted": False,
            "source": "placeholders (aucun ajustement sur validation)"}
     if os.path.exists(CONFIG_PATH):
         try:
@@ -34,6 +38,8 @@ def load_config(force=False):
                 "tau_high": float(data["tau_high"]),
                 "tau_low": float(data["tau_low"]),
                 "temperature": float(data["temperature"]),
+                "label_threshold": float(
+                    data.get("label_threshold", LABEL_THRESHOLD_DEFAULT)),
                 "fitted": True,
                 "source": data.get("source", "fit sur validation Kermany"),
             })
@@ -56,3 +62,25 @@ def apply_temperature(p, temperature=None):
     logit = math.log(p / (1 - p))
     z = logit / t
     return 1.0 / (1.0 + math.exp(-z))
+
+
+def decide(p, cfg=None):
+    """The ONE decision rule: raw P(pneumonia) -> (label, p_cal, score).
+
+    The label is taken on the CALIBRATED score against the fitted threshold
+    (eval/fit_thresholds.py), and `score` is the confidence in that label.
+    Every runtime path and every evaluation script goes through this function,
+    so the operating point is the same everywhere.
+
+    Why not 0.5: at the default boundary the model called 73.6% of the
+    official Kermany test set "pneumonia" (prevalence 62.5%), because the
+    ranking is good (AUC 0.975) but the default boundary sits far below the
+    model's own operating point. The threshold is therefore fitted on the
+    Kermany validation half only.
+    """
+    cfg = cfg or load_config()
+    p_cal = apply_temperature(p, cfg["temperature"])
+    t = float(cfg.get("label_threshold", LABEL_THRESHOLD_DEFAULT))
+    label = "pneumonie" if p_cal >= t else "normal"
+    score = p_cal if label == "pneumonie" else 1.0 - p_cal
+    return label, p_cal, score

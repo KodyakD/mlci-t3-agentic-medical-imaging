@@ -4,7 +4,7 @@ import sys
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from t3_agentic.agent.fusion import fuse
+from t3_agentic.agent.fusion import TAU_LOW, fuse
 
 
 def vision(label="pneumonie", score=0.95, suspect=False):
@@ -65,7 +65,8 @@ def test_insufficient_note_falls_back_to_image_only():
 
 
 def test_uncertain_image_refuses():
-    r = fuse(vision("pneumonie", 0.40), None)
+    # below the configured TAU_LOW: no bimodal verdict
+    r = fuse(vision("pneumonie", TAU_LOW - 0.1), None)
     assert r["coherence"] == "insuffisant"
     assert r["refused"] is True
 
@@ -89,7 +90,7 @@ def test_warning_always_present():
 def test_untrusted_image_does_not_produce_a_contradiction():
     # image below TAU_LOW + a note denying infection: we must NOT claim the
     # modalities disagree (the image is not trusted) -> insufficiency
-    r = fuse(vision("pneumonie", 0.40), text("non infectieux", True))
+    r = fuse(vision("pneumonie", TAU_LOW - 0.1), text("non infectieux", True))
     assert r["coherence"] == "insuffisant"
     assert r["refused"] is True
 
@@ -102,24 +103,34 @@ def test_trusted_contradiction_still_refuses():
 
 def test_fusion_trusts_the_calibrated_score_not_the_raw_probability():
     # Regression: thresholds were fitted on temperature-calibrated scores.
-    # A raw 0.95 must NOT be consumed as-is — the tool re-scales it.
+    # A raw 0.99 must NOT be consumed as-is — the tool re-scales it.
     raw = {"label": "pneumonie",
-           "p_pneumonia": 0.95,
-           "p_pneumonia_calibrated": 0.60,
-           "score": 0.60,
+           "p_pneumonia": 0.99,
+           "p_pneumonia_calibrated": TAU_LOW - 0.05,
+           "score": TAU_LOW - 0.05,
            "suspect": False}
     r = fuse(raw, text("non infectieux", True))
-    # calibrated 0.60 < TAU_LOW -> NOT trusted; insufficiency, never a
+    # calibrated score < TAU_LOW -> NOT trusted; insufficiency, never a
     # claimed contradiction
     assert r["coherence"] == "insuffisant"
     assert r["refused"] is True
+
+    # ... and the other way round: a low raw probability does not make a
+    # trusted calibrated score untrusted.
+    raw2 = {"label": "pneumonie",
+            "p_pneumonia": 0.10,
+            "p_pneumonia_calibrated": TAU_LOW + 0.05,
+            "score": TAU_LOW + 0.05,
+            "suspect": False}
+    r2 = fuse(raw2, text("non infectieux", True))
+    assert r2["coherence"] == "contradictoire"
 
 
 def test_calibrated_score_below_tau_low_refuses_even_in_image_only():
     raw = {"label": "pneumonie",
            "p_pneumonia": 0.90,
-           "p_pneumonia_calibrated": 0.50,
-           "score": 0.50,
+           "p_pneumonia_calibrated": TAU_LOW - 0.05,
+           "score": TAU_LOW - 0.05,
            "suspect": False}
     r = fuse(raw, None)
     assert r["coherence"] == "insuffisant"

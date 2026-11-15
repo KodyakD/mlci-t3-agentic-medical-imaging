@@ -89,8 +89,9 @@ def main():
     from t3_agentic.eval.calibration import ece
     cfg = load_config()
     p_cal = np.array([apply_temperature(x, cfg["temperature"]) for x in p])
-    pred = (p_cal >= 0.5).astype(int)
-    conf = np.where(p_cal >= 0.5, p_cal, 1 - p_cal)
+    t_label = cfg["label_threshold"]
+    pred = (p_cal >= t_label).astype(int)
+    conf = np.where(p_cal >= t_label, p_cal, 1 - p_cal)
     trusted = conf >= cfg["tau_low"]
     e, _ = ece(p_cal, y)
     metrics = {

@@ -129,7 +129,12 @@ def to_input(a):
 
 
 def classify(path, already_preprocessed=False):
-    """Return (label, p_pneumonia, gray_uint8). label in {'pneumonie', 'normal'}."""
+    """Return (p_pneumonia, gray_uint8).
+
+    The LABEL is decided by the caller, on the calibrated score, against the
+    fitted threshold (t3_agentic.agent.calibration.decide). Deciding it here
+    at a hardcoded 0.5 is what made the model call everything pneumonia.
+    """
     a = preprocess_file(path, already_preprocessed)
     x = np.expand_dims(to_input(a), 0).astype("float32")
     sess = get_onnx()
@@ -137,5 +142,4 @@ def classify(path, already_preprocessed=False):
         p = float(sess.run(None, {"input": x})[0].flatten()[0])
     else:
         p = float(get_model().predict(x, verbose=0)[0][0])
-    label = "pneumonie" if p > 0.5 else "normal"
-    return label, p, a
+    return p, a

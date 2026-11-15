@@ -23,7 +23,7 @@ from roi import chest_roi
 
 sys.path.insert(0, os.path.normpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..")))
-from t3_agentic.agent.calibration import apply_temperature, load_config
+from t3_agentic.agent.calibration import decide, load_config
 
 OUT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     "..", "..", "outputs"))
@@ -47,17 +47,17 @@ def classify_image(path: str, patient_id: str | None = None,
     if _not_a_real_image(path):
         return {"error": f"image introuvable: {path}"}
     try:
-        label, p, _ = classify(path, already_preprocessed)
+        p, _ = classify(path, already_preprocessed)
     except (ValueError, FileNotFoundError) as e:
         return {"error": str(e)}
     cfg = load_config()
-    p_cal = apply_temperature(p, cfg["temperature"])
-    conf = p_cal if label == "pneumonie" else 1.0 - p_cal
+    label, p_cal, conf = decide(p, cfg)
     return {
         "label": label,
         "p_pneumonia": round(p, 4),
         "p_pneumonia_calibrated": round(p_cal, 4),
         "score": round(conf, 4),
+        "label_threshold": cfg["label_threshold"],
         "temperature": cfg["temperature"],
         "calibrated": bool(cfg["fitted"]),
         "patient": patient_id,
@@ -77,7 +77,8 @@ def explain_image(path: str, already_preprocessed: bool = False) -> dict:
     model = get_model()
     xb = np.expand_dims(to_input(a), 0).astype("float32")
     p = float(model.predict(xb, verbose=0)[0][0])
-    idx = int(p > 0.5)
+    label, _, _ = decide(p)
+    idx = 1 if label == "pneumonie" else 0
     cam, _ = explain(model, xb, idx)
     cam_img = Image.fromarray(np.uint8(cam / (cam.max() + 1e-8) * 255))
     cam_img = cam_img.resize((256, 256), Image.BICUBIC).filter(ImageFilter.GaussianBlur(4))
@@ -92,7 +93,7 @@ def explain_image(path: str, already_preprocessed: bool = False) -> dict:
     out = os.path.join(OUT, f"gradcam_{stem}.png")
     plt.imsave(out, over)
     return {
-        "label": "pneumonie" if idx else "normal",
+        "label": label,
         "p_pneumonia": round(p, 4),
         "heatmap": out,
         "inside_ratio": round(inside, 3),

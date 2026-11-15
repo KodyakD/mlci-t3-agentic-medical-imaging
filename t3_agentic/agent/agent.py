@@ -277,7 +277,8 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
         if not isinstance(vis, dict):
             return vis
         facts = {k: v for k, v in vis.items()
-                 if k not in ("temperature", "calibrated", "model", "patient")}
+                 if k not in ("temperature", "calibrated", "model", "patient",
+                              "label_threshold")}
         return facts
     if vision and executed.get("explain_image") and "error" not in executed["explain_image"]:
         vision = dict(vision)

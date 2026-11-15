@@ -12,15 +12,29 @@ import numpy as np
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "outputs")
 
+import sys
 
-def ece(p, y, bins=10):
-    """Expected calibration error for P(pneumonia) and binary labels."""
+sys.path.insert(0, ROOT)
+from t3_agentic.agent.calibration import load_config  # noqa: E402
+
+
+def ece(p, y, bins=10, threshold=None, lo=0.0):
+    """Expected calibration error for P(pneumonia) and binary labels.
+
+    threshold=None -> the fitted operating point (same rule as the runtime).
+    lo=0.0 bins the whole confidence range: with the fitted boundary the
+    confidence in the predicted label can drop below 0.5 (a "normal" call
+    just under the boundary), and bins that start at 0.5 would drop those
+    samples from the numerator while keeping them in the denominator.
+    """
+    if threshold is None:
+        threshold = load_config()["label_threshold"]
     p = np.asarray(p).ravel()
     y = np.asarray(y).ravel().astype(int)
-    conf = np.where(p >= 0.5, p, 1 - p)
-    pred = (p >= 0.5).astype(int)
+    conf = np.where(p >= threshold, p, 1 - p)
+    pred = (p >= threshold).astype(int)
     acc = (pred == y).astype(float)
-    edges = np.linspace(0.5, 1.0, bins + 1)
+    edges = np.linspace(lo, 1.0, bins + 1)
     total, rows = 0.0, []
     for lo, hi in zip(edges[:-1], edges[1:]):
         m = (conf > lo) & (conf <= hi)
@@ -61,16 +75,28 @@ def main():
     args = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
     curves, report = {}, {}
+    cfg = load_config()
+    from t3_agentic.agent.calibration import apply_temperature
     for path in args.npz:
         name = os.path.splitext(os.path.basename(path))[0]
         data = np.load(path)
         p, y = data["p"], data["y"]
-        e, rows = ece(p, y)
+        t = cfg["label_threshold"]
+        p_cal = np.array([apply_temperature(x, cfg["temperature"]) for x in p])
+        # the deployed quantity: calibrated score, fitted decision boundary
+        e, rows = ece(p_cal, y)
+        # the raw model's own reliability, for reference (its 0.5 boundary)
+        e_raw, _ = ece(p, y, threshold=0.5)
         curves[name] = rows
         report[name] = {"n": int(len(p)), "ece": round(e, 4),
-                         "accuracy": round(float(((p >= .5).astype(int) == y).mean()), 4),
+                         "ece_raw_probabilities_at_0.5": round(e_raw, 4),
+                         "accuracy": round(float(((p_cal >= t).astype(int) == y).mean()), 4),
+                         "accuracy_at_default_0.5": round(
+                             float(((p >= .5).astype(int) == y).mean()), 4),
+                         "threshold_used": t,
                          "bins": rows}
-        print(f"{name}: n={len(p)} ECE={e:.4f} acc={report[name]['accuracy']}")
+        print(f"{name}: n={len(p)} ECE_calibrated={e:.4f} "
+              f"ECE_raw@0.5={e_raw:.4f} acc={report[name]['accuracy']} (t={t})")
     with open(os.path.join(OUT, "calibration.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
     plot = reliability_plot(curves, os.path.join(OUT, "reliability_curve.png"))

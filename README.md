@@ -100,8 +100,11 @@ can also be downloaded directly from the `paultimothymooney/chest-xray-pneumonia
   14-pathology multi-label setup; the NIH sample contains only 14 strictly-"Pneumonia" images.
 - **Population and acquisition shift are confounded** (paediatric vs adult, different sites and
   devices): the drop to 0.604 balanced accuracy on adults cannot be attributed to one cause.
-- The operating point (thresholds + temperature) is fitted on a **Kermany validation half only**
-  (312/312 stratified split, seed 42) and does **not** transfer to NIH.
+- The operating point (temperature, **decision threshold**, trust thresholds) is fitted on a
+  **Kermany validation half only** (312/312 stratified split, seed 42) and does **not**
+  transfer to NIH. The decision threshold is not 0.5: it is fitted for balanced accuracy
+  (0.855 on the calibrated score), because at 0.5 the model called 73.6 % of the official
+  test set "pneumonia" while the prevalence is 62.5 %.
 - The runtime keeps the PDF-mandated French wording for the non-diagnostic warning and the
   structured output; this report and the interface are in English.
 
