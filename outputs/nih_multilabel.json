@@ -1,6 +1,6 @@
 {
   "n_images": 551,
-  "tau_low_kermany_fitted": 0.75,
+  "tau_low_kermany_fitted": 0.685,
   "label_collapse": {
     "n_images": 551,
     "n_kept_by_collapse": 501,
@@ -23,8 +23,8 @@
       "average_precision": 0.3023,
       "precision_at_threshold": 0.2927,
       "recall_at_threshold": 0.1818,
-      "recall_at_tau_low": 0.1061,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.1818,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Pneumothorax",
@@ -35,7 +35,7 @@
       "precision_at_threshold": 0.0488,
       "recall_at_threshold": 0.0571,
       "recall_at_tau_low": 0.0571,
-      "trust_threshold_used": 0.75
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Nodule",
@@ -45,8 +45,8 @@
       "average_precision": 0.1382,
       "precision_at_threshold": 0.1463,
       "recall_at_threshold": 0.1622,
-      "recall_at_tau_low": 0.0811,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.1622,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Cardiomegaly",
@@ -56,8 +56,8 @@
       "average_precision": 0.0861,
       "precision_at_threshold": 0.0732,
       "recall_at_threshold": 0.1154,
-      "recall_at_tau_low": 0.0769,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.1154,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Edema",
@@ -67,8 +67,8 @@
       "average_precision": 0.1094,
       "precision_at_threshold": 0.122,
       "recall_at_threshold": 0.1923,
-      "recall_at_tau_low": 0.1154,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.1923,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Effusion",
@@ -78,8 +78,8 @@
       "average_precision": 0.2245,
       "precision_at_threshold": 0.1463,
       "recall_at_threshold": 0.0741,
-      "recall_at_tau_low": 0.037,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.0741,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Pleural_Thickening",
@@ -90,7 +90,7 @@
       "precision_at_threshold": 0.0244,
       "recall_at_threshold": 0.0323,
       "recall_at_tau_low": 0.0323,
-      "trust_threshold_used": 0.75
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Atelectasis",
@@ -100,8 +100,8 @@
       "average_precision": 0.1608,
       "precision_at_threshold": 0.0732,
       "recall_at_threshold": 0.0492,
-      "recall_at_tau_low": 0.0328,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.0492,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Emphysema",
@@ -112,7 +112,7 @@
       "precision_at_threshold": 0.0488,
       "recall_at_threshold": 0.0741,
       "recall_at_tau_low": 0.0741,
-      "trust_threshold_used": 0.75
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Pneumonia",
@@ -122,8 +122,8 @@
       "average_precision": 0.145,
       "precision_at_threshold": 0.1951,
       "recall_at_threshold": 0.2051,
-      "recall_at_tau_low": 0.1282,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.2051,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Mass",
@@ -133,8 +133,8 @@
       "average_precision": 0.113,
       "precision_at_threshold": 0.0976,
       "recall_at_threshold": 0.0952,
-      "recall_at_tau_low": 0.0714,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.0952,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Infiltration",
@@ -144,8 +144,8 @@
       "average_precision": 0.5322,
       "precision_at_threshold": 0.5366,
       "recall_at_threshold": 0.0932,
-      "recall_at_tau_low": 0.0551,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.0932,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Fibrosis",
@@ -155,8 +155,8 @@
       "average_precision": 0.0689,
       "precision_at_threshold": 0.0488,
       "recall_at_threshold": 0.08,
-      "recall_at_tau_low": 0.04,
-      "trust_threshold_used": 0.75
+      "recall_at_tau_low": 0.08,
+      "trust_threshold_used": 0.685
     },
     {
       "finding": "Hernia",
@@ -167,7 +167,7 @@
       "precision_at_threshold": 0.0,
       "recall_at_threshold": 0.0,
       "recall_at_tau_low": 0.0,
-      "trust_threshold_used": 0.75
+      "trust_threshold_used": 0.685
     }
   ],
   "macro_auc_over_findings": 0.6735,

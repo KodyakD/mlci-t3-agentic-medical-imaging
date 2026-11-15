@@ -84,7 +84,13 @@ class MCPPool:
                 self._ready.set()
                 await self._stop.wait()
         except Exception as e:  # pragma: no cover
-            print(f"[MCP] pool FAILED: {type(e).__name__}: {e}", flush=True)
+            msg = str(e)
+            if "cancel scope in a different task" in msg:
+                # shutdown artefact: the loop was closed while the AsyncExitStack
+                # was unwinding. Not a failure - say so instead of crying wolf.
+                print("[MCP] pool closed", flush=True)
+            else:
+                print(f"[MCP] pool FAILED: {type(e).__name__}: {e}", flush=True)
             self._error = e
             self._ready.set()
 
@@ -154,6 +160,13 @@ class MCPPool:
             pass
         try:
             self.loop.call_soon_threadsafe(self.loop.stop)
+        except Exception:
+            pass
+        # closing the loop while the session coroutine is still unwinding its
+        # AsyncExitStack raises "Attempted to exit cancel scope in a different
+        # task" - harmless at shutdown, but it looks like a failure in the log.
+        try:
+            self.loop.close()
         except Exception:
             pass
         # the stdio servers are subprocesses: make sure they are gone

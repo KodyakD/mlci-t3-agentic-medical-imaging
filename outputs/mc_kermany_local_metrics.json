@@ -1,22 +1,48 @@
 {
-  "dir": "demo_images\\kermany_test",
-  "n": 624,
+  "dir": "outputs\\kaggle_test_files.json",
+  "n": 940,
   "mc_passes": 10,
+  "threshold_fitted_on_validation_half": 0.65,
   "single_pass": {
-    "accuracy": 0.8766,
-    "auc": 0.968,
-    "ece": 0.0537,
-    "mean_confidence": 0.9154
+    "threshold": 0.5,
+    "accuracy": 0.9628,
+    "auc": 0.9879,
+    "ece": 0.0132,
+    "predicted_positive_rate": 0.7266,
+    "mean_confidence": 0.9508
+  },
+  "single_pass_at_fitted_threshold": {
+    "threshold": 0.65,
+    "accuracy": 0.9574,
+    "auc": 0.9879,
+    "ece": 0.0133,
+    "predicted_positive_rate": 0.7064,
+    "mean_confidence": 0.948
   },
   "mc_mean": {
-    "accuracy": 0.8782,
-    "auc": 0.9737,
-    "ece": 0.0364,
-    "mean_confidence": 0.9053
+    "threshold": 0.5,
+    "accuracy": 0.9649,
+    "auc": 0.9884,
+    "ece": 0.0178,
+    "predicted_positive_rate": 0.7202,
+    "mean_confidence": 0.9477
   },
-  "epistemic_std_mean": 0.049,
-  "epistemic_std_p90": 0.1527,
-  "predictive_entropy_mean": 0.1981,
-  "disagreement_rate": 0.1619,
+  "mc_mean_at_fitted_threshold": {
+    "threshold": 0.65,
+    "accuracy": 0.9628,
+    "auc": 0.9884,
+    "ece": 0.0191,
+    "predicted_positive_rate": 0.7053,
+    "mean_confidence": 0.9449
+  },
+  "mc_mean_test_half_at_fitted_threshold": {
+    "n": 470,
+    "accuracy": 0.9596,
+    "predicted_positive_rate": 0.717
+  },
+  "epistemic_std_mean": 0.0306,
+  "epistemic_std_p90": 0.104,
+  "predictive_entropy_mean": 0.1331,
+  "disagreement_rate": 0.0638,
   "cases_mc_unsure_but_confident": 0
 }

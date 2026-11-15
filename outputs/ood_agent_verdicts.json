@@ -1,0 +1,58 @@
+{
+  "user_1.jpg": {
+    "verdict": "`image_seule` / `normal_suspecte` (confidence faible)",
+    "coherence": "image_seule",
+    "final": "normal_suspecte",
+    "confidence": "faible",
+    "refused": false,
+    "seconds": 22.5
+  },
+  "user_2.jpg": {
+    "verdict": "`image_seule` / `normal_suspecte` (confidence faible)",
+    "coherence": "image_seule",
+    "final": "normal_suspecte",
+    "confidence": "faible",
+    "refused": false,
+    "seconds": 10.2
+  },
+  "user_3.jpg": {
+    "verdict": "`image_seule` / `pneumonie_suspecte` (confidence moderee)",
+    "coherence": "image_seule",
+    "final": "pneumonie_suspecte",
+    "confidence": "moderee",
+    "refused": false,
+    "seconds": 15.3
+  },
+  "user_4.jpg": {
+    "verdict": "`insuffisant` / `None` (confidence aucune)",
+    "coherence": "insuffisant",
+    "final": null,
+    "confidence": "aucune",
+    "refused": true,
+    "seconds": 10.6
+  },
+  "user_5.jpg": {
+    "verdict": "`image_seule` / `pneumonie_suspecte` (confidence moderee)",
+    "coherence": "image_seule",
+    "final": "pneumonie_suspecte",
+    "confidence": "moderee",
+    "refused": false,
+    "seconds": 14.3
+  },
+  "user_6.jpg": {
+    "verdict": "`image_seule` / `normal_suspecte` (confidence haute)",
+    "coherence": "image_seule",
+    "final": "normal_suspecte",
+    "confidence": "haute",
+    "refused": false,
+    "seconds": 9.3
+  },
+  "user_7.jpg": {
+    "verdict": "`insuffisant` / `None` (confidence aucune)",
+    "coherence": "insuffisant",
+    "final": null,
+    "confidence": "aucune",
+    "refused": true,
+    "seconds": 11.2
+  }
+}
