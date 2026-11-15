@@ -12,82 +12,82 @@
     "Pneumonia": 14
   },
   "calibration": {
-    "tau_low": 0.7559,
-    "tau_high": 0.9994,
-    "temperature": 1.4403,
+    "tau_low": 0.685,
+    "tau_high": 0.9126,
+    "temperature": 0.8109,
     "fitted_on": "Kermany validation half only (unfitted on NIH)"
   },
-  "accuracy": 0.6091,
-  "balanced_accuracy": 0.6041,
+  "accuracy": 0.5482,
+  "balanced_accuracy": 0.5419,
   "auc": 0.7354,
   "pr_auc": 0.7149,
-  "ece": 0.1379,
-  "recall_normal": 0.935,
-  "recall_pneumonia_like": 0.2732,
-  "trusted_coverage": 0.4442,
-  "trusted_accuracy": 0.7257,
-  "trusted_n": 175,
+  "ece": 0.2601,
+  "recall_normal": 0.96,
+  "recall_pneumonia_like": 0.1237,
+  "trusted_coverage": 0.8223,
+  "trusted_accuracy": 0.6173,
+  "trusted_n": 324,
   "majority_baseline_accuracy": 0.5076,
   "confident_normal_on_positive_top10": [
     {
-      "image": "00013670_154.png",
+      "image": "00000181_035.png",
+      "label": "Infiltration",
+      "p_raw": 0.6511,
+      "p_cal": 0.6833
+    },
+    {
+      "image": "00027415_045.png",
+      "label": "Infiltration",
+      "p_raw": 0.6448,
+      "p_cal": 0.6759
+    },
+    {
+      "image": "00016778_017.png",
       "label": "Consolidation",
-      "p_raw": 0.4879,
-      "p_cal": 0.4916
+      "p_raw": 0.6367,
+      "p_cal": 0.6664
     },
     {
-      "image": "00006720_005.png",
-      "label": "Infiltration",
-      "p_raw": 0.4869,
-      "p_cal": 0.4909
-    },
-    {
-      "image": "00016291_055.png",
-      "label": "Infiltration",
-      "p_raw": 0.4865,
-      "p_cal": 0.4906
-    },
-    {
-      "image": "00011391_013.png",
-      "label": "Infiltration",
-      "p_raw": 0.4749,
-      "p_cal": 0.4826
-    },
-    {
-      "image": "00028924_005.png",
+      "image": "00022877_014.png",
       "label": "Pneumonia",
-      "p_raw": 0.4651,
-      "p_cal": 0.4758
+      "p_raw": 0.6314,
+      "p_cal": 0.6602
     },
     {
-      "image": "00018187_060.png",
+      "image": "00027211_003.png",
       "label": "Infiltration",
-      "p_raw": 0.4533,
-      "p_cal": 0.4675
+      "p_raw": 0.6298,
+      "p_cal": 0.6582
     },
     {
-      "image": "00013670_135.png",
+      "image": "00005944_000.png",
+      "label": "Infiltration",
+      "p_raw": 0.626,
+      "p_cal": 0.6537
+    },
+    {
+      "image": "00007157_032.png",
+      "label": "Infiltration",
+      "p_raw": 0.6135,
+      "p_cal": 0.6387
+    },
+    {
+      "image": "00008962_001.png",
       "label": "Consolidation",
-      "p_raw": 0.4533,
-      "p_cal": 0.4675
+      "p_raw": 0.6102,
+      "p_cal": 0.6348
     },
     {
-      "image": "00019550_001.png",
+      "image": "00030152_003.png",
       "label": "Infiltration",
-      "p_raw": 0.4521,
-      "p_cal": 0.4667
+      "p_raw": 0.6064,
+      "p_cal": 0.6302
     },
     {
-      "image": "00013992_021.png",
+      "image": "00011144_022.png",
       "label": "Infiltration",
-      "p_raw": 0.452,
-      "p_cal": 0.4666
-    },
-    {
-      "image": "00015160_022.png",
-      "label": "Infiltration",
-      "p_raw": 0.4466,
-      "p_cal": 0.4628
+      "p_raw": 0.604,
+      "p_cal": 0.6273
     }
   ]
 }

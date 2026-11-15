@@ -62,7 +62,10 @@ python t3_agentic/scripts/fetch_assets.py
 
 # 4) corpus d'images de test (images BRUTES : le serveur applique le pretraitement)
 python t3_agentic/scripts/build_demo_corpus.py
-# -> demo_images/kermany_test/{NORMAL,PNEUMONIA} (test officiel Kermany, jamais vu a l'entrainement)
+# -> demo_images/kermany_test/{NORMAL,PNEUMONIA} (test officiel Kermany :
+#    ce corpus reproduit le pre-traitement d'entrainement ; ce n'est PAS un
+#    hold-out propre pour densenet_merged.keras, dont le notebook de training
+#    a reapartitionne train+val+test. Voir eval/reproduce_kaggle_split.py)
 # -> demo_images/nih_eval/{Consolidation,Infiltration,Pneumonia,No_Finding} (echantillon NIH, domain shift)
 
 # 5) tests

@@ -1,0 +1,19 @@
+{
+  "train": {
+    "n": 4013,
+    "accuracy_at_0.5": 0.9651,
+    "mean_abs_distance_from_0.5": 0.4471,
+    "median_p": 0.9838,
+    "seconds": 92.4
+  },
+  "test": {
+    "n": 940,
+    "accuracy_at_0.5": 0.966,
+    "mean_abs_distance_from_0.5": 0.4554,
+    "median_p": 0.9855,
+    "seconds": 19.4
+  },
+  "train_minus_test_accuracy": -0.0009,
+  "memorisation": false,
+  "reading": "the model does not memorise its training slice: the accuracy on images it trained on is not materially higher than on the unseen slice, so the official test folder being inside the pool does not translate into inflated scores on those images"
+}

@@ -20,8 +20,8 @@ from sklearn.metrics import roc_auc_score
 from t3_agentic.agent.calibration import apply_temperature, load_config
 from t3_agentic.eval.calibration import ece
 
-PREDS = os.path.join(ROOT, "outputs", "preds_kermany_full.npz")
-SPLIT = os.path.join(ROOT, "outputs", "preds_split.npz")
+PREDS = os.path.join(ROOT, "outputs", "preds_kermany_clean_split.npz")
+LEGACY = os.path.join(ROOT, "outputs", "preds_kermany_full.npz")
 OUT = os.path.join(ROOT, "outputs")
 N_BOOT = 1000
 SEED = 42
@@ -76,28 +76,39 @@ def bootstrap(p, y, cfg, n_boot=N_BOOT):
 
 def main():
     cfg = load_config()
-    d = np.load(PREDS)
+    d = np.load(PREDS, allow_pickle=True)
+    split = d["split"]
+    s_test = split == "test"
+    s_val = split == "val"
     p, y = d["p"], d["y"]
-    s = np.load(SPLIT)
-    test_idx = s["test_idx"]
     report = {
         "method": f"{N_BOOT} resamples stratifiees (par classe), seed {SEED}, "
                    "recalcul complet a chaque echantillon",
         "calibration_used": {"tau_low": cfg["tau_low"], "tau_high": cfg["tau_high"],
                              "temperature": cfg["temperature"],
+                             "label_threshold": cfg["label_threshold"],
                              "source": cfg["source"]},
-        "test_half_312_official_test": {
-            "n": int(len(test_idx)),
+        "clean_test_slice_940": {
+            "n": int(s_test.sum()),
             "point_estimate": {k: round(v, 4) for k, v in
-                               metrics(p[test_idx], y[test_idx], cfg).items()},
-            "bootstrap": bootstrap(p[test_idx], y[test_idx], cfg),
+                               metrics(p[s_test], y[s_test], cfg).items()},
+            "bootstrap": bootstrap(p[s_test], y[s_test], cfg),
         },
-        "full_official_test_624": {
-            "n": int(len(p)),
-            "point_estimate": {k: round(v, 4) for k, v in metrics(p, y, cfg).items()},
-            "bootstrap": bootstrap(p, y, cfg),
+        "clean_validation_slice_871": {
+            "n": int(s_val.sum()),
+            "point_estimate": {k: round(v, 4) for k, v in
+                               metrics(p[s_val], y[s_val], cfg).items()},
+            "bootstrap": bootstrap(p[s_val], y[s_val], cfg),
         },
     }
+    if os.path.exists(LEGACY):
+        leg = np.load(LEGACY)
+        report["official_test_folder_624"] = {
+            "n": int(len(leg["p"])),
+            "point_estimate": {k: round(v, 4) for k, v in
+                               metrics(leg["p"], leg["y"], cfg).items()},
+            "bootstrap": bootstrap(leg["p"], leg["y"], cfg),
+        }
     with open(os.path.join(OUT, "bootstrap_ci.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
     print(json.dumps(report, ensure_ascii=False, indent=2))

@@ -1,181 +1,181 @@
 {
-  "split": "Kermany official test (624, untouched)",
+  "split": "Kermany clean patient-disjoint test slice (940, rebuilt from the Kaggle split and verified against the Kaggle run log)",
   "operating_point": "fitted threshold (Kermany validation half, seed 42)",
-  "accuracy": 0.9263,
-  "auc": 0.975,
+  "accuracy": 0.9649,
+  "auc": 0.9893,
   "confusion_matrix": [
     [
-      220,
-      14
+      256,
+      16
     ],
     [
-      32,
-      358
+      17,
+      651
     ]
   ],
-  "recall_normal": 0.9402,
-  "recall_pneumonia": 0.9179,
-  "precision_normal": 0.873,
-  "precision_pneumonia": 0.9624,
-  "f1_normal": 0.9053,
-  "f1_pneumonia": 0.9396,
-  "f1_macro": 0.9225,
-  "n_normal": 234,
-  "n_pneumonia": 390,
+  "recall_normal": 0.9412,
+  "recall_pneumonia": 0.9746,
+  "precision_normal": 0.9377,
+  "precision_pneumonia": 0.976,
+  "f1_normal": 0.9394,
+  "f1_pneumonia": 0.9753,
+  "f1_macro": 0.9574,
+  "n_normal": 272,
+  "n_pneumonia": 668,
   "detail_fitted_threshold": {
-    "split": "Kermany official test (624, untouched)",
-    "threshold": 0.855,
-    "n": 624,
-    "prevalence_pneumonia": 0.625,
-    "predicted_positive_rate": 0.5962,
-    "accuracy": 0.9263,
-    "balanced_accuracy": 0.9291,
-    "auc": 0.975,
-    "pr_auc": 0.9827,
+    "split": "Kermany clean patient-disjoint test slice (940)",
+    "threshold": 0.685,
+    "n": 940,
+    "prevalence_pneumonia": 0.7106,
+    "predicted_positive_rate": 0.7096,
+    "accuracy": 0.9649,
+    "balanced_accuracy": 0.9579,
+    "auc": 0.9893,
+    "pr_auc": 0.9939,
     "confusion_matrix": [
       [
-        220,
-        14
+        256,
+        16
       ],
       [
-        32,
-        358
+        17,
+        651
       ]
     ],
-    "recall_normal": 0.9402,
-    "recall_pneumonia": 0.9179,
-    "precision_normal": 0.873,
-    "precision_pneumonia": 0.9624,
-    "f1_normal": 0.9053,
-    "f1_pneumonia": 0.9396,
-    "f1_macro": 0.9225,
-    "ece": 0.0517
+    "recall_normal": 0.9412,
+    "recall_pneumonia": 0.9746,
+    "precision_normal": 0.9377,
+    "precision_pneumonia": 0.976,
+    "f1_normal": 0.9394,
+    "f1_pneumonia": 0.9753,
+    "f1_macro": 0.9574,
+    "ece": 0.0036
   },
   "detail_default_0.5": {
-    "split": "Kermany official test (624, untouched) at default 0.5",
+    "split": "Kermany clean test slice (940) at default 0.5",
     "threshold": 0.5,
-    "n": 624,
-    "prevalence_pneumonia": 0.625,
-    "predicted_positive_rate": 0.7356,
-    "accuracy": 0.883,
-    "balanced_accuracy": 0.8457,
-    "auc": 0.975,
-    "pr_auc": 0.9827,
+    "n": 940,
+    "prevalence_pneumonia": 0.7106,
+    "predicted_positive_rate": 0.7213,
+    "accuracy": 0.966,
+    "balanced_accuracy": 0.9532,
+    "auc": 0.9893,
+    "pr_auc": 0.9939,
     "confusion_matrix": [
       [
-        163,
-        71
+        251,
+        21
       ],
       [
-        2,
-        388
+        11,
+        657
       ]
     ],
-    "recall_normal": 0.6966,
-    "recall_pneumonia": 0.9949,
-    "precision_normal": 0.9879,
-    "precision_pneumonia": 0.8453,
-    "f1_normal": 0.817,
-    "f1_pneumonia": 0.914,
-    "f1_macro": 0.8655,
-    "ece": 0.0201
+    "recall_normal": 0.9228,
+    "recall_pneumonia": 0.9835,
+    "precision_normal": 0.958,
+    "precision_pneumonia": 0.969,
+    "f1_normal": 0.9401,
+    "f1_pneumonia": 0.9762,
+    "f1_macro": 0.9582,
+    "ece": 0.0033
   },
   "note": "the default 0.5 boundary over-called pneumonia (73.6% predicted positive vs 62.5% prevalence); the fitted threshold fixes the operating point",
   "decision_changes_vs_default_0.5": {
-    "pneumonia_to_normal": 87,
+    "pneumonia_to_normal": 11,
     "normal_to_pneumonia": 0,
-    "unchanged": 537,
-    "pneumonia_to_normal_that_were_normal_in_truth": 57,
-    "pneumonia_to_normal_that_were_pneumonia_in_truth": 30,
+    "unchanged": 929,
+    "pneumonia_to_normal_that_were_normal_in_truth": 5,
+    "pneumonia_to_normal_that_were_pneumonia_in_truth": 6,
     "examples_pneumonia_to_normal": [
       {
-        "name": "IM-0006-0001.jpeg",
-        "p_pneumonia": 0.5214,
-        "p_calibrated": 0.5149,
+        "name": "IM-0581-0001.jpeg",
+        "p_pneumonia": 0.5321,
+        "p_calibrated": 0.5396,
         "truth": "normal"
       },
       {
-        "name": "IM-0011-0001-0002.jpeg",
-        "p_pneumonia": 0.5538,
-        "p_calibrated": 0.5374,
-        "truth": "normal"
+        "name": "person1163_virus_1951.jpeg",
+        "p_pneumonia": 0.6485,
+        "p_calibrated": 0.6803,
+        "truth": "pneumonia"
       },
       {
-        "name": "IM-0019-0001.jpeg",
-        "p_pneumonia": 0.706,
-        "p_calibrated": 0.6475,
-        "truth": "normal"
+        "name": "person1667_bacteria_4418.jpeg",
+        "p_pneumonia": 0.5914,
+        "p_calibrated": 0.6121,
+        "truth": "pneumonia"
       },
       {
-        "name": "IM-0033-0001-0002.jpeg",
-        "p_pneumonia": 0.7056,
-        "p_calibrated": 0.6472,
-        "truth": "normal"
+        "name": "person1728_bacteria_4555.jpeg",
+        "p_pneumonia": 0.6414,
+        "p_calibrated": 0.672,
+        "truth": "pneumonia"
       },
       {
-        "name": "IM-0036-0001.jpeg",
-        "p_pneumonia": 0.5221,
-        "p_calibrated": 0.5154,
-        "truth": "normal"
+        "name": "person354_bacteria_1635.jpeg",
+        "p_pneumonia": 0.5061,
+        "p_calibrated": 0.5075,
+        "truth": "pneumonia"
       }
     ]
   },
-  "detail_validation_half": {
-    "split": "Kermany re-split validation half (312)",
-    "threshold": 0.855,
-    "n": 312,
-    "prevalence_pneumonia": 0.625,
-    "predicted_positive_rate": 0.609,
-    "accuracy": 0.9327,
-    "balanced_accuracy": 0.9325,
-    "auc": 0.975,
-    "pr_auc": 0.9805,
+  "detail_validation_slice": {
+    "split": "Kermany clean validation slice (871, fitted on)",
+    "threshold": 0.685,
+    "n": 871,
+    "prevalence_pneumonia": 0.721,
+    "predicted_positive_rate": 0.7141,
+    "accuracy": 0.9633,
+    "balanced_accuracy": 0.9581,
+    "auc": 0.9881,
+    "pr_auc": 0.9948,
     "confusion_matrix": [
       [
-        109,
-        8
-      ],
-      [
-        13,
-        182
-      ]
-    ],
-    "recall_normal": 0.9316,
-    "recall_pneumonia": 0.9333,
-    "precision_normal": 0.8934,
-    "precision_pneumonia": 0.9579,
-    "f1_normal": 0.9121,
-    "f1_pneumonia": 0.9455,
-    "f1_macro": 0.9288,
-    "ece": 0.0529
-  },
-  "detail_test_half": {
-    "split": "Kermany re-split test half (312)",
-    "threshold": 0.855,
-    "n": 312,
-    "prevalence_pneumonia": 0.625,
-    "predicted_positive_rate": 0.5833,
-    "accuracy": 0.9199,
-    "balanced_accuracy": 0.9256,
-    "auc": 0.9748,
-    "pr_auc": 0.9857,
-    "confusion_matrix": [
-      [
-        111,
-        6
+        230,
+        13
       ],
       [
         19,
-        176
+        609
       ]
     ],
-    "recall_normal": 0.9487,
-    "recall_pneumonia": 0.9026,
-    "precision_normal": 0.8538,
-    "precision_pneumonia": 0.967,
-    "f1_normal": 0.8988,
-    "f1_pneumonia": 0.9337,
-    "f1_macro": 0.9162,
-    "ece": 0.0615
+    "recall_normal": 0.9465,
+    "recall_pneumonia": 0.9697,
+    "precision_normal": 0.9237,
+    "precision_pneumonia": 0.9791,
+    "f1_normal": 0.935,
+    "f1_pneumonia": 0.9744,
+    "f1_macro": 0.9547,
+    "ece": 0.0092
+  },
+  "detail_official_test_folder": {
+    "split": "official Kermany test folder (624): the training notebook's pool contained this folder, and it is a harder slice than the pool's own patient-disjoint split",
+    "threshold": 0.685,
+    "n": 624,
+    "prevalence_pneumonia": 0.625,
+    "predicted_positive_rate": 0.6939,
+    "accuracy": 0.9054,
+    "balanced_accuracy": 0.8808,
+    "auc": 0.975,
+    "pr_auc": 0.9827,
+    "confusion_matrix": [
+      [
+        183,
+        51
+      ],
+      [
+        8,
+        382
+      ]
+    ],
+    "recall_normal": 0.7821,
+    "recall_pneumonia": 0.9795,
+    "precision_normal": 0.9581,
+    "precision_pneumonia": 0.8822,
+    "f1_normal": 0.8612,
+    "f1_pneumonia": 0.9283,
+    "f1_macro": 0.8947,
+    "ece": 0.075
   }
 }

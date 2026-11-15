@@ -48,12 +48,23 @@ def main():
     model = get_model()
     rng = np.random.default_rng(SEED)
 
+    # prefer the clean, patient-disjoint slice rebuilt from the Kaggle split
     files, ys = [], []
-    for cls in ("NORMAL", "PNEUMONIA"):
-        d = os.path.join(IMG_DIR, cls)
-        for f in sorted(os.listdir(d)):
-            files.append(os.path.join(d, f))
+    clean_files = os.path.join(ROOT, "outputs", "kaggle_test_files.json")
+    if os.path.exists(clean_files):
+        with open(clean_files, encoding="utf-8") as fh:
+            paths = json.load(fh)
+        import re as _re
+        for pth in paths:
+            cls = "PNEUMONIA" if "PNEUMONIA" in pth else "NORMAL"
+            files.append(pth)
             ys.append(1 if cls == "PNEUMONIA" else 0)
+    else:
+        for cls in ("NORMAL", "PNEUMONIA"):
+            d = os.path.join(IMG_DIR, cls)
+            for f in sorted(os.listdir(d)):
+                files.append(os.path.join(d, f))
+                ys.append(1 if cls == "PNEUMONIA" else 0)
     y = np.array(ys)
     print(f"{len(files)} images de test", flush=True)
 

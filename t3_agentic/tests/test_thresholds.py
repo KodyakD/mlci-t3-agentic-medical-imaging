@@ -74,6 +74,22 @@ def test_fit_label_threshold_beats_0_5_on_a_shifted_prior():
     assert t > 0.5
 
 
+def test_trust_bar_is_the_mirror_of_the_decision_boundary():
+    # A label may only be asserted when the calibrated confidence in it
+    # reaches the operating point's own requirement (TAU_LOW == threshold).
+    from t3_agentic.agent.calibration import load_config
+    from t3_agentic.agent.fusion import TAU_LOW
+    cfg = load_config()
+    assert abs(TAU_LOW - cfg["label_threshold"]) < 1e-9
+
+    # a coin-flip "normal" call (p_cal = 0.44 -> confidence 0.56) is NOT
+    # trusted, because the operating point demands 0.855.
+    cfg2 = {"temperature": 1.0, "label_threshold": 0.855}
+    label, p_cal, score = decide(0.44, cfg2)
+    assert label == "normal" and abs(score - 0.56) < 1e-9
+    assert score < cfg2["label_threshold"]   # -> untrusted -> the fusion refuses
+
+
 def test_ece_follows_the_threshold():
     p = np.array([0.55, 0.95, 0.10, 0.99, 0.20, 0.80])
     y = np.array([0, 1, 0, 1, 0, 1])

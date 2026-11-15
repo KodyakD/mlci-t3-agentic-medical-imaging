@@ -27,8 +27,8 @@ from sklearn.metrics import (accuracy_score, average_precision_score,
 from t3_agentic.agent.calibration import apply_temperature, load_config
 from t3_agentic.eval.calibration import ece
 
-PREDS = os.path.join(ROOT, "outputs", "preds_kermany_full.npz")
-SPLIT = os.path.join(ROOT, "outputs", "preds_split.npz")
+PREDS = os.path.join(ROOT, "outputs", "preds_kermany_clean_split.npz")
+LEGACY = os.path.join(ROOT, "outputs", "preds_kermany_full.npz")
 OUT = os.path.join(ROOT, "outputs")
 
 
@@ -64,12 +64,19 @@ def block(p_cal, y, threshold, label):
 def main():
     cfg = load_config()
     t = cfg["label_threshold"]
-    d = np.load(PREDS)
-    p, y = d["p"], d["y"]
+    if not os.path.exists(PREDS):
+        print("clean split predictions missing; run eval/reproduce_kaggle_split.py")
+        return
+    d = np.load(PREDS, allow_pickle=True)
+    split = d["split"]
+    s_test = split == "test"
+    s_val = split == "val"
+    p, y = d["p"][s_test], d["y"][s_test]
     p_cal = np.array([apply_temperature(x, cfg["temperature"]) for x in p])
 
     report = {
-        "split": "Kermany official test (624, untouched)",
+        "split": "Kermany clean patient-disjoint test slice (940, rebuilt from "
+                 "the Kaggle split and verified against the Kaggle run log)",
         "operating_point": "fitted threshold (Kermany validation half, seed 42)",
         "accuracy": None, "auc": None, "confusion_matrix": None,
         "recall_normal": None, "recall_pneumonia": None,
@@ -77,14 +84,14 @@ def main():
         "f1_normal": None, "f1_pneumonia": None, "f1_macro": None,
         "n_normal": int((y == 0).sum()), "n_pneumonia": int((y == 1).sum()),
     }
-    main_block = block(p_cal, y, t, "Kermany official test (624, untouched)")
+    main_block = block(p_cal, y, t, "Kermany clean patient-disjoint test slice (940)")
     for k in list(report):
         if report[k] is None:
             report[k] = main_block[k]
 
     report["detail_fitted_threshold"] = main_block
     report["detail_default_0.5"] = block(
-        p_cal, y, 0.5, "Kermany official test (624, untouched) at default 0.5")
+        p_cal, y, 0.5, "Kermany clean test slice (940) at default 0.5")
     report["note"] = ("the default 0.5 boundary over-called pneumonia "
                       "(73.6% predicted positive vs 62.5% prevalence); the "
                       "fitted threshold fixes the operating point")
@@ -109,13 +116,20 @@ def main():
             for j in to_normal[:5]],
     }
 
-    if os.path.exists(SPLIT):
-        s = np.load(SPLIT)
-        val_idx, test_idx = s["val_idx"], s["test_idx"]
-        report["detail_validation_half"] = block(
-            p_cal[val_idx], y[val_idx], t, "Kermany re-split validation half (312)")
-        report["detail_test_half"] = block(
-            p_cal[test_idx], y[test_idx], t, "Kermany re-split test half (312)")
+    p_all = d["p"]
+    y_all = d["y"]
+    p_cal_val = np.array([apply_temperature(x, cfg["temperature"]) for x in p_all[s_val]])
+    report["detail_validation_slice"] = block(
+        p_cal_val, y_all[s_val], t, "Kermany clean validation slice (871, fitted on)")
+    report["detail_official_test_folder"] = None
+    if os.path.exists(LEGACY):
+        leg = np.load(LEGACY)
+        pl = np.array([apply_temperature(x, cfg["temperature"]) for x in leg["p"]])
+        report["detail_official_test_folder"] = block(
+            pl, leg["y"], t,
+            "official Kermany test folder (624): the training notebook's pool "
+            "contained this folder, and it is a harder slice than the pool's "
+            "own patient-disjoint split")
 
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, "vision_metrics.json")

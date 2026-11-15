@@ -83,11 +83,20 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--mc", type=int, default=10)
     ap.add_argument("--limit-per-class", type=int, default=0)
+    ap.add_argument("--files", default=None,
+                    help="json list of image paths (e.g. outputs/kaggle_test_files.json)")
     ap.add_argument("--batch", type=int, default=16)
     args = ap.parse_args()
 
     from sklearn.metrics import roc_auc_score
-    files, y = collect(args.dir, args.limit_per_class or None)
+    if args.files:
+        import json as _json
+        with open(args.files, encoding="utf-8") as fh:
+            paths = _json.load(fh)
+        files = paths
+        y = np.array([1 if "PNEUMONIA" in p else 0 for p in paths])
+    else:
+        files, y = collect(args.dir, args.limit_per_class or None)
     print(f"{len(files)} images from {args.dir}", flush=True)
     if len(files) < 20:
         print("ABORT: not enough images")

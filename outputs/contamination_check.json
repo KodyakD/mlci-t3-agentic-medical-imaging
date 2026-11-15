@@ -1,0 +1,14 @@
+{
+  "official_test_images": 618,
+  "membership": {
+    "train": 430,
+    "val": 70,
+    "test": 118
+  },
+  "accuracy_by_membership": {
+    "train": 0.8953,
+    "val": 0.8429,
+    "test": 0.8729
+  },
+  "verdict": "no memorisation signature on the in-train subset"
+}

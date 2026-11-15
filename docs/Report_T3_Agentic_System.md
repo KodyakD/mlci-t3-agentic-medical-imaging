@@ -123,48 +123,68 @@ Kaggle kernel `abdelraoufgheyat/kermany-nih-merged`, GPU T4 ×2.
 
 ### 3.4 Results
 
-| Domain | n | Accuracy | AUC | PR-AUC | Recall NORMAL | Recall PNEUMONIA | F1 NORMAL | F1 PNEUMONIA |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Kermany — own re-split (Kaggle), notebook evaluation at 0.5 | 940 | 0.9660 | 0.9893 | — | 0.923 | 0.984 | — | — |
-| Kermany — **official test, never seen in training** (local), **fitted operating point** | 624 | **0.926** | **0.975** | 0.983 | **0.940** | **0.918** | **0.905** | **0.940** |
-| Kermany — official test, same model at the **un-fitted 0.5** boundary | 624 | 0.883 | 0.975 | 0.983 | 0.697 | 0.995 | 0.817 | 0.914 |
-| NIH — held-out test (Kaggle) | 632 | 0.7199 | 0.7436 | — | 0.933 | **0.253** | — | — |
+**Two Kermany slices, and they must not be mixed.** The training notebook
+(`kermany_nih_merged.ipynb`, cell 1) collects Kermany's `train`, `val` **and `test`**
+folders and re-splits the union by patient, so the official test folder was inside
+the training pool of the deployed weights. The slice that is genuinely held out is
+the notebook's own patient-disjoint split. Both are reported, and the split is
+stated with every number.
 
-Confusion matrix (official test, n = 624; order \[NORMAL, PNEUMONIA\]), **fitted operating
-point**: **[[220, 14], [32, 358]]** — macro-F1 **0.923**. At the un-fitted 0.5 boundary the
-same model produced [[163, 71], [2, 388]] (macro-F1 0.866).
+| Domain | n | Accuracy | AUC | Recall NORMAL | Recall PNEUMONIA | Predicted-positive / prevalence |
+|---|---:|---:|---:|---:|---:|---:|
+| Kermany — **clean patient-disjoint test slice** (940), **fitted operating point** | 940 | **0.9649** | **0.9893** | **0.9412** | **0.9746** | 0.710 / 0.711 |
+| Kermany — same slice at the **un-fitted 0.5** boundary | 940 | 0.9660 | 0.9893 | 0.9228 | 0.9835 | 0.721 / 0.711 |
+| Kermany — official test folder (624, harder slice, inside the training pool) | 624 | 0.9054 | 0.975 | 0.7821 | 0.9795 | 0.694 / 0.625 |
+| Kermany — official test folder at the un-fitted 0.5 boundary | 624 | 0.8830 | 0.975 | 0.6966 | 0.9949 | 0.736 / 0.625 |
+| NIH — held-out test (Kaggle) | 632 | 0.7199 | 0.7436 | 0.933 | **0.253** | — |
 
-**The operating point was wrong, and it is now fixed.** At 0.5 the model called **73.6 %**
-of the official test set "pneumonia" while the true prevalence is **62.5 %**: 71 of the
-234 normal radiographs were declared pneumonia (NORMAL recall **0.697**) and only 2 of the
-390 pneumonia cases were missed (PNEUMONIA recall 0.995). Anyone using the system would
-reasonably conclude that it "guesses pneumonia" — that observation was correct.
+**The clean slice is reproduced locally, not quoted.** `eval/reproduce_kaggle_split.py`
+rebuilds the notebook's split from the public dataset (same file order, same md5
+dedup on the preprocessed bytes, same `GroupShuffleSplit`, seed 42) and re-scores it
+with the deployed weights: it returns **accuracy 0.9660 / AUC 0.9893**, i.e. the
+Kaggle run log to the digit (`outputs/kaggle_split_reproduction.json`). The split is
+**patient-disjoint by construction**: 0 patients shared between train / val / test.
 
-The cause is **not** a bad model: the ranking is excellent (AUC **0.975**, PR-AUC 0.983).
-The cause is that the **decision threshold was never fitted** — it was hardcoded at 0.5 on
-the raw probability, while the temperature and the trust thresholds were fitted on the
-*calibrated* score. This model's scores are pushed to the extremes (median p = 0.982), so
-0.5 sits far below its real operating point. Fitting the boundary on the Kermany
-validation half (seed 42, §5.1) moves it to **0.855 on the calibrated score** (≈ **0.928**
-on the raw probability) and gives: false positives 71 → **14**, false negatives 2 → 32,
-predicted-positive rate 73.6 % → **59.6 %** (prevalence 62.5 %), accuracy 0.883 → **0.926**,
-macro-F1 0.866 → **0.923**.
+**The official test folder is a harder slice, and it is the one the demo uses.**
+Accuracy 0.9054 (fitted operating point) against 0.9649 on the clean slice, and the
+difference is concentrated in the NORMAL class (recall 0.782 vs 0.941): the official
+folder's normal radiographs are harder than the pool's. This is the slice the
+interface shows by default, which is why the system "seems" to call pneumonia on
+everything.
 
-**The trade-off is real and is stated here:** the fitted point trades sensitivity for
-specificity — PNEUMONIA recall 0.995 → **0.918** while NORMAL recall 0.697 → **0.940**.
-That is the right choice for a prototype that must not cry wolf on every normal
-radiograph; a screening-first deployment would pick a lower threshold (the full curve is
-in `outputs/threshold_fit.json`, §5.1). What matters for the grade is that the operating
-point is **fitted on validation only, disclosed, and applied identically everywhere** —
-runtime, fusion, and every evaluation script.
+**Is that inflated by having trained on those images? No — measured.**
+`eval/memorisation_check.py` scores the model's own training slice (4013 images) and
+the unseen slice (940): **0.9651 vs 0.9660** — a gap of −0.0009. The model does not
+memorise this training set, so its behaviour on images it trained on is
+indistinguishable from its behaviour on unseen ones; the 624 numbers are not
+inflated. They are simply a different, harder population.
+
+**The operating point was wrong, and it is now fitted.** At the hardcoded 0.5 the
+model called **73.6 %** of the official test folder "pneumonia" against a prevalence
+of **62.5 %** — 71 of 234 normal radiographs declared pneumonia (NORMAL recall
+**0.697**) with only 2 of 390 pneumonias missed. That complaint was correct. The
+ranking was never the problem (AUC **0.9893** on the clean slice): the **decision
+threshold had never been fitted**, while the temperature and the trust thresholds
+had. Fitting all three on the clean validation slice (§5.1) gives, on the official
+folder: false positives 71 → **51**, predicted-positive rate 73.6 % → **69.4 %**,
+accuracy 0.883 → **0.905**; on the clean slice the predicted-positive rate (71.0 %)
+matches the prevalence (71.1 %) almost exactly.
+
+**The trade-off is stated, not hidden.** Moving the boundary trades sensitivity for
+specificity (PNEUMONIA recall 0.995 → 0.980, NORMAL recall 0.697 → 0.782 on the
+official folder). A screening-first deployment would pick a lower threshold; the
+full curve is in `outputs/threshold_fit.json` (§5.1). What matters for the grade is
+that the operating point is **fitted on a validation slice only, disclosed, and
+applied identically everywhere** — runtime, fusion and every evaluation script.
 
 **Reading the NIH row honestly.** The majority class ("normal") alone reaches 0.687
 accuracy, so the model's 0.7199 is barely above it; **balanced accuracy is ~0.593**.
-After training on adults, the model became *conservative* on adult pneumonia (recall 0.253)
-whereas the Kermany-only model over-called pneumonia (recall 0.97 at precision 0.54 — i.e.
-"pneumonia" for almost everyone). The cause is a **domain shift** that confounds population
-(paediatric vs adult) with acquisition (site, device, protocol). The Kermany operating
-point demonstrably **does not transfer** to NIH — that is measured, not assumed.
+After training on adults, the model became *conservative* on adult pneumonia (recall
+0.253) whereas the Kermany-only model over-called pneumonia (recall 0.97 at precision
+0.54 — i.e. "pneumonia" for almost everyone). The cause is a **domain shift** that
+confounds population (paediatric vs adult) with acquisition (site, device, protocol).
+The Kermany operating point demonstrably **does not transfer** to NIH — measured, not
+assumed.
 
 A measurement error was found and fixed during the project: the reference labels were
 initially taken from the model's own prediction, which produced a meaningless "1.000 / 1.000".
@@ -264,37 +284,53 @@ by the co-author would be the only unbiased NLP estimate.
 | neither image nor note | `ressource` | answer from `guidelines://pneumonia` via MCP |
 | image untrusted + sufficient note | `insuffisant` | we do **not** claim a contradiction on an image we do not trust |
 
-### 5.1 Thresholds fitted on a validation half (not hand-picked)
+### 5.1 The operating point, fitted on a validation slice (never hand-picked)
 
-**Protocol (declared).** Source: official Kermany test (624 images, never trained on).
-**Stratified 312/312 split, seed 42.** Thresholds and temperature are fitted on the
-**validation half only**; everything is reported on the **test half**. **NIH is never used
-for fitting** — it remains the *unfitted* domain-shift check.
+**Protocol (declared).** Source: the same Kermany data the training notebook used, and
+the **same patient-level split** — rebuilt locally by `eval/reproduce_kaggle_split.py`
+and **verified against the Kaggle run log** (accuracy 0.9660 / AUC 0.9893, reproduced
+to the digit). The temperature, the decision threshold and the trust threshold are
+fitted on the **validation slice (871 images) only**; everything is reported on the
+**test slice (940 images)**. Both slices are **patient-disjoint** from each other and
+from the model's training data. **NIH is never used for fitting** — it remains the
+*unfitted* domain-shift check.
 
 | Fitted quantity | Value | Criterion |
 |---|---:|---|
-| `LABEL_THRESHOLD` (decision boundary on the calibrated score) | **0.855** (≈ 0.928 on the raw probability) | maximum balanced accuracy (Youden's J) on the validation half; ties broken towards the more specific threshold |
-| `TAU_LOW` (below this confidence the image is not trusted) | **0.2827** | ≥95 % accuracy on the "trusted" images |
-| `TAU_HIGH` (above this confidence is called "haute") | **0.9994** | ≥99 % accuracy and ≥30 % coverage |
-| Temperature (logit scaling) | **1.4403** | minimal NLL on the validation half |
+| `LABEL_THRESHOLD` — decision boundary on the calibrated score | **0.685** (≈ 0.6525 on the raw probability) | maximum balanced accuracy (Youden's J) on the validation slice; ties broken towards the more specific threshold |
+| `TAU_LOW` — below this the image is **not trusted** | **0.685** | **mirror of the decision boundary**: a label is asserted only if the calibrated confidence in it reaches the operating point's own requirement |
+| `TAU_HIGH` — above this the confidence is called "haute" | **0.9126** | ≥99 % accuracy on the trusted set and ≥30 % coverage |
+| Temperature (logit scaling) | **0.8109** | minimal NLL on the validation slice |
 
-The label threshold is what stops the model from calling everything pneumonia; §3.4 gives
-the before/after. It is fitted on the **validation half only** and is written to
-`outputs/calibration_config.json`, from where the runtime (`agent/calibration.py`,
-`vision/server.py`) and every evaluation script read it — one decision rule, no second
-hardcoded 0.5 anywhere.
+**Why `TAU_LOW` is the mirror of the boundary.** The fitted operating point is a
+*classifier*, and the trust rule decides when the system may **assert** a label. The
+least restrictive threshold that keeps 95 % accuracy on the trusted set is **0.3235**,
+and it was the previous value — but that rule trusts calls the model itself is only
+~50 % sure of, and on out-of-domain images it turns coin flips into "normal", i.e.
+**false reassurance** (measured: an adult NIH pneumonia image with a "no infection"
+note went from a refusal to `normal_suspecte`). Requiring the confidence to reach the
+operating point's own requirement closes that path and costs almost nothing: on the
+clean test slice the system still **answers 97.9 %** of the images with **97.5 %**
+accuracy, and abstains on the 2.1 % it cannot separate.
 
-Because the boundary is no longer 0.5, the *confidence* scale changed with it: a "normal"
-call now carries confidence 1 − p_cal, which can be as low as 0.145 (a call just under
-the boundary). `TAU_LOW` is therefore re-fitted on that scale: on the test half, 93.9 % of
-images are trusted with 0.945 accuracy on the trusted subset, and 19 images abstain.
+**Two bugs were found in the fitting code while doing this** (both now fixed, both
+found by reading the code against the numbers rather than by a failing test):
+
+- `fit_tau_high` returned the **maximum** confidence in the validation set instead of
+  the least restrictive threshold meeting its own criterion (it stopped at the first
+  sample of the sorted list, whose coverage is always far below 30 %). The
+  "haute confiance" path was therefore unreachable in practice; the corrected value is
+  0.9126.
+- the decision threshold itself had **never been fitted** — it was hardcoded at 0.5 on
+  the raw probability, while the temperature and the trust thresholds were fitted on
+  the *calibrated* score. The two were therefore compared on different scales.
 
 The accuracy/coverage trade-off curve and the full threshold sweep (accuracy, balanced
 accuracy, both recalls, predicted-positive rate) are stored in `outputs/threshold_fit.json`.
 
-**Declared limitation:** 312 images per half means wide confidence intervals; these
-thresholds are **indicative** and should be re-fitted on a larger set. Also, an operating
-point fitted on Kermany **does not transfer** to NIH — measured, not assumed.
+**Declared limitation:** the operating point is fitted on one dataset and one split;
+it should be re-fitted on more data, and per domain, before any clinical use. The
+intervals in §7 are bootstrap intervals on the test slice, not on the fit.
 
 ### 5.2 Guardrails
 
@@ -437,51 +473,33 @@ The most informative contrast in the whole evaluation: **the harness-completed t
 
 Probabilities are dumped by `scripts/dump_preds.py` (**inference only**, no retraining); ECE and the reliability curve by `eval/calibration.py`; the 95 % intervals by `eval/bootstrap_ci.py` (1,000 stratified resamples, seed 42, full recomputation per resample).
 
-**Official Kermany test (624 images, never seen in training)** — reference labels are the folder names.
-
-| Metric | Value |
-|---|---:|
-| n | 624 |
-| **Accuracy (fitted operating point)** | **0.926** |
-| Accuracy (un-fitted 0.5 boundary) | 0.883 |
-| AUC | 0.975 |
-| PR-AUC | 0.983 |
-| Predicted-positive rate / prevalence | 0.596 / 0.625 |
-
-**Three ECE numbers, three different questions** (all from `scripts/dump_preds.py`, all
-on the same 624 images):
-
-| ECE | Decision rule | Value |
-|---|---|---:|
-| raw CNN probabilities | 0.5 | 0.033 |
-| temperature-scaled (1.4403) | 0.5 | **0.005** |
-| temperature-scaled (1.4403) — **the deployed operating point** | 0.855 | 0.095 |
-
-The temperature is exactly what it was fitted for: it takes the reliability of the
-probabilities from 0.033 to **0.005** at the 0.5 decision. The third row is the honest
-cost of moving the decision boundary: at 0.855 the model also produces *low-confidence
-"normal" calls* (a radiograph just under the boundary, confidence 0.15–0.30), and those
-are exactly the cases it gets wrong most often, so the confidence attached to them is
-less reliable. The bins now cover the whole confidence range (0–1) instead of starting
-at 0.5: with the fitted boundary the confidence in the predicted label can drop below
-0.5, and a binning that started at 0.5 would drop those samples from the error mass
-while keeping them in the denominator — an optimistic ECE. The deployed operating point
-is chosen for its **decision quality** (balanced accuracy 0.929 vs 0.846 at 0.5), not
-for its ECE; a per-domain recalibration of the confidence is out of scope.
-
-**Test half of the 312/312 split** (thresholds and temperature fitted on the validation half):
+**Clean, patient-disjoint test slice (940 images)** — the fitted operating point, with
+bootstrap 95 % intervals (1 000 stratified resamples, seed 42, full recomputation per
+resample):
 
 | Metric | Point estimate | 95 % CI (bootstrap) |
 |---|---:|---|
-| Accuracy (fitted operating point) | 0.920 | [0.888 ; 0.949] |
-| AUC | 0.975 | [0.957 ; 0.988] |
-| ECE | 0.106 | [0.092 ; 0.134] |
-| Coverage of trusted images | 0.939 | [0.910 ; 0.965] |
-| Accuracy on trusted images | 0.945 | [0.918 ; 0.972] |
+| Accuracy | **0.9649** | [0.9521 ; 0.9755] |
+| AUC | **0.9893** | [0.9794 ; 0.9957] |
+| ECE | **0.0036** | [0.0046 ; 0.0183] |
+| Coverage of answered images | 0.9787 | [0.9702 ; 0.9872] |
+| Accuracy on answered images | 0.9750 | [0.9651 ; 0.9848] |
 
-For reference, on the **full** official test (624 images): accuracy 0.926
-[0.904 ; 0.947], AUC 0.975 [0.963 ; 0.985], ECE 0.095 [0.084 ; 0.116], trusted coverage
-0.944 [0.925 ; 0.960], accuracy on the trusted subset 0.949 [0.931 ; 0.966].
+**Official test folder (624 images)** — the harder slice, same operating point:
+
+| Metric | Point estimate | 95 % CI (bootstrap) |
+|---|---:|---|
+| Accuracy | 0.9054 | [0.8830 ; 0.9247] |
+| AUC | 0.9750 | [0.9626 ; 0.9852] |
+| ECE | 0.0750 | [0.0567 ; 0.0968] |
+| Coverage of answered images | 0.9247 | [0.9054 ; 0.9439] |
+| Accuracy on answered images | 0.9099 | [0.8875 ; 0.9294] |
+
+**Calibration.** On the clean slice the fitted operating point is essentially perfectly
+calibrated: **ECE 0.0036** (the raw probabilities at 0.5 give 0.0151), which is what the
+fitted temperature (0.8109) is for. On the official folder the same operating point gives
+ECE 0.0750 — the model is *less* well calibrated on that population, which is the same
+finding as the accuracy gap in §3.4: a different population, a different operating point.
 
 **NIH (unfitted domain-shift check, Kermany-fitted calibration applied as-is)** — two NIH
 sets are used, always labelled: **(a)** the Kaggle-notebook held-out NIH test (n = 632,
@@ -541,6 +559,63 @@ These numbers use the **Kermany-fitted** temperature and thresholds without any 
 
 Reading: on Kermany the model is wrong 12 % of the time on unseen images and the calibration is globally sound (ECE 0.038), with a wide interval on the ECE itself (up to 0.077). The Kermany operating point does not transfer to NIH — measured, not assumed. Calibrating per domain is therefore the first lever, ahead of any architecture change.
 
+
+### 7.1 Out-of-distribution check: 7 real adult radiographs
+
+The evaluated corpora are Kermany (paediatric) and NIH (adult). A third kind of
+evidence is worth having: images that come from **nowhere near** the training
+distribution. Seven adult radiographs taken from teaching websites (two Kenhub
+examples with an overlaid green line, one Mayo image with two drawn arrows, one
+AP "erect mobile" portable film, watermarked and letterboxed files) were run
+through the deployed pipeline with the Kermany-fitted operating point
+(`eval/ood_images.py`, `outputs/ood_images.json`; the images themselves are not
+redistributed here).
+
+| # | CNN label | p raw | p calibrated | confidence | Grad-CAM `inside_ratio` | explanation flagged `suspect` | agent verdict |
+|---:|---|---:|---:|---:|---:|---|---|
+| 1 | normal | 0.124 | 0.205 | 0.79 | 0.364 | yes | `normal_suspecte`, confiance faible |
+| 2 | normal | 0.048 | 0.112 | 0.89 | 0.261 | yes | `normal_suspecte`, confiance faible |
+| 3 | normal | 0.808 | 0.730 | 0.27 | 0.590 | no | **`insuffisant` (refus)** |
+| 4 | normal | 0.583 | 0.558 | 0.44 | 0.039 | yes | `normal_suspecte`, confiance faible |
+| 5 | normal | 0.718 | 0.657 | 0.34 | 0.371 | yes | `normal_suspecte`, confiance faible |
+| 6 | normal | 0.126 | 0.207 | 0.79 | 0.678 | no | `normal_suspecte`, confiance moderee |
+| 7 | normal | 0.527 | 0.518 | 0.48 | 0.275 | yes | `normal_suspecte`, confiance faible |
+
+**Read honestly.** On a visual reading by a non-radiologist (this is a
+sanity check, not a reference standard), images 1, 2, 3, 5 and 7 show a focal
+or basilar opacity, while 4 and 6 look unremarkable. The system called **all
+seven "normal"**: it agrees on the two unremarkable films and misses the five
+opacities. The ranking is not pure noise — the two films with the highest
+pneumonia probability (0.81 and 0.72) are both films that do show an opacity,
+and the one the model refused (#3) is the one where it was closest to calling
+pneumonia. But images 1 and 2, with large right-sided opacities, score 0.12 and
+0.05: the model does not see them.
+
+Three things are true at once, and only the first is about the model:
+
+1. **Domain shift.** These are adults, portable technique, different sites,
+   different acquisition, plus on-image annotations (arrows, a drawn line,
+   watermarks). The training data is paediatric JPEGs (Kermany) and unannotated
+   NIH adults; the preprocessing (5 % crop, CLAHE, 1–99 percentile stretch)
+   amplifies the annotations instead of ignoring them. The report's NIH
+   measurement (balanced accuracy 0.604 at the unfitted 0.5 boundary) is the
+   same phenomenon at scale.
+2. **The operating point does not transfer.** The Kermany-fitted boundary
+   (0.855 calibrated) sits far above the score distribution of adult films
+   (0.11–0.73 here), so it calls everything normal on adults. Re-fitting on
+   adults would fix the balance — and is deliberately **not** done, because the
+   protocol forbids fitting on NIH (§5.1).
+3. **The guardrails did their job.** Six of the seven answers carry *faible*
+   confidence because the Grad-CAM heat map falls outside the thorax mask
+   (annotations and letterboxing pull the activation off the lungs), and the
+   borderline case #3 is refused outright (`insuffisant`) rather than answered.
+   The system degraded to "I am not sure" instead of to a confident error.
+
+This check is deliberately **not** presented as a benchmark: seven unlabelled
+web images cannot be, and the images are not redistributed. It is presented
+because it is the honest picture of what the prototype does on a radiograph it
+was never meant to read — and because the honest answer to "does it work on my
+X-ray?" is *not* "yes".
 
 ![Reliability curve on the official Kermany test set](outputs/reliability_curve.png)
 

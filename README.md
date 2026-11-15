@@ -62,8 +62,8 @@ Key design rules:
 
 | Component | Result |
 |---|---|
-| Vision, Kermany official test (624 images, never trained on) | accuracy **0.883**, AUC **0.975**, PR-AUC 0.983; F1 macro **0.866**; ECE 0.038 raw / 0.020 temperature-scaled |
-| Vision, Kermany own re-split (940) | accuracy 0.966, AUC 0.989 (Kaggle) |
+| Vision, Kermany **clean patient-disjoint test slice** (940, rebuilt locally and verified against the Kaggle run log) | accuracy **0.965**, AUC **0.989**, balanced accuracy **0.958**, NORMAL recall 0.941 / PNEUMONIA recall 0.975, predicted-positive rate 0.710 vs prevalence 0.711 |
+| Vision, Kermany official test folder (624, harder slice, inside the training pool of the deployed weights) | accuracy 0.905 at the fitted operating point (0.883 at the un-fitted 0.5), AUC 0.975, NORMAL recall 0.782 |
 | Vision, NIH Chest X-ray14 (394 images, unfitted domain-shift check) | balanced accuracy **0.604**, AUC 0.735, pneumonia-like recall 0.273 |
 | NLP entity extraction, held-out notes | P 1.00 / R 0.95 / F1 0.977 (dev 1.00) |
 | Agent, 3 suites (22 / 18 / 10 cases) | fusion accuracy **1.000**, refusals 0.20–0.41, hallucination **0.000**, injection compliance **0.000**, warning present **1.000** |
@@ -101,10 +101,19 @@ can also be downloaded directly from the `paultimothymooney/chest-xray-pneumonia
 - **Population and acquisition shift are confounded** (paediatric vs adult, different sites and
   devices): the drop to 0.604 balanced accuracy on adults cannot be attributed to one cause.
 - The operating point (temperature, **decision threshold**, trust thresholds) is fitted on a
-  **Kermany validation half only** (312/312 stratified split, seed 42) and does **not**
-  transfer to NIH. The decision threshold is not 0.5: it is fitted for balanced accuracy
-  (0.855 on the calibrated score), because at 0.5 the model called 73.6 % of the official
-  test set "pneumonia" while the prevalence is 62.5 %.
+  **clean Kermany validation slice only** (871 images, patient-disjoint, seed 42, rebuilt
+  locally from the notebook's own split and verified against the Kaggle run log) and does
+  **not** transfer to NIH. The decision threshold is not 0.5: it is fitted for balanced
+  accuracy (0.685 on the calibrated score), and the trust threshold mirrors it, so the
+  system asserts a label only when it is confident enough.
+- **Two Kermany slices exist and must not be mixed.** The training notebook's pool
+  contains Kermany's official `test/` folder (verified: the Kaggle kernel source is
+  identical to the notebook in this repo), so the official folder is not a clean hold-out
+  for the deployed weights; the notebook's own patient-disjoint split (940) is, and it is
+  reproduced locally by `python t3_agentic/eval/reproduce_kaggle_split.py`. The model does
+  not memorise its training set (`eval/memorisation_check.py`: 0.9651 on the train slice
+  vs 0.9660 on the unseen slice), so the official-folder numbers are not inflated — they
+  are simply a harder population.
 - The runtime keeps the PDF-mandated French wording for the non-diagnostic warning and the
   structured output; this report and the interface are in English.
 

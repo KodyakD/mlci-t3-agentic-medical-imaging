@@ -93,8 +93,8 @@ html(f"""
 </div>
 <div class="t3-rail">
   <div>decision threshold <b>{cfg['label_threshold']}</b></div>
-  <div>TAU_LOW <b>{cfg['tau_low']}</b></div>
-  <div>TAU_HIGH <b>{cfg['tau_high']}</b></div>
+  <div>trust &ge; <b>{cfg['tau_low']}</b></div>
+  <div>high confidence &ge; <b>{cfg['tau_high']}</b></div>
   <div>temperature <b>{cfg['temperature']}</b></div>
   <div>fitted on <b>Kermany validation half</b> (312 images, seed 42)</div>
 </div>

@@ -137,7 +137,13 @@ outputs/                every measurement as JSON
    a text-only question may start calling the CNN — the exact thing the PDF forbids.
 5. **Keep `tool_choice_source` in the journal.** It is how we detected that the LLM service
    had silently been down. Without it, an evaluation can report a false ablation result.
-6. **Report the split with every number.** "official test (624)" and "own re-split (940)" are
+6. **Report the split with every number — and say which one is clean.**
+   The official Kermany test folder (624) was **inside the training pool** of
+   `densenet_merged.keras`: the merged notebook re-splits Kermany's train+val+test
+   by patient (kernel source verified identical to the repo notebook). The clean
+   held-out slice of that model is the notebook's own patient-disjoint split,
+   rebuilt and verified by `python t3_agentic/eval/reproduce_kaggle_split.py`.
+   "official test (624)" and "own re-split" are
    different populations; do not compare them.
 7. **The calibration temperature is not a patient vital.** The final-answer composer never
    receives it; new numbers going into the journal stay out of the LLM prompt as well.
@@ -182,8 +188,9 @@ hand**.
 
 ## 8. Known limitations (read before claiming anything)
 
-- The CNN is **strong on paediatric Kermany** (accuracy 0.883, AUC 0.975 on the untouched
-  official test) and **poor on adults**: balanced accuracy **0.604**, pneumonia-like recall
+- The CNN is **strong on paediatric Kermany** (accuracy **0.965**, AUC **0.989** on the clean
+  patient-disjoint test slice of 940 images, rebuilt and verified locally) and **poor on
+  adults**: balanced accuracy **0.604**, pneumonia-like recall
   **0.273** on NIH. The operating point fitted on Kermany does **not** transfer.
 - On NIH the missed positives sit at p ≈ 0.49 — the model is *undecided*, not confidently
   wrong, which is why the guardrail abstains instead of asserting.

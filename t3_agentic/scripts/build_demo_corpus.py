@@ -4,8 +4,15 @@ Portable: works on Windows / Linux / macOS, no hardcoded paths.
 
 Why raw images: the merged model's preprocessing is deterministic, so
 preprocess_gray(raw_jpeg) == the preprocessed PNG the training notebook wrote.
-The official Kermany test/ folder was never used for training (the merged
-notebook split only the train+val pool), so these are genuinely held-out.
+
+READ THIS BEFORE CALLING THESE IMAGES "HELD OUT": the merged training notebook
+(kermany_nih_merged.ipynb, cell 1) collects Kermany's train, val AND test
+folders and re-splits the union by patient, so for densenet_merged.keras the
+official test folder was part of the training pool (verified: the Kaggle
+kernel source is identical to the notebook in this repo). This corpus is a
+REPRODUCTION corpus -- same preprocessing, same images -- not a clean hold-out.
+The clean, patient-disjoint held-out slice of that model is the notebook's own
+test split, rebuilt and verified by eval/reproduce_kaggle_split.py.
 
 Strategy (avoids the paginated `datasets files` listing):
   - Kermany: one zip download of the whole dataset, keep chest_xray/test/ only.

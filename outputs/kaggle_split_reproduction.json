@@ -1,0 +1,39 @@
+{
+  "pool_after_dedup": 5824,
+  "splits": {
+    "train": 4013,
+    "val": 871,
+    "test": 940
+  },
+  "class_counts": {
+    "train": {
+      "NORMAL": 1064,
+      "PNEUMONIA": 2949
+    },
+    "val": {
+      "NORMAL": 243,
+      "PNEUMONIA": 628
+    },
+    "test": {
+      "NORMAL": 272,
+      "PNEUMONIA": 668
+    }
+  },
+  "patient_overlap": {
+    "train_val": 0,
+    "train_test": 0,
+    "val_test": 0
+  },
+  "scored_test_slice": {
+    "n": 940,
+    "val_slice_n": 871,
+    "val_slice_accuracy_at_0.5": 0.9644,
+    "val_slice_auc": 0.9881,
+    "accuracy_at_0.5": 0.966,
+    "auc": 0.9893,
+    "kaggle_run_logged_accuracy": 0.966,
+    "kaggle_run_logged_auc": 0.9893,
+    "matches_kaggle_run": true,
+    "scoring_seconds": 40.1
+  }
+}
