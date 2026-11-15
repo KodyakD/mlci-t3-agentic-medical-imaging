@@ -28,3 +28,4 @@ _tmp_*.py
 
 # course brief: kept local, not redistributed
 T3_SysA*.pdf
+.venv

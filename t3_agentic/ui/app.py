@@ -168,11 +168,15 @@ def _render_body(out, timing=None):
             p_raw = vision.get("p_pneumonia")
             p_cal = vision.get("p_pneumonia_calibrated")
             thr = vision.get("label_threshold", cfg.get("label_threshold"))
-            html(f'<div class="t3-label">P(pneumonia) · calibrated score</div>')
-            html(f'<div class="t3-value">{p_raw:.4f} raw · {p_cal:.4f} calibrated</div>')
-            html(f'<div class="t3-note">decision threshold {thr} → '
-                 f'<b>{vision.get("label", "?")}</b> · confidence in that label '
-                 f'{score:.4f}</div>')
+            html('<div class="t3-label">Model estimate of P(pneumonia), not a clinical probability</div>')
+            if p_raw is not None and p_cal is not None:
+                html(f'<div class="t3-value">{p_raw:.1%} raw · {p_cal:.1%} calibrated</div>')
+            threshold_text = f'{float(thr):.1%}' if thr is not None else 'unavailable'
+            confidence_text = f'{float(score):.1%}' if score is not None else 'unavailable'
+            html(f'<div class="t3-note">Decision threshold {threshold_text} → '
+                 f'<b>model prediction: {vision.get("label", "?")}</b> · '
+                 f'confidence in predicted class {confidence_text}</div>')
+            html('<div class="t3-note">This binary model does not identify symptoms or describe a radiograph.</div>')
             html(meter(float(score or 0.0), accent=vision.get("suspect")))
             if vision.get("suspect"):
                 html(f'<div class="t3-note" style="color:{TOKENS["accent"]}">'
@@ -180,7 +184,7 @@ def _render_body(out, timing=None):
 
         text = out.get("text")
         if text:
-            st.subheader("Note analysis")
+            st.subheader("Clinical note analysis (not image symptoms)")
             ent = "".join(f'<span class="t3-entity">{e}</span>'
                           for e in (text.get("entities") or []))
             den = "".join(f'<span class="t3-entity t3-entity--denied">{e}</span>'
@@ -190,7 +194,6 @@ def _render_body(out, timing=None):
 
         resource = out.get("resource")
         if resource:
-            st.subheader("MCP resource consulted")
             payload = resource.get("result", resource)
             if isinstance(payload, list):
                 body = " ".join(
@@ -198,7 +201,8 @@ def _render_body(out, timing=None):
                     for h in payload if isinstance(h, dict))
             else:
                 body = f'<div class="t3-note">{payload}</div>'
-            html(body)
+            with st.expander("General reference (not findings from this image)"):
+                html(body)
 
     with right:
         trace = out.get("trace", {})
@@ -226,8 +230,9 @@ def _render_body(out, timing=None):
         heat = (out.get("vision") or {}).get("heatmap")
         if heat and os.path.exists(heat):
             st.subheader("Grad-CAM heatmap")
-            st.image(heat, caption=f'inside_ratio = '
-                                 f'{(out.get("vision") or {}).get("inside_ratio")}')
+            st.image(heat, caption=(
+                f'Grad-CAM is a model-attention heuristic, not lesion localization or proof. '
+                f'inside_ratio = {(out.get("vision") or {}).get("inside_ratio")}'))
         elif out.get("vision"):
             html('<div class="t3-note">No Grad-CAM map for this run.</div>')
 

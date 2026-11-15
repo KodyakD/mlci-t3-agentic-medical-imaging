@@ -4,7 +4,7 @@ import sys
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from t3_agentic.agent.agent import _provenance_ok, _warning_ok
+from t3_agentic.agent.agent import _provenance_ok, _template_answer, _warning_ok
 from t3_agentic.agent.prompts import WARNING
 
 ALLOWED = '{"fusion": {"confidence": "faible"}, "image": {"p_pneumonia": 0.0605, ' \
@@ -42,3 +42,41 @@ def test_warning_detection_is_typo_tolerant():
 
 def test_canonical_warning_used():
     assert "ne constitue pas un diagnostic médical" in WARNING
+
+
+def test_uncertain_image_answer_reports_prediction_and_abstention():
+    vision = {
+        "label": "normal", "score": 0.5647,
+        "p_pneumonia_calibrated": 0.4353, "label_threshold": 0.685,
+        "inside_ratio": 0.82, "suspect": False,
+    }
+    fusion = {"refused": True, "reason": "image seule, image incertaine",
+              "confidence": "aucune", "coherence": "insuffisant"}
+    answer = _template_answer(fusion, vision, None)
+    assert "normal" in answer
+    assert "43.5%" in answer and "56.5%" in answer and "68.5%" in answer
+    assert "s'abstient" in answer
+    assert "Aucun symptome n'a ete indique dans une note" in answer
+    assert "ne signifie pas que le patient est sans symptomes" in answer
+    assert "ne localise ni ne confirme une lesion" in answer
+    assert "ne constitue pas un diagnostic médical" in answer
+
+
+def test_note_symptoms_are_not_attributed_to_image():
+    fusion = {"refused": False, "final": "pneumonie_suspectee",
+              "confidence": "faible", "coherence": "texte_seule"}
+    note = {"entities": ["toux", "fievre"], "denied": [],
+            "orientation": "infection respiratoire probable", "suffisant": True}
+    answer = _template_answer(fusion, None, note)
+    assert "Symptomes extraits de la note (pas de l'image) : toux, fievre" in answer
+
+
+def test_pneumonia_prediction_does_not_invent_symptoms():
+    vision = {"label": "pneumonie", "score": 0.95,
+              "p_pneumonia_calibrated": 0.95, "label_threshold": 0.685}
+    fusion = {"refused": False, "final": "pneumonie_suspectee",
+              "confidence": "haute", "coherence": "image_seule"}
+    answer = _template_answer(fusion, vision, None)
+    assert "Symptomes cliniques non renseignes" in answer
+    assert "Ajoutez une note clinique" in answer
+    assert "toux" not in answer and "fievre" not in answer

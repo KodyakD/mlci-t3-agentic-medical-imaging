@@ -118,22 +118,52 @@ def _execute(tool, trace, pool, image_path, note, already_preprocessed, question
 
 
 def _template_answer(fusion, vision, text):
-    label_fr = {"pneumonie": "pneumonie", "normal": "normal"}
-    if fusion["refused"]:
-        return (f"Je ne conclus pas : {fusion['reason']}. "
-                f"Confiance finale : {fusion['confidence']}. {WARNING}")
-    vi = vision.get("label") if vision else None
-    sc = vision.get("score") if vision else None
+    """Report model outputs transparently; never invent radiographic symptoms."""
+    labels = {"pneumonie": "pneumonie", "normal": "normal"}
     parts = []
-    if vision and vi:
-        parts.append(f"Image : suspicion de {label_fr.get(vi, vi)} "
-                     f"(score {sc:.2f})." if isinstance(sc, float)
-                     else f"Image : suspicion de {label_fr.get(vi, vi)}.")
+    if vision:
+        label = labels.get(vision.get("label"), vision.get("label", "indetermine"))
+        p_cal = vision.get("p_pneumonia_calibrated")
+        score = vision.get("score")
+        threshold = vision.get("label_threshold")
+        prediction = f"Classe favorisee par le modele : {label}."
+        if p_cal is not None:
+            prediction += (f" Probabilite calibree estimee pour la classe pneumonie : "
+                           f"{float(p_cal):.1%} (ce n'est pas une probabilite clinique).")
+        parts.append(prediction)
+        if score is not None and threshold is not None and float(score) < float(threshold):
+            parts.append(f"Confiance dans cette classe : {float(score):.1%}, sous le seuil "
+                         f"{float(threshold):.1%}; le systeme s'abstient donc de conclure.")
+        elif fusion.get("refused"):
+            parts.append(f"Le systeme s'abstient : {fusion['reason']}.")
+        else:
+            parts.append(f"Confiance du modele dans cette classe : "
+                         f"{float(score):.1%} ({fusion.get('confidence', 'non precisee')}).")
+
+        inside = vision.get("inside_ratio")
+        if inside is not None:
+            status = "coherente avec la zone thoracique" if not vision.get("suspect") else "hors zone thoracique; interpretation peu fiable"
+            parts.append(f"Grad-CAM : {float(inside):.0%} de l'activation est dans le masque thoracique, {status}. "
+                         "Cette carte montre des zones influentes pour le modele; elle ne localise ni ne confirme une lesion.")
+
     if text:
-        parts.append(f"Note clinique : {text.get('orientation')} "
-                     f"(suffisant={text.get('suffisant')}).")
-    parts.append(f"Coherence : {fusion['coherence']} (confiance {fusion['confidence']}).")
-    parts.append(f"Conclusion (suspicion, non diagnostic) : {fusion['final']}.")
+        entities = text.get("entities") or []
+        denied = text.get("denied") or []
+        extracted = ", ".join(entities) if entities else "aucun symptome cible detecte"
+        note_line = f"Symptomes extraits de la note (pas de l'image) : {extracted}."
+        if denied:
+            note_line += f" Symptomes nies dans la note : {', '.join(denied)}."
+        note_line += f" Orientation reglee : {text.get('orientation', 'indeterminee')} ; note suffisante : {'oui' if text.get('suffisant') else 'non'}."
+        parts.append(note_line)
+    elif vision and vision.get("label") == "pneumonie":
+        parts.append("Symptomes cliniques non renseignes : l'image ne permet pas de les determiner. Ajoutez une note clinique pour analyser les symptomes, s'il y en a.")
+    elif vision and vision.get("label") == "normal":
+        parts.append("Aucun symptome n'a ete indique dans une note. Une prediction normale sur l'image ne signifie pas que le patient est sans symptomes.")
+
+    if fusion.get("refused") and not vision:
+        parts.append(f"Je ne conclus pas : {fusion['reason']}.")
+    elif not fusion.get("refused") and fusion.get("final"):
+        parts.append(f"Fusion : {fusion['coherence']} ; resultat de triage experimental : {fusion['final']}.")
     parts.append(WARNING)
     return " ".join(parts)
 
@@ -333,8 +363,9 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
         allowed_text = json.dumps({"fusion": fusion}, ensure_ascii=False)
         answer = _template_answer(fusion, None, None)
 
-    # ---------------- final wording by the LLM, provenance-checked ------------
-    if use_llm and (vision or text or resource):
+    # Case-specific image/note wording stays deterministic. The LLM may only
+    # phrase knowledge-only answers, never reinterpret a score or heatmap.
+    if use_llm and resource and not (vision or text):
         try:
             msg = ollama_chat([{"role": "system", "content": EXPLAIN_SYSTEM},
                                {"role": "user", "content": allowed_text}])
@@ -349,8 +380,9 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
         except Exception as e:
             trace["llm_error"] = str(e)[:200]
 
-    # ---------------- critic pass: a second LLM reviews the drafted answer ---
-    if use_critic and use_llm and (vision or text or resource):
+    # The critic is likewise limited to knowledge-only answers; it must not
+    # revise a case-specific result or turn a heatmap into a clinical finding.
+    if use_critic and use_llm and resource and not (vision or text):
         from .critic import critique, apply_critic
         facts = {"fusion": fusion, "image": composer_facts(vision), "texte": text}
         if resource and not (vision or text):
