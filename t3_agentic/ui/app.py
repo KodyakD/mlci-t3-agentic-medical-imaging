@@ -29,48 +29,19 @@ st.set_page_config(page_title="T3 · Medical image analysis workbench",
 st.markdown(CSS, unsafe_allow_html=True)
 
 
-@st.cache_resource
-def get_pool():
-    """One shared MCP pool per Streamlit process.
-
-    Module-level globals re-run on every Streamlit rerun, so a plain
-    `global POOL = None` resurrected the MCP servers on every interaction.
-    `cache_resource` persists the pool for the lifetime of the app process.
-
-    The pool is ALSO warmed here (servers spawned + TensorFlow/XLA compiled)
-    so the first click on "Analyse" is answered in seconds instead of a
-    minute. Warming happens at import time, i.e. while the browser is still
-    connecting.
-    """
-    t0 = time.time()
-    pool = MCPPool()
-    print(f"[UI] pool warmed in {time.time()-t0:.1f}s", flush=True)
-    return pool
+# The pool lives in t3_agentic.ui.runtime (an imported module), so Streamlit
+# reruns cannot spawn a second one. See that module for the details.
+from t3_agentic.ui.runtime import get_pool
 
 
-# Warm the pool as soon as the app module loads, in the background, so the
-# first user click does not pay the cold start.
+# Warm the pool in the background as soon as the app module loads, so the
+# first click never pays the cold start.
 import threading as _threading
 
 
 def _warm_in_background():
-    """Pool + model warm-up, off the click path.
-
-    Pool start spawns the four MCP servers; the first vision call then pulls
-    TensorFlow into the server process and compiles the Grad-CAM graph (~25 s).
-    Doing that here, in the background, means the first click is already hot.
-    """
     try:
-        pool = get_pool()
-        warm = os.path.join(ROOT, "demo_images", "kermany_test", "NORMAL")
-        if os.path.isdir(warm):
-            sample = sorted(os.listdir(warm))[0]
-            t0 = time.time()
-            pool.call_tool("classify_image",
-                          {"path": os.path.join(warm, sample)})
-            pool.call_tool("explain_image",
-                          {"path": os.path.join(warm, sample)})
-            print(f"[UI] vision model warm after {time.time()-t0:.1f}s", flush=True)
+        get_pool()
     except Exception as _e:  # pragma: no cover
         print(f"[UI] warm-up failed: {_e}", flush=True)
 
