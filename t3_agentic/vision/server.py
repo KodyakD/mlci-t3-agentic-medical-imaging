@@ -100,6 +100,36 @@ def explain_image(path: str, already_preprocessed: bool = False) -> dict:
     }
 
 
+def _warm_up():
+    """Warm this server in the background, before anyone calls a tool.
+
+    Two costs used to land on the click path: `import onnxruntime` (~20 s)
+    and the TensorFlow import + Grad-CAM graph build (~20 s). Both happen
+    here, in a thread, while the MCP handshake stays fast.
+    """
+    try:
+        import time
+        t0 = time.time()
+        from model import warm_onnx, get_model
+        warm_onnx()
+        t1 = time.time()
+        print(f"onnx session ready in {t1-t0:.1f}s", file=sys.stderr, flush=True)
+        model = get_model()
+        t2 = time.time()
+        print(f"tensorflow + keras ready in {t2-t1:.1f}s", file=sys.stderr, flush=True)
+        import numpy as np
+        from gradcam import explain
+        explain(model, np.zeros((1, 256, 256, 3), dtype="float32"))
+        print(f"grad-cam graph compiled in {time.time()-t2:.1f}s", file=sys.stderr,
+              flush=True)
+    except Exception as e:  # pragma: no cover
+        print(f"warm-up failed: {e}", file=sys.stderr, flush=True)
+
+
 if __name__ == "__main__":
+    # The heavy imports (onnxruntime, TensorFlow) happen in the MAIN thread,
+    # before the MCP server answers: importing them from a worker thread took
+    # 105 minutes on Windows.
+    _warm_up()
     mcp.run(transport="stdio")
     mcp.run(transport="stdio")

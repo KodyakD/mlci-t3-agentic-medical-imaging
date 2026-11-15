@@ -11,17 +11,17 @@ vision server keeps it out of its module import and the app warms the model in
 the background before the first click).
 """
 import numpy as np
-
-_TF = None
+import tensorflow as tf
 
 
 def _tf():
-    """Import TensorFlow on first use."""
-    global _TF
-    if _TF is None:
-        import tensorflow as tf
-        _TF = tf
-    return _TF
+    """TensorFlow is imported at module level, in the MAIN thread.
+
+    Importing TensorFlow from a worker thread on Windows is pathological
+    (105 minutes in the vision server vs 14 s in the main thread), so the
+    cost is paid once, at start-up, off the click path.
+    """
+    return tf
 
 
 def _forward_factory(model):

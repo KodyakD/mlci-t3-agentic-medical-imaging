@@ -637,8 +637,11 @@ the Analyse button disabled until both are done):
 
 | Step | Cost |
 |---|---:|
-| MCP pool spawn (4 servers: vision, nlp, resources, nih) | 16.6 s |
-| TensorFlow import + Keras load + Grad-CAM graph compile | 53.6 s |
+| `import onnxruntime` + DirectML session on the RTX 3050 | 19.0 s |
+| TensorFlow import + Keras load | 3.8 s |
+| Grad-CAM graph build + compile | 1.7 s |
+| MCP pool ready (4 servers: vision, nlp, resources, nih) | 49.8 s |
+| Vision server hot (warm-up calls) | 8.7 s |
 
 **Per analysis, warm** (the numbers the interface prints per step):
 
@@ -652,13 +655,24 @@ the Analyse button disabled until both are done):
 | LLM tool-choice turn (qwen2.5:3b, CPU) | 0.9 s |
 | LLM final wording turn | 1.3 s |
 
-Reading: the two costs that used to hurt were the **TensorFlow cold start**
-(import + graph compile, 21 s in the server, previously paid on the click) and
-**five warm-ups running in parallel**, which starved the LLM server and turned a
-1 s answer into 198 s. Both are fixed: the model is warmed once in the
-background, the pool lives in one place for the whole process, and the
-classification itself runs on the GPU. Grad-CAM still needs TensorFlow, because
-DirectML exposes no gradients.
+Reading: three things used to hurt, and all three are fixed.
+
+1. **The warm-up ran five times in parallel.** Streamlit re-executes the app
+   script on every interaction, so a warm-up started from module scope restarted
+   each time: five TensorFlow compiles at once, which starved the LLM server and
+   turned a 1 s answer into **198 s**. The pool now lives in one place for the
+   whole process and the warm-up runs once.
+2. **TensorFlow was imported from a worker thread.** On Windows that is
+   pathological: the import took **6321 s (105 minutes)** in the vision server
+   against **3.8 s** in the main thread. The heavy imports now happen in the
+   main thread, before the MCP server answers, so the cost is paid once at
+   start-up and never on the click.
+3. **`import onnxruntime` (20 s) and the TensorFlow/Keras load were inside the
+   tool call**, i.e. on the click path. They now happen during start-up, and the
+   interface says so: the Analyse button stays disabled until the engine is hot.
+
+Grad-CAM still needs TensorFlow, because DirectML exposes no gradients; the
+classification itself runs on the GPU.
 
 ---
 

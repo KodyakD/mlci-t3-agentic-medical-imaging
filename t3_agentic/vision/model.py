@@ -55,21 +55,35 @@ def get_model():
     return _model
 
 
+def warm_onnx():
+    """Create the ONNX session now (import onnxruntime + DirectML device).
+
+    `import onnxruntime` alone costs ~20 s on this machine, so doing it inside
+    a tool call puts it on the click path. The vision server calls this from a
+    background thread at start-up instead; get_onnx() waits for the result.
+    """
+    global _onnx
+    if _onnx is not None:
+        return _onnx
+    if not os.path.exists(ONNX_PATH):
+        _onnx = False
+        return None
+    try:
+        import onnxruntime as ort
+        _onnx = ort.InferenceSession(
+            ONNX_PATH,
+            providers=["DmlExecutionProvider", "CPUExecutionProvider"])
+    except Exception as e:
+        print("ONNX unavailable, falling back to Keras:", e)
+        _onnx = False
+    return _onnx or None
+
+
 def get_onnx():
     """DirectML InferenceSession (Windows/RTX); falls back to CPU provider."""
     global _onnx
     if _onnx is None:
-        if os.path.exists(ONNX_PATH):
-            try:
-                import onnxruntime as ort
-                _onnx = ort.InferenceSession(
-                    ONNX_PATH,
-                    providers=["DmlExecutionProvider", "CPUExecutionProvider"])
-            except Exception as e:
-                print("ONNX unavailable, falling back to Keras:", e)
-                _onnx = False
-        else:
-            _onnx = False
+        warm_onnx()
     return _onnx or None
 
 
