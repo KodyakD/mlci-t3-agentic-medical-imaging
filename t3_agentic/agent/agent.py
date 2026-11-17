@@ -21,6 +21,7 @@ from .calibration import load_config
 from .fusion import fuse
 from .gate import (allowed_tools, complete_tools, fallback_route, required_tools,
                    validate_tool_choice)
+from . import phrasing
 from .mcp_client import MCPPool
 from .prompts import EXPLAIN_SYSTEM, SYSTEM, TOOL_SCHEMAS, WARNING
 
@@ -126,7 +127,8 @@ def _template_answer(fusion, vision, text):
         p_cal = vision.get("p_pneumonia_calibrated")
         score = vision.get("score")
         threshold = vision.get("label_threshold")
-        prediction = f"Classe favorisee par le modele : {label}."
+        prediction = phrasing.pick(
+            "OPENING", f"Classe favorisee par le modele : {label}.", label=label)
         if p_cal is not None:
             prediction += (f" Probabilite calibree estimee pour la classe pneumonie : "
                            f"{float(p_cal):.1%} (ce n'est pas une probabilite clinique).")
@@ -143,8 +145,11 @@ def _template_answer(fusion, vision, text):
         inside = vision.get("inside_ratio")
         if inside is not None:
             status = "coherente avec la zone thoracique" if not vision.get("suspect") else "hors zone thoracique; interpretation peu fiable"
-            parts.append(f"Grad-CAM : {float(inside):.0%} de l'activation est dans le masque thoracique, {status}. "
-                         "Cette carte montre des zones influentes pour le modele; elle ne localise ni ne confirme une lesion.")
+            note = phrasing.pick(
+                "GRADCAM_NOTE",
+                "Cette carte montre des zones influentes pour le modele; "
+                "elle ne localise ni ne confirme une lesion.")
+            parts.append(f"Grad-CAM : {float(inside):.0%} de l'activation est dans le masque thoracique, {status}. " + note)
 
     if text:
         entities = text.get("entities") or []
@@ -156,15 +161,24 @@ def _template_answer(fusion, vision, text):
         note_line += f" Orientation reglee : {text.get('orientation', 'indeterminee')} ; note suffisante : {'oui' if text.get('suffisant') else 'non'}."
         parts.append(note_line)
     elif vision and vision.get("label") == "pneumonie":
-        parts.append("Symptomes cliniques non renseignes : l'image ne permet pas de les determiner. Ajoutez une note clinique pour analyser les symptomes, s'il y en a.")
+        parts.append(phrasing.pick(
+            "NONOTE",
+            "Symptomes cliniques non renseignes : l'image ne permet pas de les determiner. "
+            "Ajoutez une note clinique pour analyser les symptomes, s'il y en a."))
     elif vision and vision.get("label") == "normal":
-        parts.append("Aucun symptome n'a ete indique dans une note. Une prediction normale sur l'image ne signifie pas que le patient est sans symptomes.")
+        parts.append(phrasing.pick(
+            "NORMAL_SYM",
+            "Aucun symptome n'a ete indique dans une note. Une prediction normale sur "
+            "l'image ne signifie pas que le patient est sans symptomes."))
 
     if fusion.get("refused") and not vision:
         parts.append(f"Je ne conclus pas : {fusion['reason']}.")
     elif not fusion.get("refused") and fusion.get("final"):
-        parts.append(f"Fusion : {fusion['coherence']} ; resultat de triage experimental : {fusion['final']}.")
-    parts.append(WARNING)
+        parts.append(phrasing.pick(
+            "FUSION",
+            f"Fusion : {fusion['coherence']} ; resultat de triage experimental : {fusion['final']}.",
+            coh=fusion["coherence"], tri=fusion["final"]))
+    parts.append(phrasing.disclaimer(WARNING))
     return " ".join(parts)
 
 
