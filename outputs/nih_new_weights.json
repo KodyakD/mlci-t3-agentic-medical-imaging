@@ -1,0 +1,92 @@
+{
+  "corpus": {
+    "n": 394,
+    "positives": 194,
+    "negatives": 200,
+    "label_definition": "positive = Pneumonia|Consolidation|Infiltration ; negative = No Finding"
+  },
+  "old_weights": "weights/densenet_merged.keras (shipped, T=0.8109/thr=0.685)",
+  "new_weights": "origin/main weights/densenet_merged.keras (Kermany-only retrain)",
+  "note": "old model saw NIH images in training (merged kernel); new model never did",
+  "old": {
+    "temperature": 0.8109,
+    "threshold": 0.685,
+    "auc": 0.7354,
+    "pr_auc": 0.7149,
+    "accuracy": 0.5482,
+    "balanced_accuracy": 0.5419,
+    "recall_normal": 0.96,
+    "recall_pneumonia_like": 0.1237,
+    "ece": 0.2601,
+    "trusted_coverage": 0.8223,
+    "trusted_accuracy": 0.6173,
+    "confusion": [
+      [
+        192,
+        8
+      ],
+      [
+        170,
+        24
+      ]
+    ]
+  },
+  "new": {
+    "temperature": 1.0333,
+    "threshold": 0.47,
+    "auc": 0.6271,
+    "pr_auc": 0.6576,
+    "accuracy": 0.5178,
+    "balanced_accuracy": 0.5237,
+    "recall_normal": 0.135,
+    "recall_pneumonia_like": 0.9124,
+    "ece": 0.3914,
+    "trusted_coverage": 1.0,
+    "trusted_accuracy": 0.5178,
+    "confusion": [
+      [
+        27,
+        173
+      ],
+      [
+        17,
+        177
+      ]
+    ]
+  },
+  "new_at_old_operating_point": {
+    "temperature": 0.8109,
+    "threshold": 0.685,
+    "auc": 0.6271,
+    "pr_auc": 0.6576,
+    "accuracy": 0.5203,
+    "balanced_accuracy": 0.5253,
+    "recall_normal": 0.2,
+    "recall_pneumonia_like": 0.8505,
+    "ece": 0.4138,
+    "trusted_coverage": 0.9036,
+    "trusted_accuracy": 0.5112,
+    "confusion": [
+      [
+        40,
+        160
+      ],
+      [
+        29,
+        165
+      ]
+    ]
+  },
+  "paired": {
+    "at_own_operating_points": {
+      "old_right_new_wrong": 165,
+      "new_right_old_wrong": 153,
+      "p_value": 0.5374
+    },
+    "at_old_operating_point": {
+      "old_right_new_wrong": 152,
+      "new_right_old_wrong": 141,
+      "p_value": 0.5592
+    }
+  }
+}

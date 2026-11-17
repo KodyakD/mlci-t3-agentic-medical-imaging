@@ -81,10 +81,14 @@ resource instead of refusing.
 | `agent/logger.py` | JSONL journal (tool calls, fusion decisions, full trace) |
 | `agent/agent.py` | the loop: gate → proposal → execution → observation → fusion → answer |
 
-**The LLM never decides a label, a score or a refusal.** It proposes tools, and it
-rephrases the fusion output. Every number in the final answer must come back from a tool
-result (provenance check), otherwise the deterministic answer is used and the violation is
-journalled.
+**The LLM never decides a label, a score or a refusal.** It proposes tools. For any answer
+that concerns an image and/or a clinical note, the wording is produced by a **deterministic
+template** (`_template_answer()`), which reports the model's label, its calibrated
+probability, the decision threshold, the Grad-CAM coverage and the note-extracted entities
+as separately labelled facts — a score or a heatmap can therefore never be re-narrated into
+a symptom. Only a **knowledge-only** answer (MCP resource, no image, no note) is rephrased
+by the LLM, and every number in it must come back from a tool result (provenance check),
+otherwise the deterministic answer is used and the violation is journalled.
 
 ---
 
@@ -189,6 +193,32 @@ assumed.
 A measurement error was found and fixed during the project: the reference labels were
 initially taken from the model's own prediction, which produced a meaningless "1.000 / 1.000".
 The numbers above use the **folder labels** and are the corrected ones.
+
+**A second set of weights was evaluated and is *not* the one shipped.**
+Trinôme member retrained the same DenseNet121 from the **same** 5,824-image Kermany pool,
+the **same** 4,013/871/940 patient-disjoint split, seed and preprocessing
+(`mlciav2222.ipynb`), so the comparison is like-for-like and neither model has a leakage
+advantage. Both were then fitted with the same protocol (`eval/fit_thresholds.py`, fit on
+val 871 only) and scored on the untouched test 940 (`outputs/weight_comparison.json`):
+
+| Slice / metric | Shipped weights | Alternative weights |
+|---|---:|---:|
+| Clean 940 — accuracy | **0.9649** | 0.9511 |
+| Clean 940 — recall PNEUMONIA | **0.9746** | 0.9506 |
+| Clean 940 — AUC | 0.9893 | 0.9891 |
+| Clean 940 — ECE | **0.0036** | 0.0156 |
+| Clean 940 — discordant errors (shipped-only / alternative-only) | **6** | 19 (McNemar p = 0.0146) |
+| NIH-394 — AUC | **0.7354** | 0.6271 |
+| NIH-394 — films called "pneumonia" | 32 / 394 (8 %) | **350 / 394 (89 %)** |
+
+The alternative ranks as well as the shipped model on Kermany (AUC 0.9891 vs 0.9893) but
+decides worse, and it is **Kermany-only**: it never saw an adult chest, so on the NIH
+sample it asserts pneumonia on 89 % of adult films with normal recall 0.135 — the exact
+Kermany-only failure described above, and a behaviour that would make the NIH rows of this
+section and §5 describe weights that are no longer shipped. Its filename
+(`densenet_merged.keras`) suggests a merged corpus; the notebook contains no NIH merge.
+The shipped `.keras` is therefore the measured one (SHA-256 `5f5d9b2b…`), and the ONNX
+export used at runtime is byte-identical to it (r = 1.00000 over these 1,811 images).
 
 ### 3.5 Grad-CAM and plausibility
 
@@ -363,20 +393,20 @@ deterministic router run separately for comparison:
 | Mean rounds | 2.41 | 2.28 | 2.30 |
 | Mean tool calls | 3.05 | 2.89 | 2.90 |
 
-**100-query trinôme suite** (`t3_agentic/eval/cases_100.json`, dev+heldout+fresh+50 new adversarial/accented/insufficient cases, re-scored against patched golds which now legitimately include `image_seule` for symptom-free notes — the fusion was already correct there, the golds were too strict):
+**100-query trinôme suite** (`t3_agentic/eval/cases_100.json`, dev+heldout+fresh+50 new adversarial/accented/insufficient cases; full re-run on the final build, golds include `image_seule` for symptom-free notes):
 
 | Metric | Value |
 |---|---:|
-| Tool choice, raw (LLM only) | 0.800 |
+| Tool choice, raw (LLM only) | 0.920 |
 | Tool choice after harness completion | 1.000 |
-| Primary modality choice (raw) | 0.800 |
+| Primary modality choice (raw) | 0.920 |
 | **Fusion accuracy** | 1.000 |
 | Refusal rate | 0.250 |
 | Hallucination rate | 0.000 |
 | Injection compliance | 0.000 |
 | Non-diagnostic warning present | 1.000 |
-| Mean rounds | 2.36 |
-| Mean tool calls | 2.92 |
+| Mean rounds | 2.12 |
+| Mean tool calls | 2.98 |
 | n cases | 100 |
 
 **Ablation B4 — the same development suite with the deterministic router instead of the LLM:**
@@ -445,6 +475,16 @@ A **critic agent** (`t3_agentic/agent/critic.py`) re-reads the LLM-drafted answe
 - a REJECT verdict (or an unrecoverable revision) falls back to the deterministic template;
 - the critic is **not** allowed to add claims — it may only remove or reword, and removing language is validated strictly.
 
+**The critic is scoped to knowledge-only answers.** Answers that involve an image and/or a
+clinical note are now produced by the **deterministic template** in `_template_answer()`,
+which reports the model's label, its calibrated probability, the threshold, the Grad-CAM
+coverage and the note-extracted entities as separate, labelled facts. Neither the phrasing
+LLM nor the critic touches those answers (`resource and not (vision or text)` in
+`agent.py`), so a score or a heatmap can no longer be re-narrated into a clinical finding.
+Only a question answered from the MCP resource (no image, no note) is drafted by the LLM,
+provenance-checked, then reviewed by the critic. Guarded by three tests in
+`tests/test_guards.py`.
+
 Early trials exposed a genuinely insidious failure: the critic's revision text asserted « la fusion a refusé de conclure » on a case where it hadn't — caught by the deterministic contradiction guard (v2). The critic is therefore considered **defense-in-depth, disabled only by `use_critic=False`** (not exposed to the UI).
 
 ### 6.2c Hallucination of the calibration temperature, found and fixed
@@ -458,7 +498,7 @@ On the first live test of the critic, the answer was visible in logs with the ph
 
 ### 6.2 Stability
 
-The evaluation was repeated on independent executions. Metrics **guaranteed by the code** were stable (fusion 1.000, refusals 0.409/0.278/0.200, injection 0.000, warning 1.000); only the part that **depends on the LLM** moved between runs (raw tool choice: 0.65 -> 1.00 in the first measurements, 0.818 on the final build).
+The evaluation was repeated on independent executions. Metrics **guaranteed by the code** were stable (fusion 1.000, refusals 0.409/0.278/0.200, injection 0.000, warning 1.000); only the part that **depends on the LLM** moved between runs. On the final build the same development suite gave raw tool choice **0.773** (against 0.818 earlier — one case, same code path), and the 100-query trinôme suite gave **0.920** raw on a fresh full run (against 0.800 on an earlier re-scored run). The code-guaranteed columns did not move in either case: fusion 1.000, hallucination 0.000, injection 0.000, warning 1.000.
 
 The **fresh suite** (10 cases, never run before, never used for tuning) gives: tool choice 0.900, fusion 1.000, refusals 0.200, hallucination 0.000, injection 0.000, warning 1.000, mean calls 2.900.
 
@@ -792,7 +832,7 @@ the Analyse button disabled until both are done):
 | `get_guideline` (MCP resource) | 0.01 s |
 | **Agent total** | **~2 s** |
 | LLM tool-choice turn (qwen2.5:3b, CPU) | 0.9 s |
-| LLM final wording turn | 1.3 s |
+| LLM final wording turn (knowledge-only answers; **skipped** for image/note analysis, as is the critic round) | 1.3 s |
 
 Reading: three things used to hurt, and all three are fixed.
 
