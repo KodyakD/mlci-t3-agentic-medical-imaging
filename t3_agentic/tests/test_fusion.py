@@ -71,9 +71,13 @@ def test_uncertain_image_refuses():
     assert r["refused"] is True
 
 
-def test_suspect_gradcam_downgrades_confidence():
-    r = fuse(vision("pneumonie", 0.95, suspect=True), None)
-    assert r["confidence"] == "faible"
+def test_gradcam_mask_overlap_does_not_change_confidence_or_fusion():
+    baseline = fuse(vision("pneumonie", 0.95), None)
+    # Legacy suspect metadata is ignored: a rough geometric overlap is not a
+    # calibrated measure of model or clinical reliability.
+    with_legacy_flag = fuse(vision("pneumonie", 0.95, suspect=True), None)
+    assert with_legacy_flag == baseline
+    assert baseline["confidence"] == "haute"
 
 
 def test_text_only_never_high_confidence():

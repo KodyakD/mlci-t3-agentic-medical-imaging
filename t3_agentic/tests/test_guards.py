@@ -58,7 +58,8 @@ def test_uncertain_image_answer_reports_prediction_and_abstention():
     assert "s'abstient" in answer
     assert "Aucun symptome n'a ete indique dans une note" in answer
     assert "ne signifie pas que le patient est sans symptomes" in answer
-    assert "ne localise ni ne confirme une lesion" in answer
+    assert "ni une localisation de lesion" in answer
+    assert "ni une mesure de fiabilite" in answer
     assert "ne constitue pas un diagnostic médical" in answer
 
 

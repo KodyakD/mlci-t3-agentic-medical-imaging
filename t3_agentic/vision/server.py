@@ -67,7 +67,11 @@ def classify_image(path: str, patient_id: str | None = None,
 
 @mcp.tool()
 def explain_image(path: str, already_preprocessed: bool = False) -> dict:
-    """Carte Grad-CAM + proportion de la carte tombant dans le masque thorax."""
+    """Return a Grad-CAM visualization and its geometric thorax-mask overlap.
+
+    The overlap is descriptive only; it is not a reliability score or patient
+    finding.
+    """
     if _not_a_real_image(path):
         return {"error": f"image introuvable: {path}"}
     try:
@@ -80,6 +84,7 @@ def explain_image(path: str, already_preprocessed: bool = False) -> dict:
     label, _, _ = decide(p)
     idx = 1 if label == "pneumonie" else 0
     cam, _ = explain(model, xb, idx)
+    cam_grid = list(cam.shape)
     cam_img = Image.fromarray(np.uint8(cam / (cam.max() + 1e-8) * 255))
     cam_img = cam_img.resize((256, 256), Image.BICUBIC).filter(ImageFilter.GaussianBlur(4))
     heat = np.asarray(cam_img, dtype=np.float32) / 255.0
@@ -87,17 +92,24 @@ def explain_image(path: str, already_preprocessed: bool = False) -> dict:
     roi = chest_roi(gray)
     inside = float((heat * roi).sum() / (heat.sum() + 1e-8))
     jet = plt.get_cmap("jet")
-    alpha = (0.65 * heat)[..., None]
-    over = np.clip(np.stack([gray] * 3, -1) * (1 - alpha) + jet(heat)[..., :3] * alpha, 0, 1)
+    base = np.stack([gray] * 3, -1)
+
+    def overlay(cam_map):
+        alpha = (0.65 * cam_map)[..., None]
+        return np.clip(base * (1 - alpha) + jet(cam_map)[..., :3] * alpha, 0, 1)
+
     stem = os.path.splitext(os.path.basename(path))[0]
     out = os.path.join(OUT, f"gradcam_{stem}.png")
-    plt.imsave(out, over)
+    raw_out = os.path.join(OUT, f"gradcam_raw_{stem}.png")
+    plt.imsave(raw_out, overlay(heat))
+    plt.imsave(out, overlay(heat * roi))
     return {
         "label": label,
         "p_pneumonia": round(p, 4),
         "heatmap": out,
+        "heatmap_raw": raw_out,
+        "cam_grid": cam_grid,
         "inside_ratio": round(inside, 3),
-        "suspect": bool(inside < 0.5),
     }
 
 

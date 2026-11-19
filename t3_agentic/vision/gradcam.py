@@ -1,4 +1,7 @@
-"""Grad-CAM for the merged DenseNet121 (TensorFlow, lazy import).
+"""Grad-CAM model-attribution visualization for merged DenseNet121.
+
+The heatmap describes gradient-based sensitivity of this model for one class.
+It is not a patient finding, lesion localization, or a clinical explanation.
 
 The DenseNet121 backbone is a NESTED Functional model inside the outer model,
 so `model.layers` contains no Conv2D: the last conv has to be found INSIDE the

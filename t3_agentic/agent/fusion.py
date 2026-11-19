@@ -26,11 +26,8 @@ def _normalise_vision(classify_result, explain_result):
         score = p_cal if label == "pneumonie" else 1.0 - p_cal
     v["score"] = float(score)
     if explain_result and "error" not in explain_result:
-        v["suspect"] = bool(explain_result.get("suspect"))
         v["inside_ratio"] = explain_result.get("inside_ratio")
         v["heatmap"] = explain_result.get("heatmap")
-    else:
-        v.setdefault("suspect", False)
     return v
 
 
@@ -48,10 +45,8 @@ def fuse(vision, text, tau_high=TAU_HIGH, tau_low=TAU_LOW):
 
     img_pos = bool(v and v.get("label") == "pneumonie")
     img_neg = bool(v and v.get("label") == "normal")
-    # suspect = Grad-CAM unreliable: it downgrades confidence, it does not
-    # invalidate the CNN prediction (so it must not block the fusion path).
     img_ok = bool(v and v.get("score", 0.0) >= tau_low)
-    img_strong = bool(v and v.get("score", 0.0) >= tau_high and not v.get("suspect"))
+    img_strong = bool(v and v.get("score", 0.0) >= tau_high)
 
     txt_pos = bool(t and t.get("suffisant")
                    and t.get("orientation") == "infection respiratoire probable")
@@ -82,9 +77,6 @@ def fuse(vision, text, tau_high=TAU_HIGH, tau_low=TAU_LOW):
         if not img_ok:
             return out("insuffisant", None, f"{reason}, image incertaine", "aucune", True)
         conf = "haute" if img_strong else "moderee"
-        if v.get("suspect"):
-            conf = "faible"
-            reason += ", Grad-CAM suspect (explication peu fiable)"
         return out("image_seule", f"{v['label']}_suspecte", reason, conf, False)
 
     # ---- both modalities ----
@@ -102,7 +94,5 @@ def fuse(vision, text, tau_high=TAU_HIGH, tau_low=TAU_LOW):
 
     # concordant
     conf = "haute" if img_strong else "moderee"
-    if v.get("suspect"):
-        conf = "faible"
     return out("concordant", f"{v['label']}_suspecte",
                "image et note clinique concordent", conf, False)

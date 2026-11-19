@@ -177,10 +177,7 @@ def _render_body(out, timing=None):
                  f'<b>model prediction: {vision.get("label", "?")}</b> · '
                  f'confidence in predicted class {confidence_text}</div>')
             html('<div class="t3-note">This binary model does not identify symptoms or describe a radiograph.</div>')
-            html(meter(float(score or 0.0), accent=vision.get("suspect")))
-            if vision.get("suspect"):
-                html(f'<div class="t3-note" style="color:{TOKENS["accent"]}">'
-                     f'Grad-CAM falls outside the thorax mask, confidence downgraded.</div>')
+            html(meter(float(score or 0.0)))
 
         text = out.get("text")
         if text:
@@ -230,9 +227,21 @@ def _render_body(out, timing=None):
         heat = (out.get("vision") or {}).get("heatmap")
         if heat and os.path.exists(heat):
             st.subheader("Grad-CAM heatmap")
+            vision = out.get("vision") or {}
+            cam_grid = vision.get("cam_grid", ["?", "?"])
+            inside = vision.get("inside_ratio")
+            inside_text = f"{inside:.1%}" if inside is not None else "unavailable"
             st.image(heat, caption=(
-                f'Grad-CAM is a model-attention heuristic, not lesion localization or proof. '
-                f'inside_ratio = {(out.get("vision") or {}).get("inside_ratio")}'))
+                f'Coarse {cam_grid[0]}x{cam_grid[1]} attribution, smoothed and masked '
+                'to an approximate thorax region for display. Off-mask activation is '
+                f'hidden here. Raw-map energy inside mask: {inside_text}; this does '
+                'not change the prediction or indicate lesion location.'))
+            raw_heat = vision.get("heatmap_raw")
+            if raw_heat and os.path.exists(raw_heat):
+                with st.expander("Unmasked Grad-CAM (includes off-mask activation)"):
+                    st.image(raw_heat, caption=(
+                        "Unmasked model attribution. External activation can reflect "
+                        "model shortcuts; the map is not a patient finding."))
         elif out.get("vision"):
             html('<div class="t3-note">No Grad-CAM map for this run.</div>')
 

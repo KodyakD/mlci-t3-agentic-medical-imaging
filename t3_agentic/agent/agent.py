@@ -144,12 +144,10 @@ def _template_answer(fusion, vision, text):
 
         inside = vision.get("inside_ratio")
         if inside is not None:
-            status = "coherente avec la zone thoracique" if not vision.get("suspect") else "hors zone thoracique; interpretation peu fiable"
-            note = phrasing.pick(
-                "GRADCAM_NOTE",
-                "Cette carte montre des zones influentes pour le modele; "
-                "elle ne localise ni ne confirme une lesion.")
-            parts.append(f"Grad-CAM : {float(inside):.0%} de l'activation est dans le masque thoracique, {status}. " + note)
+            parts.append(
+                "Grad-CAM : cette visualisation indique des regions qui influencent "
+                "le score du modele. Elle ne constitue ni une observation clinique, "
+                "ni une localisation de lesion, ni une mesure de fiabilite.")
 
     if text:
         entities = text.get("entities") or []
@@ -326,9 +324,10 @@ def run_agent(user_msg, image_path=None, note=None, pool=None,
         return facts
     if vision and executed.get("explain_image") and "error" not in executed["explain_image"]:
         vision = dict(vision)
-        vision["suspect"] = executed["explain_image"].get("suspect")
         vision["inside_ratio"] = executed["explain_image"].get("inside_ratio")
+        vision["cam_grid"] = executed["explain_image"].get("cam_grid")
         vision["heatmap"] = executed["explain_image"].get("heatmap")
+        vision["heatmap_raw"] = executed["explain_image"].get("heatmap_raw")
 
     # ---------------- fusion (only if a modality produced something) ----------
     if vision or text:
