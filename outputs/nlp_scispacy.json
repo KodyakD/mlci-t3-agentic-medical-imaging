@@ -1,0 +1,197 @@
+{
+  "model": "en_core_sci_sm 0.5.4",
+  "sets": [
+    {
+      "split": "gold_notes_dev",
+      "n_notes": 30,
+      "entity_precision": 0.85,
+      "entity_recall": 0.7234,
+      "entity_f1": 0.7816,
+      "orientation_accuracy": 0.7667,
+      "tp": 34,
+      "fp": 6,
+      "fn": 13,
+      "raw_scispacy_spans": 93,
+      "spans_mapped_to_a_label": 43,
+      "notes_with_any_span": 29,
+      "span_examples": [
+        {
+          "text": "Patient",
+          "label": "ENTITY"
+        },
+        {
+          "text": "ans",
+          "label": "ENTITY"
+        },
+        {
+          "text": "toux",
+          "label": "ENTITY"
+        },
+        {
+          "text": "jours",
+          "label": "ENTITY"
+        },
+        {
+          "text": "douleur thoracique",
+          "label": "ENTITY"
+        },
+        {
+          "text": "l'inspiration",
+          "label": "ENTITY"
+        },
+        {
+          "text": "Enfant",
+          "label": "ENTITY"
+        },
+        {
+          "text": "toux",
+          "label": "ENTITY"
+        }
+      ]
+    },
+    {
+      "split": "gold_notes_test",
+      "n_notes": 30,
+      "entity_precision": 0.8529,
+      "entity_recall": 0.6591,
+      "entity_f1": 0.7436,
+      "orientation_accuracy": 0.7667,
+      "tp": 29,
+      "fp": 5,
+      "fn": 15,
+      "raw_scispacy_spans": 87,
+      "spans_mapped_to_a_label": 38,
+      "notes_with_any_span": 29,
+      "span_examples": [
+        {
+          "text": "Nourisson",
+          "label": "ENTITY"
+        },
+        {
+          "text": "mois",
+          "label": "ENTITY"
+        },
+        {
+          "text": "toux",
+          "label": "ENTITY"
+        },
+        {
+          "text": "respiration rapide",
+          "label": "ENTITY"
+        },
+        {
+          "text": "Fievre",
+          "label": "ENTITY"
+        },
+        {
+          "text": "toux seche",
+          "label": "ENTITY"
+        },
+        {
+          "text": "Expectoration depuis une semaine",
+          "label": "ENTITY"
+        },
+        {
+          "text": "Adulte",
+          "label": "ENTITY"
+        }
+      ]
+    },
+    {
+      "split": "gold_notes_fresh",
+      "n_notes": 14,
+      "entity_precision": 1.0,
+      "entity_recall": 0.7391,
+      "entity_f1": 0.85,
+      "orientation_accuracy": 0.7143,
+      "tp": 17,
+      "fp": 0,
+      "fn": 6,
+      "raw_scispacy_spans": 47,
+      "spans_mapped_to_a_label": 18,
+      "notes_with_any_span": 13,
+      "span_examples": [
+        {
+          "text": "La",
+          "label": "ENTITY"
+        },
+        {
+          "text": "tousse",
+          "label": "ENTITY"
+        },
+        {
+          "text": "soir",
+          "label": "ENTITY"
+        },
+        {
+          "text": "Le patient",
+          "label": "ENTITY"
+        },
+        {
+          "text": "beaucoup",
+          "label": "ENTITY"
+        },
+        {
+          "text": "Elle decrit une douleur thoracique",
+          "label": "ENTITY"
+        },
+        {
+          "text": "depuis",
+          "label": "ENTITY"
+        },
+        {
+          "text": "nuit",
+          "label": "ENTITY"
+        }
+      ]
+    },
+    {
+      "split": "gold_notes_final",
+      "n_notes": 12,
+      "entity_precision": 0.8824,
+      "entity_recall": 0.75,
+      "entity_f1": 0.8108,
+      "orientation_accuracy": 0.5833,
+      "tp": 15,
+      "fp": 2,
+      "fn": 5,
+      "raw_scispacy_spans": 38,
+      "spans_mapped_to_a_label": 18,
+      "notes_with_any_span": 12,
+      "span_examples": [
+        {
+          "text": "Le patient tousse",
+          "label": "ENTITY"
+        },
+        {
+          "text": "beaucoup",
+          "label": "ENTITY"
+        },
+        {
+          "text": "de la fievre",
+          "label": "ENTITY"
+        },
+        {
+          "text": "essouffle",
+          "label": "ENTITY"
+        },
+        {
+          "text": "Elle presente une douleur thoracique",
+          "label": "ENTITY"
+        },
+        {
+          "text": "soir",
+          "label": "ENTITY"
+        },
+        {
+          "text": "Le patient",
+          "label": "ENTITY"
+        },
+        {
+          "text": "tousse",
+          "label": "ENTITY"
+        }
+      ]
+    }
+  ]
+}

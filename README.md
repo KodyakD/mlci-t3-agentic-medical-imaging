@@ -65,7 +65,7 @@ Key design rules:
 | Vision, Kermany **clean patient-disjoint test slice** (940, rebuilt locally and verified against the Kaggle run log) | accuracy **0.965**, AUC **0.989**, balanced accuracy **0.958**, NORMAL recall 0.941 / PNEUMONIA recall 0.975, predicted-positive rate 0.710 vs prevalence 0.711 |
 | Vision, Kermany official test folder (624, harder slice, inside the training pool of the deployed weights) | accuracy 0.905 at the fitted operating point (0.883 at the un-fitted 0.5), AUC 0.975, NORMAL recall 0.782 |
 | Vision, NIH Chest X-ray14 (394 images, unfitted domain-shift check) | balanced accuracy **0.604**, AUC 0.735, pneumonia-like recall 0.273 |
-| NLP entity extraction, held-out notes | P 1.00 / R 0.95 / F1 0.977 (dev 1.00) |
+| NLP entity extraction, four hand-written note sets (all inspected; upper bound) | P 1.00 / R 1.00 / F1 1.000, orientation 0.929–1.000; scispaCy head-to-head F1 0.744–0.850 (`outputs/nlp_scispacy.json`) |
 | Agent, 3 suites (22 / 18 / 10 cases) | fusion accuracy **1.000**, refusals 0.10–0.36, hallucination **0.000**, injection compliance **0.000**, warning present **1.000** |
 | **Agent, 100-query suite** (50 new adversarial/accented/insufficient cases) | fusion accuracy **1.000**, tool choice raw 0.800 → **1.000** after harness completion, injection 0.000, hallucination 0.000, warning 1.000 (`outputs/agent_eval_100.json`) |
 | Agent tool choice | raw LLM 0.818 / 0.722 / 0.900 → **1.000** after harness completion |
@@ -94,9 +94,11 @@ can also be downloaded directly from the `paultimothymooney/chest-xray-pneumonia
 
 ## Declared deviations
 
-- **scispaCy cannot be installed** on Python 3.13 here (it pins `spacy<3.8` and then builds
-  spacy/thinc/blis from source). The entity extractor is rule/regex based and *measured*
-  (F1 0.977 on a held-out note set) rather than aspirational.
+- **scispaCy runs only on Python ≤ 3.12** (it pins `spacy<3.8`), so it was measured in an
+  isolated Python 3.9 venv on the same four note sets: entity F1 0.744–0.850 and orientation
+  0.583–0.767, versus 1.000 / 0.929–1.000 for the rule/regex extractor. It is an English
+  biomedical model and does not transfer to French notes; evidence in
+  `outputs/nlp_scispacy.json`.
 - **NIH is used as binary** (Pneumonia|Consolidation|Infiltration vs No Finding) instead of the
   14-pathology multi-label setup; the NIH sample contains only 14 strictly-"Pneumonia" images.
 - **Population and acquisition shift are confounded** (paediatric vs adult, different sites and

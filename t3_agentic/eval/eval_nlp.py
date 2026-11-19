@@ -57,34 +57,25 @@ def evaluate(path):
 
 def main():
     here = os.path.dirname(__file__)
-    fresh = os.environ.get("NLP_GOLD_FILE")
-    dev_summary, _ = evaluate(os.path.join(here, "gold_notes_dev.json"))
-    test_summary, rows = evaluate(os.path.join(here, "gold_notes_test.json"))
-    if fresh:
-        fresh_summary, fresh_rows = evaluate(fresh)
-    else:
-        fresh_summary, fresh_rows = None, []
+    sets = ["dev", "test", "fresh", "final"]
+    summaries, rows = {}, {}
+    for name in sets:
+        summaries[name], rows[name] = evaluate(
+            os.path.join(here, f"gold_notes_{name}.json"))
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "nlp_eval.json"), "w", encoding="utf-8") as fh:
-        json.dump({"dev": dev_summary, "test": test_summary, "test_notes": rows,
-                   "fresh": fresh_summary, "fresh_notes": fresh_rows},
+        json.dump({"dev": summaries["dev"], "test": summaries["test"],
+                   "test_notes": rows["test"], "fresh": summaries["fresh"],
+                   "fresh_notes": rows["fresh"], "final": summaries["final"],
+                   "final_notes": rows["final"]},
                   fh, ensure_ascii=False, indent=2)
-    print("=== dev (utilise pour regler les regles) ===")
-    print(json.dumps(dev_summary, indent=2, ensure_ascii=False))
-    print("\n=== test (split held-out) ===")
-    print(json.dumps(test_summary, indent=2, ensure_ascii=False))
-    if fresh_summary:
-        print("\n=== fresh (held-out, jamais utilise pour regler) ===")
-        print(json.dumps(fresh_summary, indent=2, ensure_ascii=False))
-        for row in fresh_rows:
+    for name in sets:
+        print(f"=== {name} ===")
+        print(json.dumps(summaries[name], indent=2, ensure_ascii=False))
+        for row in rows[name]:
             if not row["orientation_ok"] or row["gold"] != row["pred"]:
                 print(f"  {row['id']}: gold={row['gold']} pred={row['pred']} "
                       f"| orient gold={row['orientation_gold']} pred={row['orientation_pred']}")
-    print("\nmismatches (test):")
-    for row in rows:
-        if not row["orientation_ok"] or row["gold"] != row["pred"]:
-            print(f"  {row['id']}: gold={row['gold']} pred={row['pred']} "
-                  f"| orient gold={row['orientation_gold']} pred={row['orientation_pred']}")
 
 
 if __name__ == "__main__":

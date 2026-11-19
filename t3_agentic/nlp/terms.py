@@ -19,23 +19,32 @@ def strip_accents(text):
 
 SYMPTOMS = [
     # French nouns AND verb inflections ("tousse", "tousser", "expectore", ...)
-    (r"\btoux\w*\b|\btousse\w*\b|\btousser\b|\btoussez\b|\btouffe\b|\bcough(?:s|ing|ed)?\b", "toux"),
-    (r"\bfievre\b|\bfievre\b|\bfever\b|\bfevers\b", "fievre"),
-    (r"\bdouleur thoracique\b|\bmaux de poitrine\b|\bchest pain\b", "douleur thoracique"),
-    (r"\bdyspn\w*e\b|\bessouffl\w*|\bmanque d'air\b|\bshortness of breath\b|\bbreathlessness\b",
-     "dyspnee"),
-    (r"\bexpector\w*|\bexpectorations?\b|\bsputum\b|\bphlegm\b|\bcrachats?\b", "expectoration"),
-    (r"\bfrissons?\b|\bchills?\b|\bgreffe\b", "frissons"),
-    (r"\bfatigue\b|\bmalaise\b|\bfatig\w*", "fatigue"),
-    (r"\bcrepitants?\b|\brales?\b|\bcrackles?\b|\bwheezing\b|\bsibilants?\b|\bsibilances\b", "rales"),
+    (r"\btoux\w*\b|\btousse\w*\b|\btoussote\w*|\btouffe\b|\bquintes? de toux\b|"
+     r"\bcough(?:s|ing|ed)?\b", "toux"),
+    (r"\bfievre\b|\bfebril\w*|\bhyperthermie\b|\bfever(?:s|ish)?\b", "fievre"),
+    (r"\bdouleurs? (?:thoraciques?|(?:dans |a la |de la )?poitrine)\b|"
+     r"\bmaux? de poitrine\b|\boppression thoracique\b|\bprecordialgie\w*\b|"
+     r"\bthoracalgie\w*\b|\bchest pain\b|\bchest discomfort\b", "douleur thoracique"),
+    (r"\bdyspn\w*e\b|\bdyspn(?:ea|oea)\b|\bessouffl\w*|\bmanque d'air\b|"
+     r"\bshort(?:ness)? of breath\b|\bbreathlessness\b|"
+     r"\brespiration (?:rapide|courte|difficile|laborieuse)\b|"
+     r"\brespire (?:rapidement|mal|difficilement)\b|"
+     r"\btachypn\w*|\bpolypn\w*|\borthopn\w*|\btirage\b", "dyspnee"),
+    (r"\bexpector\w*|\bsputum\b|\bphlegm\b|\bcrachats?\b|\bcrache\w*", "expectoration"),
+    (r"\bfrissons?\b|\bfrissonne\w*|\bgrelott\w*|\bshiver\w*|\bchills?\b", "frissons"),
+    (r"\bfatigue\b|\bfatig\w*|\bmalaise\b|\basth[ée]nie\b|\badynamie\b|"
+     r"\bepuisement\b|\btiredness\b", "fatigue"),
+    (r"\bcrepitants?\b|\bcrepit\w*|\brales?\b|\bcrackles?\b|\bcrackl\w*|"
+     r"\bwheez\w*|\bsibilants?\b|\bsibilances\b|\bronchis?\b|\brhonch\w*", "rales"),
 ]
 
 STRONG = {"toux", "fievre", "dyspnee", "douleur thoracique", "expectoration"}
 
 NEGATIONS = [
     r"\bpas de\b", r"\bpas d['’]", r"\baucun(?:e)?\b", r"\bsans\b",
-    r"\bne (?:pas|présente)\b", r"\bn['’]a pas\b", r"\babsence de\b",
-    r"\bno\b", r"\bwithout\b", r"\bdenies?\b", r"\bdenied\b", r"\bnot\b",
+    r"\bne (?:pas|presente)\b", r"\bn['’]a pas\b", r"\babsence de\b",
+    r"\bjamais\b", r"\bno\b", r"\bwithout\b", r"\bdenies?\b", r"\bdenied\b",
+    r"\bnot\b", r"\bnegative for\b", r"\bno evidence of\b", r"\bfree of\b",
 ]
 
 RESPIRATORY_DENIAL = re.compile(
@@ -53,7 +62,8 @@ SYMPTOM_DENIAL = re.compile(
 
 # A negation can also follow the symptom ("toux absente", "fievre negative").
 POST_NEGATION = re.compile(
-    r"\b(absente|absent|abolie|aboli|negative|negatif|innexistant|absorb)\w*\b", re.I)
+    r"\b(absente|absent|abolie|aboli|negative|negatif|innexistant|absorb)\w*\b"
+    r"|\bnon (?:retrouve|objective|present)\w*", re.I)
 
 
 CLAUSE_BREAK = re.compile(

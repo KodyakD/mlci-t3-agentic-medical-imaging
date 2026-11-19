@@ -14,12 +14,12 @@
     "split": "gold_notes_test",
     "n_notes": 30,
     "entity_precision": 1.0,
-    "entity_recall": 0.9545,
-    "entity_f1": 0.9767,
+    "entity_recall": 1.0,
+    "entity_f1": 1.0,
     "orientation_accuracy": 1.0,
-    "tp": 42,
+    "tp": 44,
     "fp": 0,
-    "fn": 2
+    "fn": 0
   },
   "test_notes": [
     {
@@ -30,6 +30,7 @@
         "toux"
       ],
       "pred": [
+        "dyspnee",
         "fievre",
         "toux"
       ],
@@ -87,7 +88,7 @@
       "orientation_gold": "infection respiratoire probable",
       "orientation_pred": "infection respiratoire probable",
       "orientation_ok": true,
-      "redactions": 0
+      "redactions": 1
     },
     {
       "id": "t05",
@@ -98,6 +99,7 @@
       ],
       "pred": [
         "fievre",
+        "frissons",
         "toux"
       ],
       "orientation_gold": "infection respiratoire probable",
@@ -415,6 +417,388 @@
       "redactions": 0
     }
   ],
-  "fresh": null,
-  "fresh_notes": []
+  "fresh": {
+    "split": "gold_notes_fresh",
+    "n_notes": 14,
+    "entity_precision": 1.0,
+    "entity_recall": 1.0,
+    "entity_f1": 1.0,
+    "orientation_accuracy": 0.9286,
+    "tp": 23,
+    "fp": 0,
+    "fn": 0
+  },
+  "fresh_notes": [
+    {
+      "id": "f01",
+      "gold": [
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f02",
+      "gold": [
+        "dyspnee",
+        "expectoration",
+        "fievre"
+      ],
+      "pred": [
+        "dyspnee",
+        "expectoration",
+        "fievre"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f03",
+      "gold": [
+        "douleur thoracique",
+        "frissons"
+      ],
+      "pred": [
+        "douleur thoracique",
+        "frissons"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f04",
+      "gold": [
+        "dyspnee",
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "dyspnee",
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f05",
+      "gold": [
+        "fatigue",
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "fatigue",
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f06",
+      "gold": [
+        "douleur thoracique",
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "douleur thoracique",
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f07",
+      "gold": [
+        "fievre",
+        "rales",
+        "toux"
+      ],
+      "pred": [
+        "fievre",
+        "rales",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f08",
+      "gold": [
+        "dyspnee"
+      ],
+      "pred": [
+        "dyspnee"
+      ],
+      "orientation_gold": "orientation insuffisante",
+      "orientation_pred": "orientation insuffisante",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f09",
+      "gold": [],
+      "pred": [],
+      "orientation_gold": "non infectieux",
+      "orientation_pred": "non infectieux",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f10",
+      "gold": [],
+      "pred": [],
+      "orientation_gold": "non infectieux",
+      "orientation_pred": "non infectieux",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f11",
+      "gold": [
+        "fatigue"
+      ],
+      "pred": [
+        "fatigue"
+      ],
+      "orientation_gold": "orientation insuffisante",
+      "orientation_pred": "orientation insuffisante",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f12",
+      "gold": [
+        "rales",
+        "toux"
+      ],
+      "pred": [
+        "rales",
+        "toux"
+      ],
+      "orientation_gold": "orientation insuffisante",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": false,
+      "redactions": 2
+    },
+    {
+      "id": "f13",
+      "gold": [],
+      "pred": [],
+      "orientation_gold": "aucun symptome respiratoire detecte",
+      "orientation_pred": "aucun symptome respiratoire detecte",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "f14",
+      "gold": [],
+      "pred": [],
+      "orientation_gold": "note vide",
+      "orientation_pred": "note vide",
+      "orientation_ok": true,
+      "redactions": 0
+    }
+  ],
+  "final": {
+    "split": "gold_notes_final",
+    "n_notes": 12,
+    "entity_precision": 1.0,
+    "entity_recall": 1.0,
+    "entity_f1": 1.0,
+    "orientation_accuracy": 1.0,
+    "tp": 20,
+    "fp": 0,
+    "fn": 0
+  },
+  "final_notes": [
+    {
+      "id": "z01",
+      "gold": [
+        "dyspnee",
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "dyspnee",
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z02",
+      "gold": [
+        "douleur thoracique",
+        "frissons"
+      ],
+      "pred": [
+        "douleur thoracique",
+        "frissons"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z03",
+      "gold": [
+        "expectoration",
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "expectoration",
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z04",
+      "gold": [
+        "douleur thoracique",
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "douleur thoracique",
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z05",
+      "gold": [
+        "fatigue",
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "fatigue",
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z06",
+      "gold": [
+        "dyspnee"
+      ],
+      "pred": [
+        "dyspnee"
+      ],
+      "orientation_gold": "orientation insuffisante",
+      "orientation_pred": "orientation insuffisante",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z07",
+      "gold": [],
+      "pred": [],
+      "orientation_gold": "non infectieux",
+      "orientation_pred": "non infectieux",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z08",
+      "gold": [],
+      "pred": [],
+      "orientation_gold": "non infectieux",
+      "orientation_pred": "non infectieux",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z09",
+      "gold": [
+        "fatigue"
+      ],
+      "pred": [
+        "fatigue"
+      ],
+      "orientation_gold": "orientation insuffisante",
+      "orientation_pred": "orientation insuffisante",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z10",
+      "gold": [
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 1
+    },
+    {
+      "id": "z11",
+      "gold": [],
+      "pred": [],
+      "orientation_gold": "non infectieux",
+      "orientation_pred": "non infectieux",
+      "orientation_ok": true,
+      "redactions": 0
+    },
+    {
+      "id": "z12",
+      "gold": [
+        "fievre",
+        "toux"
+      ],
+      "pred": [
+        "fievre",
+        "toux"
+      ],
+      "orientation_gold": "infection respiratoire probable",
+      "orientation_pred": "infection respiratoire probable",
+      "orientation_ok": true,
+      "redactions": 0
+    }
+  ]
 }

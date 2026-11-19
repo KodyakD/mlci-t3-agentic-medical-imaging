@@ -19,7 +19,7 @@ DIAG_PATTERNS = [
     r"\b(?:pas de |pas d['’]|suspicion de |presence de |diagnostic de |atteint de )?"
     r"(?:pneumonie|pneumonia)\b",
     r"\b(?:tuberculose|tuberculosis|tuberculose pulmonaire|tb)\b",
-    r"\b(?:copd|bpco|asthme|asthma)\b",
+    r"\b(?:copd|bpco|asthm\w*|bronchite|bronchitis)\b",
     r"\b(?:cancer|tumeur|tumeur maligne|tumour|tumor|malignite|malignancy)\b",
     r"\b(?:insuffisance cardiaque|cardiac failure|heart failure)\b",
     r"\b(?:embolie pulmonaire|pulmonary embolism)\b",

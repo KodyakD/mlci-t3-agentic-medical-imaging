@@ -158,7 +158,7 @@ outputs/                every measurement as JSON
 | 100-query suite (trinôme) | `python -m t3_agentic.eval.run_eval --cases t3_agentic/eval/cases_100.json --out outputs/agent_eval_100.json` |
 | ablation B4 (LLM vs deterministic router) | same with `--no-llm` |
 | Ablation vs ground truth (image-only / text-only / multimodal) | `python t3_agentic.eval.ablation_groundtruth` |
-| NLP entity P/R/F1 | `python -m t3_agentic.eval.eval_nlp` (dev / test / fresh splits) |
+| NLP entity P/R/F1 | `python -m t3_agentic.eval.eval_nlp` (dev / test / fresh / final splits) |
 | threshold fitting + bootstrap CIs | `python t3_agentic.eval.fit_thresholds.py` · `python t3_agentic.eval.bootstrap_ci.py` |
 | calibration curve + ECE | `python t3_agentic.eval.calibration.py outputs/preds_kermany_full.npz` |
 | per-image predictions (needed for the above) | `python t3_agentic/scripts/dump_preds.py --dir demo_images/kermany_test --out outputs/preds_kermany_full.npz` |
@@ -182,7 +182,7 @@ hand**.
 | The CNN call is slow (~1.5 s/image) | expected on CPU: inference only, no GPU required. |
 | `FileNotFoundError: weights/densenet_merged.keras` | the model is versioned; make sure you cloned the whole repo (it is 34 MB). |
 | Port 8001 busy | `python -m streamlit run t3_agentic/ui/app.py --server.port 8010` |
-| `scispacy` install fails on Python 3.13 | known and documented: it pins `spacy<3.8` and builds from source. Our NER is rule-based and measured (F1 0.977). Do not try to force it. |
+| `scispacy` install fails on Python 3.13 | expected: it pins `spacy<3.8`. It is not a runtime dependency; it was measured once in an isolated Python 3.9 venv (F1 0.744–0.850 vs 1.000 for the rule-based extractor). Do not add it to the project interpreter. |
 
 ---
 

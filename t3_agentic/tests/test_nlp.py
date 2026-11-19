@@ -75,3 +75,27 @@ def test_accented_scrub():
     r = analyze_text("Diagnostic de sarcoïdose retenu. Toux et fièvre.")
     assert r["redactions"] >= 1
     assert "sar" not in r["evidence"]
+
+
+def test_asthma_inflections_and_bronchitis_are_scrubbed():
+    r = analyze_text("Diagnostic de bronchite asthmatique, toux nocturne et sibilants.")
+    assert r["redactions"] >= 2
+    assert "toux" in r["entities"] and "rales" in r["entities"]
+
+
+def test_clinical_paraphrases_are_matched():
+    r = analyze_text("Nourrisson avec respiration rapide, toux et fievre.")
+    assert "dyspnee" in r["entities"]
+    r = analyze_text("Il respire rapidement et presente une oppression thoracique.")
+    assert "dyspnee" in r["entities"] and "douleur thoracique" in r["entities"]
+
+
+def test_english_and_french_synonyms():
+    r = analyze_text("Shivering with fever and wheezing.")
+    assert {"frissons", "fievre", "rales"} <= set(r["entities"])
+
+
+def test_post_posed_non_retrouve_negates():
+    r = analyze_text("Asthénie et fièvre non retrouvée.")
+    assert "fatigue" in r["entities"]
+    assert "fievre" not in r["entities"]

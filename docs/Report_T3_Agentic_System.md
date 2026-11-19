@@ -237,34 +237,41 @@ evidence of correctness.
 ## 4. NLP component
 
 - Symptom lexicon (French and English): cough, fever, dyspnoea, chest pain, sputum, chills,
-  fatigue, crackles — including **verb inflections** ("le patient *tousse*") and synonyms.
+  fatigue, crackles — including **verb inflections** ("le patient *tousse*") and clinical
+  paraphrases ("respiration rapide", "respire rapidement", "shivering", "asthénie",
+  "oppression thoracique", "fébrile").
 - **Negation**: scope ends at the previous clause break ("sans toux, **avec** fièvre" negates
-  the cough only); post-posed negation ("toux absente") and the French "ne … pas" form are
-  also handled.
+  the cough only); post-posed negation ("toux absente", "fièvre non retrouvée") and the French
+  "ne … pas" form are also handled.
 - **Diagnostic-mention scrubbing** before any extraction (PDF requirement): "pneumonia",
-  "tuberculosis", "COPD", "cancer", "pulmonary embolism"… are replaced by `[DIAG_REDACTED]`
-  and counted.
+  "tuberculosis", "COPD", "asthma" (any inflection), "bronchitis", "cancer", "pulmonary
+  embolism"… are replaced by `[DIAG_REDACTED]` and counted.
 - Orientations produced: `infection respiratoire probable`, `non infectieux`,
   `orientation insuffisante`, `aucun symptome respiratoire detecte`, `note vide`.
 - Orientation rule: **≥2 distinct symptoms with ≥1 strong** → probable infection;
   symptoms present but a denial elsewhere → insufficient; denial with no other symptom →
   non-infectious.
 
-### 4.1 Documented deviation: scispaCy cannot be installed here
+### 4.1 scispaCy measured, not assumed
 
-The PDF suggests spaCy/scispaCy, BioClinicalBERT or PubMedBERT. Installing scispaCy fails
-on this machine:
+The PDF suggests spaCy/scispaCy, BioClinicalBERT or PubMedBERT. scispaCy cannot run on the
+project's Python 3.13 (it pins `spacy<3.8`, and spacy/thinc/blis have no 3.13 wheels), so we
+installed `scispacy 0.6.2` + `en_core_sci_sm 0.5.4` in an **isolated Python 3.9 venv** and
+measured it on the same four note sets. Both arms share the same labelling layer: scispaCy
+only proposes spans; the project's vocabulary, negation rule and orientation rule label
+them, so the detector is the only variable.
 
-```
-python -m pip install --dry-run scispacy
-  -> ERROR: Failed to build 'blis' / 'thinc' / 'spacy'
-     (scispacy pins spacy<3.8; we run spacy 3.8.11, so pip then tries to
-      build spacy/thinc/blis from source on Python 3.13, where no wheels exist)
-```
+| Detector | Entity P | Entity R | Entity F1 | Orientation acc |
+|---|---:|---:|---:|---:|
+| scispaCy `en_core_sci_sm` (spans labelled by our vocabulary) | 0.850–1.000 | 0.659–0.750 | **0.744–0.850** | **0.583–0.767** |
+| Regex lexicon (this project) | 1.000 | 1.000 | **1.000** | **0.929–1.000** |
 
-We therefore use a **rule/regex** entity extractor, and we *measure* it instead of
-assuming it: entity precision/recall/F1 and orientation accuracy on three note sets (§4.3).
-A hypothetical scispaCy is not evidence; a measured F1 is.
+scispaCy's NER tags whole French phrases as generic `ENTITY` ("Le patient tousse", "depuis",
+"nuit"): it is an English biomedical model and does not transfer to French. Its raw spans
+also carry neither a symptom label nor negation, which is why the mapping layer is needed.
+We therefore keep the rule/regex extractor, and we report its measured F1 rather than
+assuming it. Reproduce with `t3_agentic/eval/eval_nlp_scispacy.py` in the 3.9 venv; raw output in
+`outputs/nlp_scispacy.json`.
 
 ### 4.2 Diagnostic-mention cleaning (explicit PDF requirement)
 
@@ -283,20 +290,29 @@ from it.
 | Note set | n | Role | Entity P | Entity R | Entity F1 | Orientation acc |
 |---|---:|---|---:|---:|---:|---:|
 | `gold_notes_dev` | 30 | development (used to tune the rules) | 1.000 | 1.000 | 1.000 | 1.000 |
-| `gold_notes_test` | 30 | inspected during development | 1.000 | 0.955 | 0.977 | 1.000 |
-| `gold_notes_final` | 12 | written last, inspected once, then two bugs fixed | 1.000 | 1.000 | 1.000 | 1.000 |
+| `gold_notes_test` | 30 | inspected during development | 1.000 | 1.000 | 1.000 | 1.000 |
+| `gold_notes_fresh` | 14 | inspected after the rules were frozen | 1.000 | 1.000 | 1.000 | 0.929 |
+| `gold_notes_final` | 12 | written last, inspected once | 1.000 | 1.000 | 1.000 | 1.000 |
+
+The lexicon was expanded after an error analysis of the first two sets: "respiration
+rapide" / "respire rapidement" (dyspnoea), "shivering" (chills), "asthénie" (fatigue),
+"oppression thoracique" (chest pain) and "non retrouvée" (post-posed negation). Entity F1
+on `gold_notes_test` rose from 0.977 to 1.000. The one remaining mismatch is
+`gold_notes_fresh` f12 ("bronchite asthmatique, toux nocturne et sibilants"), whose gold
+orientation is `insuffisante` although it contains cough — a **strong** symptom under the
+published rule (≥2 symptoms with ≥1 strong ⇒ probable infection). The note's label
+contradicts the rule stated in §4; the rule was not changed to fit one note.
 
 
-### 4.4 What the held-out note sets actually prove
+### 4.4 What the note sets prove — and what they do not
 
-The `test` and `final` sets were **inspected during development** (we fixed real bugs
-found in them: the "tousse" inflection, the "ne … pas" negation, the "aucun signe
-respiratoire" denial, the "≥2 symptoms and ≥1 strong" rule). They are therefore
-**development resources**, not unbiased test sets. The honest statement: the rule-based
-extractor reaches F1 0.977–1.000 on these sets, and the *unbiased* generalisation
-evidence for the whole project is the **official Kermany test set (624 images), never used
-for any tuning**, plus the domain-shift measurement on NIH. A third-party note set written
-by the co-author would be the only unbiased NLP estimate.
+All four sets have now been **inspected during development** (we fixed real bugs found in
+them: the "tousse" inflection, the "ne … pas" negation, the "aucun signe respiratoire"
+denial, the "≥2 symptoms and ≥1 strong" rule, then the paraphrases above). They are
+therefore **development resources**, not unbiased test sets, and **1.000 is an upper
+bound**. The scispaCy head-to-head is fair — both detectors see the same notes — but it
+does not remove that optimism. A third-party note set written by the co-author would be
+the only unbiased NLP estimate; none exists yet.
 
 ---
 
@@ -718,7 +734,7 @@ A real defect found by an external reviewer (and reproduced on live inference): 
 Committed answers in runs c10, c12 and c14 contain « la temperature du patient est legerement elevee (1,4403) » — 1,4403 is the model's temperature-scaling parameter, not a temperature. The provenance check passed because 1.4403 literally existed in the tool output; it only guarantees *number syntactically present*, not *plausibly meaningful*. Fixed by (i) stripping every calibration artefact from the facts handed to the final-wording LLM (`composer_facts`), and (ii) making the evaluation harness flag any answer that mentions « temperature » when the note never contained one.
 
 **F3. Accented French was invisible to the NLP extractor.**
-The brief's own example note « fièvre à 38,9 °C » produced **no fever entity**; « râles » was also missed. The gold notes contain no accents, so the 0.977 F1 was measuring a benchmark neither failing on nor stressing accented input. Fixed by NFKD-normalising the note text before matching (and in scrubbing); accented French now works and regression tests `test_accented_*` lock it.
+The brief's own example note « fièvre à 38,9 °C » produced **no fever entity**; « râles » was also missed. The gold notes contain no accents, so the 0.977 F1 reported at the time was measuring a benchmark neither failing on nor stressing accented input. Fixed by NFKD-normalising the note text before matching (and in scrubbing); accented French now works and regression tests `test_accented_*` lock it.
 
 **F4. Misleading Grad-CAM (model failure, handled correctly).**
 On a "No Finding" NIH image the classification is correct (`p_pneumonia = 0.06`) but `inside_ratio = 0.18`: the activation does not fall inside the thorax. The `suspect` flag fires and the fused confidence drops to `faible`. A plausible-looking heatmap is not evidence. The *model* explains itself badly; the *system* correctly downgrades confidence.
@@ -878,7 +894,8 @@ classification itself runs on the GPU.
   (arguments, duration, `forced`, `fallback`), one per fusion decision, one per turn.
 - **C. Evaluation outputs**: `outputs/agent_eval_{dev,heldout,fresh}.json` (post-fix, harnassed),
   `outputs/agent_eval_heldout_router.json`, `outputs/agent_eval_100.json` (100-query trinôme suite),
-  `outputs/nlp_eval.json`, `outputs/calibration.json`, `outputs/bootstrap_ci.json`,
+  `outputs/nlp_eval.json`, `outputs/nlp_scispacy.json`, `outputs/calibration.json`,
+  `outputs/bootstrap_ci.json`,
   `outputs/threshold_fit.json`, `outputs/nih_metrics.json`, `outputs/nih_multilabel.json`,
   `outputs/robustness.json`, `outputs/ablation.json`, `outputs/ablation_groundtruth.json`,
   `outputs/mc_kermany_local.npz` + `outputs/mc_kermany_local_metrics.json`,
